@@ -181,7 +181,61 @@ crearModalCobro(afiliado);
 
 }
 
+// ===============================
+// Obtener meses realmente pagados
+// Ignora cobros anulados
+// ===============================
 
+function obtenerMesesPagadosActivos(dni){
+
+
+let meses=[];
+
+
+
+if(!Array.isArray(BD_cobros)){
+
+return meses;
+
+}
+
+
+
+BD_cobros.forEach(c=>{
+
+
+if(
+c.dni===dni &&
+c.estado!=="Anulado" &&
+Array.isArray(c.meses)
+){
+
+
+c.meses.forEach(m=>{
+
+
+if(!meses.includes(m)){
+
+meses.push(m);
+
+}
+
+
+});
+
+
+}
+
+
+
+});
+
+
+
+return meses;
+
+
+}
 
 
 // ===============================
