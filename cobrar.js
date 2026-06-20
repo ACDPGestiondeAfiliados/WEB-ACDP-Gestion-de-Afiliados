@@ -173,14 +173,6 @@ return;
 
 }
 
-
-
-crearModalCobro(afiliado);
-
-
-
-}
-
 // ===============================
 // Obtener meses realmente pagados
 // Ignora cobros anulados
