@@ -1,10 +1,15 @@
-// =====================================
-// ACDP - INICIO Y NAVEGACIÓN
-// =====================================
+/* =====================================
+   ACDP - INICIO
+===================================== */
+
+
 
 
 
 let usuarioActivo = null;
+
+
+
 
 
 
@@ -13,26 +18,40 @@ document.addEventListener(
 ()=>{
 
 
-    iniciarMenu();
+    activarNavegacion();
+
+    activarCerrarModal();
 
 
-});
+    mostrarSeccion("cobrar");
+
+
+}
+
+);
 
 
 
 
 
-function iniciarMenu(){
+
+
+
+
+function activarNavegacion(){
+
 
 
     let botones =
     document.querySelectorAll(
-        ".menu button"
+    ".menu button"
     );
 
 
 
+
     botones.forEach(btn=>{
+
 
 
         btn.addEventListener(
@@ -40,162 +59,20 @@ function iniciarMenu(){
         ()=>{
 
 
-            cambiarSeccion(
-                btn.dataset.section
+            solicitarAcceso(
+                btn.dataset.seccion
             );
 
 
         });
 
 
-    });
-
-
-
-}
-
-
-
-
-
-function cambiarSeccion(nombre){
-
-
-    if(!usuarioActivo){
-
-
-        abrirLogin(nombre);
-
-        return;
-
-    }
-
-
-
-
-    document
-    .querySelectorAll(".seccion")
-    .forEach(s=>{
-
-        s.classList.remove("activa");
 
     });
 
 
 
 
-    document
-    .getElementById(nombre)
-    .classList.add("activa");
-
-
-
-}
-
-
-
-
-
-function abrirLogin(seccion){
-
-
-    let contenido = `
-
-    <h2>Acceso requerido</h2>
-
-    <input id="loginUsuario"
-    placeholder="Usuario">
-
-
-    <br><br>
-
-
-    <input id="loginPin"
-    placeholder="PIN"
-    type="password">
-
-
-    <br><br>
-
-
-    <button onclick="validarLogin('${seccion}')">
-
-    Aceptar
-
-    </button>
-
-
-    `;
-
-
-    abrirModal(contenido);
-
-
-
-}
-
-
-
-
-
-function validarLogin(seccion){
-
-
-
-    let u =
-    document.getElementById(
-    "loginUsuario").value;
-
-
-
-    let p =
-    document.getElementById(
-    "loginPin").value;
-
-
-
-
-    let encontrado =
-    BD.usuarios.find(x=>
-
-        x.usuario===u &&
-        x.pin===p
-
-    );
-
-
-
-
-    if(
-
-        encontrado ||
-        (u==="Admin" && p==="9999")
-
-    ){
-
-
-        usuarioActivo=u;
-
-
-        cerrarModal();
-
-
-        cambiarSeccion(seccion);
-
-
-    }
-    else{
-
-
-        alert(
-        "Usuario o PIN incorrecto"
-        );
-
-
-    }
-
-
-
 }
 
 
@@ -203,28 +80,337 @@ function validarLogin(seccion){
 
 
 
-// MODALES GENERALES
 
 
 
-function abrirModal(html){
+function solicitarAcceso(seccion){
+
+
+
+    abrirModal();
+
 
 
     document
     .getElementById(
     "modalContenido")
-    .innerHTML=html;
+    .innerHTML =
+    "";
 
 
 
-    document
-    .getElementById(
-    "modalFondo")
-    .classList.add("visible");
+
+    let titulo =
+    document.createElement("h2");
+
+
+
+    titulo.textContent =
+    "Acceso requerido";
+
+
+
+
+    let usuario =
+    document.createElement("input");
+
+
+    usuario.id =
+    "loginUsuario";
+
+
+    usuario.placeholder =
+    "Usuario";
+
+
+
+
+
+    let pin =
+    document.createElement("input");
+
+
+    pin.id =
+    "loginPin";
+
+
+    pin.type =
+    "password";
+
+
+    pin.placeholder =
+    "PIN";
+
+
+
+
+
+    let aceptar =
+    document.createElement("button");
+
+
+
+    aceptar.textContent =
+    "Aceptar";
+
+
+
+    aceptar.onclick =
+    ()=>validarAcceso(
+        seccion
+    );
+
+
+
+
+
+    let caja =
+    document.getElementById(
+    "modalContenido"
+    );
+
+
+
+    caja.appendChild(titulo);
+
+    caja.appendChild(usuario);
+
+    caja.appendChild(pin);
+
+    caja.appendChild(aceptar);
 
 
 
 }
+
+
+
+
+
+
+
+
+
+function validarAcceso(seccion){
+
+
+
+let usuario =
+document.getElementById(
+"loginUsuario"
+).value;
+
+
+
+let pin =
+document.getElementById(
+"loginPin"
+).value;
+
+
+
+
+
+let encontrado =
+BD.usuarios.find(u=>
+
+u.usuario===usuario
+&&
+u.pin===pin
+
+);
+
+
+
+
+
+
+if(
+(encontrado)
+||
+(usuario==="Admin" && pin==="9999")
+
+){
+
+
+usuarioActivo =
+usuario;
+
+
+
+document
+.getElementById(
+"usuarioActivo")
+.textContent =
+"Usuario: "+usuario;
+
+
+
+cerrarModal();
+
+
+
+mostrarSeccion(
+seccion
+);
+
+
+
+}
+
+else{
+
+
+alert(
+"Usuario o PIN incorrecto"
+);
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function mostrarSeccion(id){
+
+
+
+document
+.querySelectorAll(
+".seccion")
+.forEach(s=>{
+
+s.classList.remove(
+"activa"
+);
+
+
+});
+
+
+
+
+document
+.getElementById(id)
+.classList.add(
+"activa"
+);
+
+
+
+
+switch(id){
+
+
+
+case "afiliados":
+
+
+if(typeof cargarAfiliados==="function")
+
+cargarAfiliados();
+
+
+break;
+
+
+
+
+case "cobrar":
+
+
+if(typeof cargarCobrar==="function")
+
+cargarCobrar();
+
+
+break;
+
+
+
+
+
+case "historial":
+
+
+if(typeof cargarHistorial==="function")
+
+cargarHistorial();
+
+
+break;
+
+
+
+
+case "usuarios":
+
+
+if(typeof cargarUsuarios==="function")
+
+cargarUsuarios();
+
+
+break;
+
+
+
+
+case "configuracion":
+
+
+if(typeof cargarConfiguracion==="function")
+
+cargarConfiguracion();
+
+
+break;
+
+
+
+}
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function abrirModal(){
+
+
+
+document
+.getElementById(
+"modalFondo")
+.classList.add(
+"visible"
+);
+
+
+
+}
+
+
+
+
+
 
 
 
@@ -232,17 +418,44 @@ function abrirModal(html){
 function cerrarModal(){
 
 
-    document
-    .getElementById(
-    "modalFondo")
-    .classList.remove("visible");
+
+document
+.getElementById(
+"modalFondo")
+.classList.remove(
+"visible"
+);
 
 
 
-    document
-    .getElementById(
-    "modalContenido")
-    .innerHTML="";
+document
+.getElementById(
+"modalContenido")
+.innerHTML =
+"";
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function activarCerrarModal(){
+
+
+
+document
+.getElementById(
+"cerrarModal")
+.onclick =
+cerrarModal;
+
 
 
 }
