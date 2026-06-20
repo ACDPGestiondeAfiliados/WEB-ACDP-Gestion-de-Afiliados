@@ -15,6 +15,12 @@
 // Tamaño real 8x6cm
 // ===============================
 
+// ===============================
+// IMPRESIÓN CARNET ACDP
+// Generación temporal PNG
+// Tamaño real 8x6cm
+// ===============================
+
 function generarPDF(afiliado){
 
 
@@ -37,7 +43,6 @@ if(!ventana){
 
 ventana.document.write(`
 
-
 <!DOCTYPE html>
 
 <html>
@@ -50,29 +55,27 @@ ventana.document.write(`
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 
-<style>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
+
+<style>
 
 @page{
 
 size:auto;
-
 margin:5mm;
 
 }
 
 
-
 body{
 
 margin:0;
-
 padding:0;
 
 display:flex;
 
 justify-content:center;
-
 align-items:center;
 
 height:100vh;
@@ -80,31 +83,25 @@ height:100vh;
 }
 
 
-
 #carnet{
 
 
 width:8cm;
-
 height:6cm;
 
 
 border:2px solid #005baa;
 
 
-font-family:Arial,Helvetica,sans-serif;
-
-
 display:flex;
 
 padding:6px;
 
-
 box-sizing:border-box;
 
+font-family:Arial,Helvetica,sans-serif;
 
 }
-
 
 
 .izquierda{
@@ -118,7 +115,6 @@ align-items:center;
 justify-content:center;
 
 }
-
 
 
 .logo{
@@ -136,7 +132,6 @@ width:70%;
 padding-left:6px;
 
 }
-
 
 
 .titulo{
@@ -187,10 +182,7 @@ width:120px;
 
 height:25px;
 
-margin-top:5px;
-
 }
-
 
 
 </style>
@@ -219,14 +211,17 @@ margin-top:5px;
 
 
 <div class="titulo">
+
 ACDP
+
 </div>
 
 
 <div class="subtitulo">
-Carnet de afiliado
-</div>
 
+Carnet de afiliado
+
+</div>
 
 
 <div class="dato">
@@ -234,13 +229,10 @@ Carnet de afiliado
 Nombre:
 
 <span class="valor">
-
 ${afiliado.nombre||""}
-
 </span>
 
 </div>
-
 
 
 <div class="dato">
@@ -248,13 +240,10 @@ ${afiliado.nombre||""}
 Apellido:
 
 <span class="valor">
-
 ${afiliado.apellido||""}
-
 </span>
 
 </div>
-
 
 
 <div class="dato">
@@ -262,13 +251,10 @@ ${afiliado.apellido||""}
 DNI:
 
 <span class="valor">
-
 ${afiliado.dni||""}
-
 </span>
 
 </div>
-
 
 
 <div class="dato">
@@ -276,13 +262,10 @@ ${afiliado.dni||""}
 Afiliado N°:
 
 <span class="valor">
-
 ${afiliado.numero||""}
-
 </span>
 
 </div>
-
 
 
 <svg id="barra"></svg>
@@ -295,10 +278,10 @@ ${afiliado.numero||""}
 
 
 
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-
-
 <script>
+
+
+window.onload=function(){
 
 
 JsBarcode(
@@ -325,7 +308,7 @@ margin:0
 
 
 
-window.onload=function(){
+setTimeout(()=>{
 
 
 html2canvas(
@@ -347,28 +330,13 @@ canvas.toDataURL("image/png");
 
 
 document.body.innerHTML =
-`
-
-
-<img 
-src="${imagen}"
-style="
-width:8cm;
-height:6cm;
-object-fit:contain;
-"
->
-
-
-`;
+`<img src="${imagen}" style="width:8cm;height:6cm;">`;
 
 
 
 setTimeout(()=>{
 
-
 window.print();
-
 
 
 window.onafterprint=function(){
@@ -378,12 +346,13 @@ window.close();
 };
 
 
-
 },300);
 
 
-
 });
+
+
+},500);
 
 
 };
@@ -394,9 +363,7 @@ window.close();
 
 </body>
 
-
 </html>
-
 
 `);
 
