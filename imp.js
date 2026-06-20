@@ -7,127 +7,263 @@
 
 function generarPDF(afiliado){
 
-    abrirVistaImpresion(afiliado);
+
+    const ventana=
+    window.open(
+        "",
+        "_blank",
+        "width=800,height=900"
+    );
+
+
+    if(!ventana){
+
+        return;
+
+    }
+
+
+
+    ventana.document.write(`
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+
+<title>Ficha afiliado ACDP</title>
+
+
+<style>
+
+
+body{
+
+font-family:Arial,Helvetica,sans-serif;
+margin:40px;
+color:#222;
+
+}
+
+
+.ficha{
+
+border:2px solid #003b73;
+border-radius:12px;
+padding:30px;
+width:500px;
+margin:auto;
 
 }
 
 
 
-// ===============================
-// Vista previa impresión
-// ===============================
+.logo{
 
-function abrirVistaImpresion(afiliado){
-
-
-const fondo=document.getElementById("modalFondo");
-const contenido=document.getElementById("modalContenido");
-
-
-if(!fondo || !contenido){
-
-    return;
+width:120px;
+display:block;
+margin:auto;
 
 }
 
 
 
-contenido.innerHTML=`
+h1{
 
-<div class="fichaImpresion">
+text-align:center;
+color:#003b73;
+
+}
+
+
+h2{
+
+text-align:center;
+
+}
+
+
+
+.linea{
+
+height:2px;
+background:#003b73;
+margin:20px 0;
+
+}
+
+
+
+.dato{
+
+font-size:18px;
+margin:12px 0;
+
+}
+
+
+
+strong{
+
+color:#003b73;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+
+<div class="ficha">
 
 
 <img 
 src="logo.jpg"
-class="logoFicha"
+class="logo"
 >
 
 
-
-<h2>ACDP</h2>
-
-<h3>Ficha de afiliado</h3>
+<h1>ACDP</h1>
 
 
-
-<hr>
+<h2>Ficha de afiliado</h2>
 
 
 
-<div class="datosFicha">
+<div class="linea"></div>
 
 
-<p>
+
+<div class="dato">
+
 <strong>Número afiliado:</strong>
-${afiliado.numero}
-</p>
+
+${afiliado.numero||""}
+
+</div>
 
 
-<p>
+
+<div class="dato">
+
 <strong>DNI:</strong>
-${afiliado.dni}
-</p>
+
+${afiliado.dni||""}
+
+</div>
 
 
-<p>
+
+<div class="dato">
+
 <strong>Nombre:</strong>
-${afiliado.nombre}
-</p>
+
+${afiliado.nombre||""}
+
+</div>
 
 
-<p>
+
+<div class="dato">
+
 <strong>Apellido:</strong>
-${afiliado.apellido}
-</p>
+
+${afiliado.apellido||""}
+
+</div>
 
 
-<p>
+
+<div class="dato">
+
 <strong>Celular:</strong>
-${afiliado.celular}
-</p>
+
+${afiliado.celular||""}
+
+</div>
 
 
-<p>
+
+<div class="dato">
+
 <strong>Correo:</strong>
-${afiliado.correo}
-</p>
+
+${afiliado.correo||""}
+
+</div>
 
 
-<p>
+
+<div class="dato">
+
 <strong>Estado:</strong>
-${afiliado.estado}
-</p>
+
+${afiliado.estado||""}
+
+</div>
 
 
-<p>
-<strong>Fecha de alta:</strong>
-${afiliado.fecha}
-</p>
+
+<div class="dato">
+
+<strong>Fecha alta:</strong>
+
+${afiliado.fecha||""}
+
+</div>
+
 
 
 </div>
 
 
 
-<br>
+<script>
+
+
+window.onload=function(){
+
+
+window.print();
+
+
+window.onafterprint=function(){
+
+window.close();
+
+};
+
+
+};
+
+
+</script>
 
 
 
-<button onclick="window.print()">
-
-Imprimir ficha
-
-</button>
+</body>
 
 
+</html>
 
-</div>
 
-`;
+    `);
 
 
 
-fondo.classList.add("activo");
+    ventana.document.close();
 
 
 }
