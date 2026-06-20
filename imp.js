@@ -1,8 +1,7 @@
 // ===============================
 // IMPRESIÓN ACDP
-// Carnet PNG temporal + Historial A4
+// Carnet afiliado + Historial
 // ===============================
-
 
 
 // ===============================
@@ -31,7 +30,6 @@ if(!ventana){
 
 ventana.document.write(`
 
-
 <!DOCTYPE html>
 
 <html>
@@ -39,6 +37,9 @@ ventana.document.write(`
 <head>
 
 <meta charset="UTF-8">
+
+
+<title>Carnet ACDP</title>
 
 
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -52,29 +53,35 @@ ventana.document.write(`
 @page{
 
 size:8cm 6cm;
+
 margin:0;
 
 }
+
 
 
 body{
 
 margin:0;
+
 padding:0;
 
 display:flex;
+
 justify-content:center;
+
 align-items:center;
 
-width:8cm;
-height:6cm;
+height:100vh;
 
 }
+
 
 
 #carnet{
 
 width:8cm;
+
 height:6cm;
 
 border:2px solid #005baa;
@@ -90,15 +97,19 @@ box-sizing:border-box;
 }
 
 
+
 .izquierda{
 
 width:30%;
 
 display:flex;
+
 align-items:center;
+
 justify-content:center;
 
 }
+
 
 
 .logo{
@@ -112,6 +123,7 @@ width:55px;
 .derecha{
 
 width:70%;
+
 padding-left:6px;
 
 }
@@ -121,7 +133,9 @@ padding-left:6px;
 .titulo{
 
 font-size:20px;
+
 font-weight:bold;
+
 color:#005baa;
 
 }
@@ -131,7 +145,9 @@ color:#005baa;
 .subtitulo{
 
 font-size:10px;
+
 font-weight:bold;
+
 margin-bottom:8px;
 
 }
@@ -141,6 +157,7 @@ margin-bottom:8px;
 .dato{
 
 font-size:10px;
+
 margin:3px 0;
 
 }
@@ -158,12 +175,15 @@ font-weight:bold;
 #barra{
 
 width:120px;
+
 height:25px;
 
 }
 
 
+
 </style>
+
 
 </head>
 
@@ -181,6 +201,7 @@ height:25px;
 </div>
 
 
+
 <div class="derecha">
 
 
@@ -189,6 +210,7 @@ height:25px;
 ACDP
 
 </div>
+
 
 
 <div class="subtitulo">
@@ -202,6 +224,7 @@ Carnet de afiliado
 <div class="dato">
 
 Nombre:
+
 <span class="valor">
 ${afiliado.nombre||""}
 </span>
@@ -213,6 +236,7 @@ ${afiliado.nombre||""}
 <div class="dato">
 
 Apellido:
+
 <span class="valor">
 ${afiliado.apellido||""}
 </span>
@@ -224,6 +248,7 @@ ${afiliado.apellido||""}
 <div class="dato">
 
 DNI:
+
 <span class="valor">
 ${afiliado.dni||""}
 </span>
@@ -235,6 +260,7 @@ ${afiliado.dni||""}
 <div class="dato">
 
 Afiliado N°:
+
 <span class="valor">
 ${afiliado.numero||""}
 </span>
@@ -322,6 +348,7 @@ window.close();
 };
 
 
+
 },300);
 
 
@@ -336,6 +363,7 @@ window.close();
 
 
 </body>
+
 
 </html>
 
@@ -354,7 +382,7 @@ ventana.document.close();
 
 
 // ===============================
-// IMPRIMIR HISTORIAL ACTUAL
+// IMPRIMIR HISTORIAL
 // ===============================
 
 
@@ -393,14 +421,11 @@ document.getElementById("montoHistorial");
 
 ventana.document.write(`
 
-
 <!DOCTYPE html>
 
 <html>
 
-
 <head>
-
 
 <meta charset="UTF-8">
 
@@ -476,6 +501,7 @@ font-size:12px;
 <h2>Historial ACDP</h2>
 
 
+
 <p>
 
 Fecha:
@@ -492,9 +518,11 @@ ${tabla ? tabla.outerHTML : ""}
 <h3>
 
 Total:
+
 ${monto ? monto.textContent : "$0"}
 
 </h3>
+
 
 
 </div>
@@ -505,6 +533,7 @@ ${monto ? monto.textContent : "$0"}
 
 
 window.onload=function(){
+
 
 window.print();
 
@@ -539,9 +568,11 @@ ventana.document.close();
 
 
 
+
 // ===============================
 // CONECTORES GLOBALES
 // ===============================
+
 
 window.generarPDF = generarPDF;
 
