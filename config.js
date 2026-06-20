@@ -1,6 +1,6 @@
 // ===============================
 // CONFIGURACIÓN DEL SISTEMA ACDP
-// LOG + MONTO + RESET SEMANAL
+// LOG + MONTO + RESET SEMANAL + CONSOLA
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,11 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarConfiguracion();
     iniciarResetSemanal();
 
+    iniciarConsolaLogs(); // NUEVO
+
 });
 
 
 // ===============================
-// INICIALIZAR EVENTOS
+// INICIALIZAR CONFIG
 // ===============================
 function iniciarConfiguracion() {
 
@@ -75,40 +77,154 @@ function guardarMonto() {
 
     escribirConsola("Monto actualizado: $" + valor.toFixed(2));
 
-    cargarConfiguracion();
+    renderConsolaLogs(">todo"); // refresca consola
 
 }
 
 
 // ===============================
-// LOG GLOBAL (USO EN TODO EL SISTEMA)
+// LOG GLOBAL
 // ===============================
 function registrarLog({accion, detalle}){
 
-    if (typeof BD_logsSistema === "undefined") {
+    if (!Array.isArray(BD_logsSistema)) {
         BD_logsSistema = [];
     }
 
     const ahora = new Date();
 
-    const log = {
+    BD_logsSistema.push({
         fecha: ahora.toLocaleDateString(),
         hora: ahora.toLocaleTimeString(),
         usuario: window.usuarioActivo || "Sistema",
         rol: window.usuarioActivo === "Admin" ? "ADMIN" : "USER",
         accion,
         detalle
-    };
-
-    BD_logsSistema.push(log);
+    });
 
     guardarBD();
 
 }
 
 
+// =====================================================
+// CONSOLA LOG SYSTEM
+// =====================================================
+
 // ===============================
-// RESET SEMANAL (DOMINGO)
+// INICIAR CONSOLA
+// ===============================
+function iniciarConsolaLogs(){
+
+    const input = document.getElementById("inputLogs");
+
+    const consola = document.getElementById("consolaSistema");
+
+    if(!input || !consola) return;
+
+    // render inicial
+    renderConsolaLogs(">todo");
+
+
+    input.addEventListener("keydown", (e)=>{
+
+        if(e.key === "Enter"){
+
+            const comando = input.value;
+
+            renderConsolaLogs(comando);
+
+        }
+
+    });
+
+}
+
+
+// ===============================
+// MOTOR DE FILTROS
+// ===============================
+function procesarFiltroLogs(comando){
+
+    if(!Array.isArray(BD_logsSistema)) return [];
+
+    comando = (comando || ">todo").toLowerCase().trim();
+
+    const logs = [...BD_logsSistema];
+
+
+    if(comando === ">todo") return logs;
+
+
+    if(comando.startsWith(">filtrarusuario")){
+        const user = comando.replace(">filtrarusuario","").trim();
+        return logs.filter(l =>
+            (l.usuario || "").toLowerCase() === user
+        );
+    }
+
+
+    if(comando.startsWith(">buscardni")){
+        const dni = comando.replace(">buscardni","").trim();
+        return logs.filter(l =>
+            (l.detalle || "").includes(dni)
+        );
+    }
+
+
+    if(comando.startsWith(">buscarfecha")){
+        const fecha = comando.replace(">buscarfecha","").trim();
+        return logs.filter(l =>
+            (l.fecha || "").includes(fecha)
+        );
+    }
+
+
+    if(comando.startsWith(">buscaraccion")){
+        const acc = comando.replace(">buscaraccion","").trim();
+        return logs.filter(l =>
+            (l.accion || "").toLowerCase().includes(acc)
+        );
+    }
+
+
+    return logs;
+}
+
+
+// ===============================
+// RENDER CONSOLA
+// ===============================
+function renderConsolaLogs(comando){
+
+    const consola = document.getElementById("consolaSistema");
+
+    const input = document.getElementById("inputLogs");
+
+    if(!consola) return;
+
+    const logs = procesarFiltroLogs(comando);
+
+    let html = "";
+
+    logs.forEach(l => {
+
+        html += `
+${l.fecha} ${l.hora} | ${l.usuario} (${l.rol}) | ${l.accion} → ${l.detalle}<br>
+        `;
+    });
+
+    consola.innerHTML = html || "Sin registros";
+
+    if(input){
+        input.value = "";
+    }
+
+}
+
+
+// ===============================
+// RESET SEMANAL
 // ===============================
 function iniciarResetSemanal() {
 
@@ -132,7 +248,7 @@ function iniciarResetSemanal() {
 
 
 // ===============================
-// BORRAR LOG SEMANAL
+// RESET LOGS
 // ===============================
 function resetLogs() {
 
@@ -148,5 +264,7 @@ function resetLogs() {
     });
 
     escribirConsola("Reset semanal de logs ejecutado");
+
+    renderConsolaLogs(">todo");
 
 }
