@@ -425,7 +425,7 @@ h.accion==="Cobro"
 
 <img
 
-src="print.png" width="25%" height="25%"
+src="print.png"
 
 class="iconoHistorial"
 
@@ -437,7 +437,7 @@ onclick="imprimirRegistro('${h.dni}','${h.fecha}','${h.hora}')"
 
 <img
 
-src="delete.png" width="25%" height="25%"
+src="delete.png"
 
 class="iconoHistorial"
 
