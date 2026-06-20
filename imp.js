@@ -1,21 +1,4 @@
 // ===============================
-// IMPRESIÓN ACDP
-// Generación temporal para imprimir
-// Carnet + Historial
-// ===============================
-
-
-// ===============================
-// IMPRIMIR CARNET AFILIADO
-// ===============================
-
-// ===============================
-// IMPRESIÓN CARNET ACDP
-// Generación temporal PNG
-// Tamaño real 8x6cm
-// ===============================
-
-// ===============================
 // IMPRESIÓN CARNET ACDP
 // Generación temporal PNG
 // Tamaño real 8x6cm
@@ -597,3 +580,10 @@ ventana.document.close();
 
 
 }
+
+// ===============================
+// COMPATIBILIDAD GLOBAL ACDP
+// ===============================
+
+window.generarPDF = generarPDF;
+window.imprimirHistorial = imprimirHistorial;
