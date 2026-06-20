@@ -5,6 +5,8 @@
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    window.BD_logsSistema = window.BD_logsSistema || [];
+
     iniciarConfiguracion();
     cargarConfiguracion();
     iniciarResetSemanal();
@@ -120,10 +122,12 @@ function registrarLog({ accion, detalle }) {
 function iniciarConsolaLogs() {
 
     const input = document.getElementById("inputLogs");
-
     const consola = document.getElementById("consolaSistema");
 
-    if (!input || !consola) return;
+    if (!input || !consola) {
+        console.warn("Consola de logs no disponible en DOM");
+        return;
+    }
 
     renderConsolaLogs(">todo");
 
@@ -133,11 +137,15 @@ function iniciarConsolaLogs() {
 
             e.preventDefault();
 
-            const comando = input.value.trim();
+            const comando = (input.value || "").trim();
 
             if (!comando) return;
 
-            renderConsolaLogs(comando);
+            try {
+                renderConsolaLogs(comando);
+            } catch (err) {
+                console.error("Error consola logs:", err);
+            }
 
             input.value = "";
 
@@ -198,7 +206,7 @@ function procesarFiltroLogs(comando) {
 
 
 // ===============================
-// RENDER CONSOLA (CON COLORES)
+// RENDER CONSOLA (ROBUSTO + COLORES)
 // ===============================
 function renderConsolaLogs(comando) {
 
@@ -215,32 +223,16 @@ function renderConsolaLogs(comando) {
 
         let color = "#00ff66";
 
-        switch ((l.accion || "").toUpperCase()) {
+        const accion = (l.accion || "").toUpperCase();
 
-            case "CONFIGURACION":
-                color = "#00b7ff";
-                break;
-
-            case "USUARIO":
-                color = "#ffd000";
-                break;
-
-            case "COBRO":
-                color = "#00ff66";
-                break;
-
-            case "ELIMINACION":
-                color = "#ff3b3b";
-                break;
-
-            case "SISTEMA":
-                color = "#b36bff";
-                break;
-
-        }
+        if (accion.includes("CONFIGURACION")) color = "#00b7ff";
+        else if (accion.includes("USUARIO")) color = "#ffd000";
+        else if (accion.includes("COBRO")) color = "#00ff66";
+        else if (accion.includes("ELIMINACION")) color = "#ff3b3b";
+        else if (accion.includes("SISTEMA")) color = "#b36bff";
 
 
-        let detalle = l.detalle || "";
+        let detalle = (l.detalle || "").toString();
 
         detalle = detalle.replace(
             /(\d{6,12})/g,
@@ -249,10 +241,10 @@ function renderConsolaLogs(comando) {
 
 
         html += `
-<div style="color:${color}; margin-bottom:2px;">
-${l.fecha} ${l.hora} |
-${l.usuario} (${l.rol}) |
-${l.accion} →
+<div style="color:${color}; margin-bottom:2px; font-family:monospace;">
+${l.fecha || ""} ${l.hora || ""} |
+${l.usuario || ""} (${l.rol || ""}) |
+${l.accion || ""} →
 ${detalle}
 </div>
         `;
