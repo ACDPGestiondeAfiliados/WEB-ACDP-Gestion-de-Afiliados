@@ -76,12 +76,16 @@ function abrirNuevoUsuario() {
             inputmode="numeric"
         >
 
+        <div id="msgPin" style="font-size:12px;color:#c00;margin-top:5px;"></div>
+
         <select id="tipoNuevo">
             <option value="Normal">Normal</option>
             <option value="Administrador">Administrador</option>
         </select>
 
-        <button onclick="guardarUsuario()">Guardar</button>
+        <button id="btnGuardarUsuario" disabled>
+            Guardar
+        </button>
     `;
 
     fondo.classList.add("activo");
@@ -97,23 +101,63 @@ function aplicarValidacionesUsuario() {
     const usuarioInput = document.getElementById("usuarioNuevo");
     const pinInput = document.getElementById("pinNuevo");
     const confirmInput = document.getElementById("pinConfirmar");
+    const boton = document.getElementById("btnGuardarUsuario");
+    const msg = document.getElementById("msgPin");
 
-    // SOLO letras, espacios y acentos
+    function validar() {
+
+        const usuario = usuarioInput.value.trim();
+        const pin = pinInput.value.trim();
+        const pin2 = confirmInput.value.trim();
+
+        // usuario duplicado
+        const existe = BD_usuarios.some(
+            u => u.usuario.toLowerCase() === usuario.toLowerCase()
+        );
+
+        const usuarioOk = usuario.length >= 4 && !existe;
+        const pinOk = pin.length === 4;
+        const pinCoincide = pin === pin2;
+
+        // mensaje en vivo
+        if (pin.length > 0 && pin2.length > 0 && !pinCoincide) {
+            msg.textContent = "PIN no coincide";
+        } else if (existe) {
+            msg.textContent = "Usuario ya existe";
+        } else {
+            msg.textContent = "";
+        }
+
+        boton.disabled = !(usuarioOk && pinOk && pinCoincide);
+    }
+
+    // usuario: solo letras + acentos + espacios
     usuarioInput.addEventListener("input", () => {
-
         usuarioInput.value = usuarioInput.value
             .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
             .slice(0, 20);
+
+        validar();
     });
 
-    // SOLO números PIN
+    // PIN solo números
     pinInput.addEventListener("input", () => {
-        pinInput.value = pinInput.value.replace(/\D/g, "").slice(0, 4);
+        pinInput.value = pinInput.value
+            .replace(/\D/g, "")
+            .slice(0, 4);
+
+        validar();
     });
 
     confirmInput.addEventListener("input", () => {
-        confirmInput.value = confirmInput.value.replace(/\D/g, "").slice(0, 4);
+        confirmInput.value = confirmInput.value
+            .replace(/\D/g, "")
+            .slice(0, 4);
+
+        validar();
     });
+
+    validar();
 }
 
 // ===============================
@@ -126,26 +170,15 @@ function guardarUsuario() {
     const pin2 = document.getElementById("pinConfirmar").value.trim();
     const tipo = document.getElementById("tipoNuevo").value;
 
-    // Validaciones básicas
-    if (!usuario || !pin || !pin2) {
-        escribirConsola("Error: campos incompletos");
-        return;
-    }
+    const existe = BD_usuarios.some(
+        u => u.usuario.toLowerCase() === usuario.toLowerCase()
+    );
 
-    if (usuario.length < 4) {
-        escribirConsola("Error: Usuario muy corto (mínimo 4 caracteres)");
-        return;
-    }
-
-    if (pin.length !== 4) {
-        escribirConsola("Error: PIN inválido");
-        return;
-    }
-
-    if (pin !== pin2) {
-        escribirConsola("Error: los PIN no coinciden");
-        return;
-    }
+    if (!usuario || !pin || !pin2) return;
+    if (usuario.length < 4) return;
+    if (pin.length !== 4) return;
+    if (pin !== pin2) return;
+    if (existe) return;
 
     BD_usuarios.push({
         usuario,
