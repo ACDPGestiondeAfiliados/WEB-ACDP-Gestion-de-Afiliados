@@ -154,15 +154,15 @@ function mostrarTabla(){
 <td>
 
 
-<img src="edit.png" width="10%" height="10%" class="iconoHistorial" onclick="editarAfiliado('${a.dni}')" >
+<img src="edit.png" class="iconoHistorial" onclick="editarAfiliado('${a.dni}')" >
 
 
 
-<img src="delete.png" width="10%" height="10%" class="iconoHistorial" onclick="eliminarAfiliado('${a.dni}')" >
+<img src="delete.png" class="iconoHistorial" onclick="eliminarAfiliado('${a.dni}')" >
 
 
 
-<img src="print.png" width="10%" height="10%" class="iconoHistorial" onclick="imprimirAfiliado('${a.dni}')" >
+<img src="print.png" class="iconoHistorial" onclick="imprimirAfiliado('${a.dni}')" >
 
 
 
