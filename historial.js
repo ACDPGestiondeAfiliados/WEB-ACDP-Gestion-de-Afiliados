@@ -224,6 +224,30 @@ function obtenerMonto(texto){
 }
 
 // ===============================
+// ACTUALIZAR BD - SE REGISTRA ACCION NUEVA
+// ===============================
+function registrarHistorial(accion, afiliado, detalle){
+
+    if(!Array.isArray(BD_historial)) return;
+
+    const ahora=new Date();
+
+    BD_historial.push({
+        usuario: (typeof usuarioActivo!=="undefined" && usuarioActivo) ? usuarioActivo : "Sistema",
+        afiliado: afiliado?.nombre+" "+afiliado?.apellido || "",
+        dni: afiliado?.dni || "",
+        numero: afiliado?.numero || "",
+        fecha: ahora.toLocaleDateString(),
+        hora: ahora.toLocaleTimeString(),
+        accion: accion,
+        detalle: detalle || ""
+    });
+
+    guardarBD();
+
+}
+
+// ===============================
 // Acción imprimir
 // ===============================
 function imprimirHistorial(){
