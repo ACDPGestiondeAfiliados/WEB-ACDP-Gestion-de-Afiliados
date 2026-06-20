@@ -1,70 +1,85 @@
-// =====================================
-// ACDP - BASE DE DATOS PRINCIPAL
-// =====================================
+/* =====================================
+   ACDP - BASE DE DATOS
+===================================== */
 
 
-// Carga inicial de datos
+
+const BD_KEY = "ACDP_BASE_DATOS";
+
+
 
 let BD = {
 
+
     afiliados: [],
+
 
     pagos: [],
 
+
     historial: [],
+
 
     usuarios: [
 
+
         {
+
             usuario:"Admin",
+
             tipo:"Administrador",
+
             pin:"9999"
+
         }
+
 
     ],
 
+
+
     configuracion:{
+
 
         cuota:15000
 
+
     }
+
+
 
 };
 
 
 
 
-// Guardar datos
 
-function guardarBD(){
 
-    localStorage.setItem(
-        "ACDP_BD",
-        JSON.stringify(BD)
-    );
-
-}
+function iniciarBD(){
 
 
 
-// Cargar datos
+    let datos =
+    localStorage.getItem(BD_KEY);
 
-function cargarBD(){
-
-
-    let datos = localStorage.getItem("ACDP_BD");
 
 
     if(datos){
 
-        BD = JSON.parse(datos);
+
+        BD =
+        JSON.parse(datos);
+
 
     }
     else{
 
+
         guardarBD();
 
+
     }
+
 
 
 }
@@ -72,41 +87,68 @@ function cargarBD(){
 
 
 
-// Inicialización
-
-cargarBD();
 
 
+function guardarBD(){
 
 
-// Generador de ID afiliado
+    localStorage.setItem(
+
+        BD_KEY,
+
+        JSON.stringify(BD)
+
+    );
+
+
+}
+
+
+
+
+
+
+
 
 function generarNumeroAfiliado(){
+
 
 
     let ultimo = 0;
 
 
-    if(BD.afiliados.length > 0){
+
+    BD.afiliados.forEach(a=>{
 
 
-        ultimo = Math.max(
-
-            ...BD.afiliados.map(a =>
-                Number(a.numero)
-            )
-
-        );
+        let numero =
+        Number(a.numero);
 
 
-    }
+
+        if(numero > ultimo){
+
+            ultimo = numero;
+
+        }
+
+
+
+    });
+
+
 
 
 
     ultimo++;
 
 
-    return String(ultimo).padStart(8,"0");
+
+
+
+    return String(ultimo)
+    .padStart(8,"0");
+
 
 
 }
@@ -114,45 +156,80 @@ function generarNumeroAfiliado(){
 
 
 
-// Fecha actual
-
-function fechaActual(){
 
 
-    let f = new Date();
+
+
+function obtenerFecha(){
+
+
+    let f =
+    new Date();
+
 
 
     return (
 
-        String(f.getDate()).padStart(2,"0")
-        +"/"+
-        String(f.getMonth()+1).padStart(2,"0")
-        +"/"+
+        String(f.getDate())
+        .padStart(2,"0")
+
+        +
+
+        "/"
+
+        +
+
+        String(
+        f.getMonth()+1)
+        .padStart(2,"0")
+
+        +
+
+        "/"
+
+        +
+
         f.getFullYear()
 
     );
 
 
+
 }
 
 
 
 
-// Hora actual
-
-function horaActual(){
 
 
-    let f = new Date();
+
+
+function obtenerHora(){
+
+
+
+    let f =
+    new Date();
+
+
 
 
     return (
 
-        String(f.getHours()).padStart(2,"0")
-        +":"+
-        String(f.getMinutes()).padStart(2,"0")
+        String(f.getHours())
+        .padStart(2,"0")
+
+        +
+
+        ":"
+
+        +
+
+        String(f.getMinutes())
+        .padStart(2,"0")
 
     );
+
 
 
 }
@@ -160,33 +237,112 @@ function horaActual(){
 
 
 
-// Registrar historial
+
+
+
+
 
 function registrarHistorial(datos){
 
 
+
     BD.historial.push({
 
-        usuario: datos.usuario,
 
-        afiliado: datos.afiliado || "",
+        usuario:
+        datos.usuario || "",
 
-        dni: datos.dni || "",
 
-        numero: datos.numero || "",
+        afiliado:
+        datos.afiliado || "",
 
-        fecha: fechaActual(),
 
-        hora: horaActual(),
+        dni:
+        datos.dni || "",
 
-        accion: datos.accion,
 
-        detalles: datos.detalles || ""
+        numero:
+        datos.numero || "",
+
+
+
+        fecha:
+        obtenerFecha(),
+
+
+        hora:
+        obtenerHora(),
+
+
+
+        accion:
+        datos.accion || "",
+
+
+        detalles:
+        datos.detalles || "SIN MOTIVOS"
+
+
 
     });
+
+
+
 
 
     guardarBD();
 
 
+
 }
+
+
+
+
+
+
+
+
+function limpiarNumero(valor){
+
+
+    return String(valor)
+    .replace(/\D/g,"");
+
+
+}
+
+
+
+
+
+
+
+function formatoPesos(valor){
+
+
+
+    return Number(valor)
+    .toLocaleString(
+        "es-AR",
+        {
+
+        minimumFractionDigits:2,
+
+        maximumFractionDigits:2
+
+        }
+
+    );
+
+
+
+}
+
+
+
+
+
+
+
+iniciarBD();
