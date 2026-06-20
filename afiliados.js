@@ -384,7 +384,7 @@ if(!a)return;
 
 
 
-modalContenido.innerHTML=`
+document.getElementById("modalContenido").innerHTML=`
 
 <h3>Editar afiliado</h3>
 
