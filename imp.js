@@ -4,6 +4,7 @@
 // ===============================
 
 
+
 // ===============================
 // IMPRIMIR CARNET AFILIADO
 // ===============================
@@ -28,7 +29,18 @@ if(!ventana){
 
 
 
+const colorEstado =
+afiliado.estado==="ADHERENTE" ||
+afiliado.estado==="Adherente"
+?
+"#FFB700"
+:
+"#F600FF";
+
+
+
 ventana.document.write(`
+
 
 <!DOCTYPE html>
 
@@ -38,13 +50,10 @@ ventana.document.write(`
 
 <meta charset="UTF-8">
 
-
 <title>Carnet ACDP</title>
 
 
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 
 <style>
@@ -74,19 +83,19 @@ align-items:center;
 
 height:100vh;
 
+font-family:Arial;
+
 }
 
 
 
-#carnet{
+.carnet{
 
 width:8cm;
 
 height:6cm;
 
-border:2px solid #005baa;
-
-font-family:Arial,Helvetica,sans-serif;
+border:2px solid ${colorEstado};
 
 display:flex;
 
@@ -181,7 +190,6 @@ height:25px;
 }
 
 
-
 </style>
 
 
@@ -191,7 +199,7 @@ height:25px;
 <body>
 
 
-<div id="carnet">
+<div class="carnet">
 
 
 <div class="izquierda">
@@ -225,9 +233,7 @@ Carnet de afiliado
 
 Nombre:
 
-<span class="valor">
-${afiliado.nombre||""}
-</span>
+<b>${afiliado.nombre||""}</b>
 
 </div>
 
@@ -237,9 +243,7 @@ ${afiliado.nombre||""}
 
 Apellido:
 
-<span class="valor">
-${afiliado.apellido||""}
-</span>
+<b>${afiliado.apellido||""}</b>
 
 </div>
 
@@ -249,9 +253,7 @@ ${afiliado.apellido||""}
 
 DNI:
 
-<span class="valor">
-${afiliado.dni||""}
-</span>
+<b>${afiliado.dni||""}</b>
 
 </div>
 
@@ -261,9 +263,7 @@ ${afiliado.dni||""}
 
 Afiliado N°:
 
-<span class="valor">
-${afiliado.numero||""}
-</span>
+<b>${afiliado.numero||""}</b>
 
 </div>
 
@@ -309,36 +309,7 @@ margin:0
 
 
 
-html2canvas(
-
-document.getElementById("carnet"),
-
-{
-
-scale:4
-
-}
-
-).then(canvas=>{
-
-
-document.body.innerHTML=
-
-`
-
-<img src="${canvas.toDataURL("image/png")}"
-
-style="width:8cm;height:6cm;">
-
-`;
-
-
-
-setTimeout(()=>{
-
-
 window.print();
-
 
 
 window.onafterprint=function(){
@@ -348,14 +319,6 @@ window.close();
 };
 
 
-
-},300);
-
-
-
-});
-
-
 };
 
 
@@ -363,7 +326,6 @@ window.close();
 
 
 </body>
-
 
 </html>
 
@@ -381,8 +343,9 @@ ventana.document.close();
 
 
 
+
 // ===============================
-// IMPRIMIR HISTORIAL
+// IMPRIMIR HISTORIAL ACTUAL
 // ===============================
 
 
@@ -400,7 +363,7 @@ window.open(
 
 if(!ventana){
 
-    return;
+return;
 
 }
 
@@ -421,9 +384,11 @@ document.getElementById("montoHistorial");
 
 ventana.document.write(`
 
+
 <!DOCTYPE html>
 
 <html>
+
 
 <head>
 
@@ -448,15 +413,13 @@ margin:10mm;
 
 body{
 
-font-family:Arial,Helvetica,sans-serif;
+font-family:Arial;
 
 }
 
 
 
 .contenedor{
-
-width:100%;
 
 text-align:center;
 
@@ -480,8 +443,6 @@ border:1px solid #000;
 
 padding:6px;
 
-font-size:12px;
-
 }
 
 
@@ -501,14 +462,17 @@ font-size:12px;
 <h2>Historial ACDP</h2>
 
 
-
-<p>
+<div>
 
 Fecha:
+
 ${fecha ? fecha.value || fecha.textContent : ""}
 
-</p>
+</div>
 
+
+
+<br>
 
 
 ${tabla ? tabla.outerHTML : ""}
@@ -570,10 +534,12 @@ ventana.document.close();
 
 
 // ===============================
-// CONECTORES GLOBALES
+// CONECTORES
 // ===============================
 
+window.generarPDF =
+generarPDF;
 
-window.generarPDF = generarPDF;
 
-window.imprimirHistorial = imprimirHistorial;
+window.imprimirHistorial =
+imprimirHistorial;
