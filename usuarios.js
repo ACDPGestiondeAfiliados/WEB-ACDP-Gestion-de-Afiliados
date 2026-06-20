@@ -38,13 +38,27 @@ function cargarUsuarios() {
     cuerpo.innerHTML = "";
 
     BD_usuarios.forEach((u, index) => {
+
         cuerpo.innerHTML += `
         <tr>
             <td>${u.usuario}</td>
             <td>${u.tipo}</td>
             <td>
-                <button onclick="abrirEditarUsuario(${index})">Editar</button>
-                <button onclick="eliminarUsuario(${index})">Eliminar</button>
+
+                <img 
+                    src="editar.png"
+                    class="iconoUsuarios"
+                    title="Editar usuario"
+                    onclick="abrirEditarUsuario(${index})"
+                >
+
+                <img 
+                    src="eliminar.png"
+                    class="iconoUsuarios"
+                    title="Eliminar usuario"
+                    onclick="eliminarUsuario(${index})"
+                >
+
             </td>
         </tr>
         `;
