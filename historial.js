@@ -90,7 +90,7 @@ function eventosHistorial(){
 
 function cargarHistorial(){
 
-    historialVista=BD.historial;
+    historialVista=BD_historial;
 
     mostrarHistorial();
 
@@ -107,12 +107,12 @@ function filtrarHistorial(valor){
 
     if(!valor){
 
-        historialVista=BD.historial;
+        historialVista=BD_historial;
 
     }else{
 
         historialVista=
-        BD.historial.filter(h=>
+        BD_historial.filter(h=>
 
             h.dni===valor ||
             h.numero===valor
