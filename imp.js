@@ -368,24 +368,9 @@ ${afiliado.numero||""}
 
 </div>
 
-
-
-<div class="pie">
-
-ACDP - Documento interno
-
 </div>
 
-
-
 </div>
-
-
-
-</div>
-
-
-
 
 <script>
 
