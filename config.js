@@ -1,13 +1,13 @@
 // ===============================
 // CONFIGURACIÓN DEL SISTEMA ACDP
-// Control de monto de cuota + reset diario (MEMORIA GLOBAL)
+// LOG + MONTO + RESET SEMANAL
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
 
     iniciarConfiguracion();
     cargarConfiguracion();
-    iniciarResetDiario();
+    iniciarResetSemanal();
 
 });
 
@@ -27,7 +27,7 @@ function iniciarConfiguracion() {
 
 
 // ===============================
-// CARGAR CONFIG EN INPUT
+// CARGAR CONFIG
 // ===============================
 function cargarConfiguracion() {
 
@@ -35,15 +35,9 @@ function cargarConfiguracion() {
 
     if (!input) return;
 
-
     if (typeof BD_configuracion === "undefined" || !BD_configuracion) {
-
-        BD_configuracion = {
-            monto:0
-        };
-
+        BD_configuracion = { monto: 0 };
     }
-
 
     input.value = BD_configuracion.monto ?? 0;
 
@@ -51,7 +45,7 @@ function cargarConfiguracion() {
 
 
 // ===============================
-// GUARDAR MONTO EN BD REAL
+// GUARDAR MONTO
 // ===============================
 function guardarMonto() {
 
@@ -59,42 +53,27 @@ function guardarMonto() {
 
     if (!input) return;
 
-
-    const valor = Number(
-        input.value.trim()
-    );
-
+    const valor = Number(input.value.trim());
 
     if (isNaN(valor) || valor < 0) {
-
-        escribirConsola(
-            "Monto inválido."
-        );
-
+        escribirConsola("Monto inválido.");
         return;
-
     }
-
 
     if (typeof BD_configuracion === "undefined" || !BD_configuracion) {
-
-        BD_configuracion = {
-            monto:0
-        };
-
+        BD_configuracion = { monto: 0 };
     }
-
 
     BD_configuracion.monto = valor;
 
-
     guardarBD();
 
+    registrarLog({
+        accion: "CONFIGURACION",
+        detalle: `Monto actualizado a $${valor}`
+    });
 
-    escribirConsola(
-        "Monto actualizado: $" + BD_configuracion.monto.toFixed(2)
-    );
-
+    escribirConsola("Monto actualizado: $" + valor.toFixed(2));
 
     cargarConfiguracion();
 
@@ -102,45 +81,72 @@ function guardarMonto() {
 
 
 // ===============================
-// RESET DIARIO (00:00 ARG)
+// LOG GLOBAL (USO EN TODO EL SISTEMA)
 // ===============================
-function iniciarResetDiario() {
+function registrarLog({accion, detalle}){
 
-    setInterval(() => {
+    if (typeof BD_logsSistema === "undefined") {
+        BD_logsSistema = [];
+    }
 
-        const ahora = new Date();
+    const ahora = new Date();
 
+    const log = {
+        fecha: ahora.toLocaleDateString(),
+        hora: ahora.toLocaleTimeString(),
+        usuario: window.usuarioActivo || "Sistema",
+        rol: window.usuarioActivo === "Admin" ? "ADMIN" : "USER",
+        accion,
+        detalle
+    };
 
-        const esMedianoche =
-            ahora.getHours() === 0 &&
-            ahora.getMinutes() === 0;
+    BD_logsSistema.push(log);
 
-
-        if (!esMedianoche) return;
-
-
-        resetLogsDiarios();
-
-
-    },60000);
+    guardarBD();
 
 }
 
 
 // ===============================
-// BORRAR LOG CADA 24HS (00:00)
+// RESET SEMANAL (DOMINGO)
 // ===============================
-function resetLogsDiarios(){
+function iniciarResetSemanal() {
 
-    if(typeof BD_logsSistema !== "undefined" && Array.isArray(BD_logsSistema)){
+    setInterval(() => {
 
+        const ahora = new Date();
+
+        const esDomingo = ahora.getDay() === 0;
+
+        const esMedianoche =
+            ahora.getHours() === 0 &&
+            ahora.getMinutes() === 0;
+
+        if (!esDomingo || !esMedianoche) return;
+
+        resetLogs();
+
+    }, 60000);
+
+}
+
+
+// ===============================
+// BORRAR LOG SEMANAL
+// ===============================
+function resetLogs() {
+
+    if (Array.isArray(BD_logsSistema)) {
         BD_logsSistema.length = 0;
-
     }
 
+    guardarBD();
 
-    escribirConsola(
-        "Reset diario ejecutado (00:00)"
-    );
+    registrarLog({
+        accion: "SISTEMA",
+        detalle: "Reset semanal de logs ejecutado"
+    });
+
+    escribirConsola("Reset semanal de logs ejecutado");
 
 }
