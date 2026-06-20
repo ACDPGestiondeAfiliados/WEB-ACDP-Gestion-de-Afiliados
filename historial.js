@@ -670,7 +670,7 @@ usuarioActivo
 
 :
 
-"Sistema";
+"Administrador";
 
 
 
