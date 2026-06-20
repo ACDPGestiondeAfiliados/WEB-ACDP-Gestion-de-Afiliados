@@ -9,13 +9,15 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarConfiguracion();
     iniciarResetSemanal();
 
-    iniciarConsolaLogs(); // NUEVO
+    setTimeout(() => {
+        iniciarConsolaLogs();
+    }, 300);
 
 });
 
 
 // ===============================
-// INICIALIZAR CONFIG
+// CONFIG
 // ===============================
 function iniciarConfiguracion() {
 
@@ -37,11 +39,11 @@ function cargarConfiguracion() {
 
     if (!input) return;
 
-    if (typeof BD_configuracion === "undefined" || !BD_configuracion) {
-        BD_configuracion = { monto: 0 };
+    if (!window.BD_configuracion) {
+        window.BD_configuracion = { monto: 0 };
     }
 
-    input.value = BD_configuracion.monto ?? 0;
+    input.value = window.BD_configuracion.monto ?? 0;
 
 }
 
@@ -62,11 +64,11 @@ function guardarMonto() {
         return;
     }
 
-    if (typeof BD_configuracion === "undefined" || !BD_configuracion) {
-        BD_configuracion = { monto: 0 };
+    if (!window.BD_configuracion) {
+        window.BD_configuracion = { monto: 0 };
     }
 
-    BD_configuracion.monto = valor;
+    window.BD_configuracion.monto = valor;
 
     guardarBD();
 
@@ -77,7 +79,7 @@ function guardarMonto() {
 
     escribirConsola("Monto actualizado: $" + valor.toFixed(2));
 
-    renderConsolaLogs(">todo"); // refresca consola
+    renderConsolaLogs(">todo");
 
 }
 
@@ -85,15 +87,15 @@ function guardarMonto() {
 // ===============================
 // LOG GLOBAL
 // ===============================
-function registrarLog({accion, detalle}){
+function registrarLog({ accion, detalle }) {
 
-    if (!Array.isArray(BD_logsSistema)) {
-        BD_logsSistema = [];
+    if (!Array.isArray(window.BD_logsSistema)) {
+        window.BD_logsSistema = [];
     }
 
     const ahora = new Date();
 
-    BD_logsSistema.push({
+    window.BD_logsSistema.push({
         fecha: ahora.toLocaleDateString(),
         hora: ahora.toLocaleTimeString(),
         usuario: window.usuarioActivo || "Sistema",
@@ -108,31 +110,36 @@ function registrarLog({accion, detalle}){
 
 
 // =====================================================
-// CONSOLA LOG SYSTEM
+// CONSOLA SYSTEM
 // =====================================================
 
+
 // ===============================
-// INICIAR CONSOLA
+// INICIALIZAR CONSOLA
 // ===============================
-function iniciarConsolaLogs(){
+function iniciarConsolaLogs() {
 
     const input = document.getElementById("inputLogs");
 
     const consola = document.getElementById("consolaSistema");
 
-    if(!input || !consola) return;
+    if (!input || !consola) return;
 
-    // render inicial
     renderConsolaLogs(">todo");
 
+    input.addEventListener("keydown", (e) => {
 
-    input.addEventListener("keydown", (e)=>{
+        if (e.key === "Enter") {
 
-        if(e.key === "Enter"){
+            e.preventDefault();
 
-            const comando = input.value;
+            const comando = input.value.trim();
+
+            if (!comando) return;
 
             renderConsolaLogs(comando);
+
+            input.value = "";
 
         }
 
@@ -142,83 +149,119 @@ function iniciarConsolaLogs(){
 
 
 // ===============================
-// MOTOR DE FILTROS
+// FILTROS
 // ===============================
-function procesarFiltroLogs(comando){
+function procesarFiltroLogs(comando) {
 
-    if(!Array.isArray(BD_logsSistema)) return [];
+    if (!Array.isArray(window.BD_logsSistema)) return [];
 
     comando = (comando || ">todo").toLowerCase().trim();
 
-    const logs = [...BD_logsSistema];
+    const logs = [...window.BD_logsSistema];
+
+    if (comando === ">todo") return logs;
 
 
-    if(comando === ">todo") return logs;
-
-
-    if(comando.startsWith(">filtrarusuario")){
-        const user = comando.replace(">filtrarusuario","").trim();
+    if (comando.startsWith(">filtrarusuario")) {
+        const user = comando.replace(">filtrarusuario", "").trim();
         return logs.filter(l =>
             (l.usuario || "").toLowerCase() === user
         );
     }
 
 
-    if(comando.startsWith(">buscardni")){
-        const dni = comando.replace(">buscardni","").trim();
+    if (comando.startsWith(">buscardni")) {
+        const dni = comando.replace(">buscardni", "").trim();
         return logs.filter(l =>
             (l.detalle || "").includes(dni)
         );
     }
 
 
-    if(comando.startsWith(">buscarfecha")){
-        const fecha = comando.replace(">buscarfecha","").trim();
+    if (comando.startsWith(">buscarfecha")) {
+        const fecha = comando.replace(">buscarfecha", "").trim();
         return logs.filter(l =>
             (l.fecha || "").includes(fecha)
         );
     }
 
 
-    if(comando.startsWith(">buscaraccion")){
-        const acc = comando.replace(">buscaraccion","").trim();
+    if (comando.startsWith(">buscaraccion")) {
+        const acc = comando.replace(">buscaraccion", "").trim();
         return logs.filter(l =>
             (l.accion || "").toLowerCase().includes(acc)
         );
     }
-
 
     return logs;
 }
 
 
 // ===============================
-// RENDER CONSOLA
+// RENDER CONSOLA (CON COLORES)
 // ===============================
-function renderConsolaLogs(comando){
+function renderConsolaLogs(comando) {
 
     const consola = document.getElementById("consolaSistema");
 
-    const input = document.getElementById("inputLogs");
-
-    if(!consola) return;
+    if (!consola) return;
 
     const logs = procesarFiltroLogs(comando);
 
     let html = "";
 
+
     logs.forEach(l => {
 
+        let color = "#00ff66";
+
+        switch ((l.accion || "").toUpperCase()) {
+
+            case "CONFIGURACION":
+                color = "#00b7ff";
+                break;
+
+            case "USUARIO":
+                color = "#ffd000";
+                break;
+
+            case "COBRO":
+                color = "#00ff66";
+                break;
+
+            case "ELIMINACION":
+                color = "#ff3b3b";
+                break;
+
+            case "SISTEMA":
+                color = "#b36bff";
+                break;
+
+        }
+
+
+        let detalle = l.detalle || "";
+
+        detalle = detalle.replace(
+            /(\d{6,12})/g,
+            `<b style="color:#ffffff">$1</b>`
+        );
+
+
         html += `
-${l.fecha} ${l.hora} | ${l.usuario} (${l.rol}) | ${l.accion} → ${l.detalle}<br>
+<div style="color:${color}; margin-bottom:2px;">
+${l.fecha} ${l.hora} |
+${l.usuario} (${l.rol}) |
+${l.accion} →
+${detalle}
+</div>
         `;
     });
 
-    consola.innerHTML = html || "Sin registros";
 
-    if(input){
-        input.value = "";
-    }
+    consola.innerHTML = html || "<span style='color:#999'>Sin registros</span>";
+
+    consola.scrollTop = consola.scrollHeight;
 
 }
 
@@ -252,8 +295,8 @@ function iniciarResetSemanal() {
 // ===============================
 function resetLogs() {
 
-    if (Array.isArray(BD_logsSistema)) {
-        BD_logsSistema.length = 0;
+    if (Array.isArray(window.BD_logsSistema)) {
+        window.BD_logsSistema.length = 0;
     }
 
     guardarBD();
