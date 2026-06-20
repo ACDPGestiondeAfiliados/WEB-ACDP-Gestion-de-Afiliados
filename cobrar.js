@@ -1,604 +1,185 @@
-/* =====================================
-   ACDP - COBRAR
-===================================== */
+// ===============================
+// MÓDULO COBRAR ACDP
+// Gestión de cuotas y pagos
+// ===============================
 
 
-let afiliadoSeleccionadoPago = null;
+document.addEventListener("DOMContentLoaded",()=>{
 
-
-
-const meses =
-[
-"enero",
-"febrero",
-"marzo",
-"abril",
-"mayo",
-"junio",
-"julio",
-"agosto",
-"septiembre",
-"octubre",
-"noviembre",
-"diciembre"
-];
-
-
-
-
-
-
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-
-iniciarCobrar();
-
+    iniciarCobrar();
 
 });
 
 
-
-
-
-
-
-
+// Inicializa buscador y tabla
 
 function iniciarCobrar(){
 
+    cargarTablaCobrar();
+
+    const filtro=document.getElementById("filtroCobrar");
 
 
-let filtro =
-document.getElementById(
-"filtroCobrar"
-);
+    if(filtro){
 
+        filtro.addEventListener("input",()=>{
 
+            buscarParaCobrar(
+                filtro.value
+            );
 
-if(filtro){
+        });
 
-
-filtro.addEventListener(
-"input",
-buscarAfiliadoCobro
-);
-
-
-}
-
-
+    }
 
 }
 
 
 
+// Carga tabla inicial
 
+function cargarTablaCobrar(){
 
-
-
-
-function cargarCobrar(){
-
-
-
-document
-.querySelector(
-"#tablaCobrar tbody")
-.innerHTML="";
-
-
+    mostrarCobros(BD.afiliados);
 
 }
 
 
 
+// Busca afiliados
+
+function buscarParaCobrar(valor){
+
+    valor=valor.trim();
 
 
+    if(!valor){
+
+        mostrarCobros(BD.afiliados);
+
+        return;
+
+    }
 
 
-
-
-function buscarAfiliadoCobro(){
-
-
-
-let valor =
-limpiarNumero(
-document.getElementById(
-"filtroCobrar"
-).value
-);
-
-
-
-
-let tabla =
-document
-.querySelector(
-"#tablaCobrar tbody"
-);
-
-
-
-tabla.innerHTML="";
-
-
-
-
-if(
-valor.length!==8
-)
-return;
-
-
-
-
-
-let encontrados =
-BD.afiliados.filter(a=>
-
-a.dni===valor
-||
-a.numero===valor
-
-);
-
-
-
-
-
-
-
-encontrados.forEach(a=>{
-
-
-let fila =
-document.createElement(
-"tr"
-);
-
-
-
-fila.innerHTML =
-`
-
-<td>${a.numero}</td>
-
-<td>${a.dni}</td>
-
-<td>${a.nombre}</td>
-
-<td>${a.apellido}</td>
-
-<td>${a.estado}</td>
-
-<td></td>
-
-`;
-
-
-
-
-
-fila.children[5]
-.appendChild(
-crearBoton(
-"Registrar Pago",
-()=>abrirPago(a)
-)
-);
-
-
-
-tabla.appendChild(fila);
-
-
-
-});
-
-
+    mostrarCobros(
+        buscarAfiliado(valor)
+    );
 
 }
 
 
 
+// Render tabla cobrar
 
+function mostrarCobros(lista){
 
+    const cuerpo=document
+    .getElementById("tablaCobrar")
+    .querySelector("tbody");
 
 
+    cuerpo.innerHTML="";
 
 
-function abrirPago(afiliado){
+    lista.forEach(a=>{
 
 
+        cuerpo.innerHTML+=`
 
-afiliadoSeleccionadoPago =
-afiliado;
+        <tr>
 
+            <td>${a.numero||""}</td>
 
+            <td>${a.dni||""}</td>
 
-abrirModal();
+            <td>${a.nombre||""}</td>
 
+            <td>${a.apellido||""}</td>
 
+            <td>${a.estado||""}</td>
 
+            <td>
 
-let caja =
-document.getElementById(
-"modalContenido"
-);
+                <button onclick="cobrarAfiliado('${a.dni}')">
+                    Cobrar
+                </button>
 
+            </td>
 
+        </tr>
 
-caja.innerHTML="";
+        `;
 
 
-
-
-
-let titulo =
-document.createElement(
-"h2"
-);
-
-
-
-titulo.textContent =
-"Registrar Pago";
-
-
-
-caja.appendChild(titulo);
-
-
-
-
-
-let texto =
-document.createElement(
-"p"
-);
-
-
-
-texto.textContent =
-"Seleccione meses a abonar";
-
-
-
-caja.appendChild(texto);
-
-
-
-
-
-
-
-
-let pagos =
-BD.pagos.filter(p=>
-
-p.numero===afiliado.numero
-&&
-p.activo!==false
-
-);
-
-
-
-
-let pagados =
-[];
-
-
-
-
-pagos.forEach(p=>{
-
-
-p.meses.forEach(m=>{
-
-pagados.push(m);
-
-});
-
-
-});
-
-
-
-
-
-
-
-meses.forEach(m=>{
-
-
-let label =
-document.createElement(
-"label"
-);
-
-
-
-let check =
-document.createElement(
-"input"
-);
-
-
-
-check.type =
-"checkbox";
-
-
-
-check.value =
-m;
-
-
-
-if(
-pagados.includes(m)
-){
-
-
-check.disabled =
-true;
-
-
-label.className =
-"bloqueado";
-
+    });
 
 }
 
 
 
+// Ejecuta cobro
 
-label.appendChild(check);
+function cobrarAfiliado(dni){
 
+    const afiliado=BD.afiliados.find(a=>
 
-label.appendChild(
-document.createTextNode(
-" "+m
-)
-);
+        a.dni===dni
 
+    );
 
 
-caja.appendChild(label);
+    if(!afiliado){
 
+        return;
 
+    }
 
-});
 
+    const monto=obtenerConfiguracion()
+    .monto || 0;
 
 
 
+    const pago={
 
+        usuario:"Admin",
 
+        afiliado:
+        afiliado.nombre+" "+afiliado.apellido,
 
-let boton =
-crearBoton(
-"Aceptar",
-confirmarPago
-);
+        dni:
+        afiliado.dni,
 
+        numero:
+        afiliado.numero,
 
+        fecha:
+        new Date().toLocaleDateString(),
 
-caja.appendChild(boton);
+        hora:
+        new Date().toLocaleTimeString(),
 
+        accion:"Cobro",
 
+        detalle:
+        "Cuota abonada: $"+monto
 
-}
+    };
 
 
 
+    registrarHistorial(pago);
 
 
 
+    escribirConsola(
+        "Cobro registrado: "+afiliado.dni
+    );
 
 
-
-function confirmarPago(){
-
-
-
-let checks =
-document
-.querySelectorAll(
-"#modalContenido input[type=checkbox]:checked"
-);
-
-
-
-
-
-let seleccionados =
-[];
-
-
-
-
-checks.forEach(c=>{
-
-
-seleccionados.push(
-c.value
-);
-
-
-});
-
-
-
-
-
-
-
-if(
-seleccionados.length===0
-){
-
-
-alert(
-"Seleccione meses"
-);
-
-
-
-return;
-
-
-
-}
-
-
-
-
-
-
-
-let monto =
-seleccionados.length *
-BD.configuracion.cuota;
-
-
-
-
-
-
-
-let pago = {
-
-
-usuario:
-usuarioActivo,
-
-
-numero:
-afiliadoSeleccionadoPago.numero,
-
-
-dni:
-afiliadoSeleccionadoPago.dni,
-
-
-
-afiliado:
-afiliadoSeleccionadoPago.nombre
-+" "
-+afiliadoSeleccionadoPago.apellido,
-
-
-
-meses:
-seleccionados,
-
-
-
-monto,
-
-
-
-fecha:
-obtenerFecha(),
-
-hora:
-obtenerHora(),
-
-
-
-activo:true,
-
-
-metodo:
-""
-
-
-
-};
-
-
-
-
-
-
-
-BD.pagos.push(
-pago
-);
-
-
-
-
-
-registrarHistorial({
-
-usuario:
-usuarioActivo,
-
-
-afiliado:
-pago.afiliado,
-
-
-dni:
-pago.dni,
-
-
-numero:
-pago.numero,
-
-
-
-accion:
-"Pago registrado",
-
-
-detalles:
-seleccionados.join(", ")
-
-});
-
-
-
-
-
-
-guardarBD();
-
-
-
-
-
-
-cerrarModal();
-
-
-
-
-
-
-alert(
-"PAGO REGISTRADO"
-);
-
-
-
-
-
-
-
-imprimirComprobante(
-pago
-);
-
-
-
-
+    alert(
+        "Cobro registrado correctamente"
+    );
 
 }
