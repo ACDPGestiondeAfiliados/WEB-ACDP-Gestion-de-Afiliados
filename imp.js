@@ -1,97 +1,192 @@
 /* =====================================
-   ACDP - CONFIGURACIÓN
+   ACDP - IMPRESIÓN
 ===================================== */
 
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
 
-
-iniciarConfiguracion();
-
-
-});
+function imprimirComprobante(pago){
 
 
 
-
-
-
-
-
-function iniciarConfiguracion(){
-
-
-
-document
-.getElementById(
-"guardarConfiguracion")
-.onclick =
-guardarConfiguracion;
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function cargarConfiguracion(){
-
-
-
-if(
-usuarioActivo!=="Admin"
-){
-
-
-
-document
-.getElementById(
-"montoConfiguracion")
-.value =
-"";
-
-
-
-document
-.getElementById(
-"consolaSistema")
-.textContent =
-"Acceso restringido";
-
-
-
-return;
-
-
-}
-
-
-
-
-
-
-document
-.getElementById(
-"montoConfiguracion")
-.value =
-formatearNumero(
-BD.configuracion.cuota
+let ventana =
+window.open(
+"",
+"",
+"width=500,height=700"
 );
 
 
 
 
 
+ventana.document.write(`
 
-mostrarLogs();
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>
+Comprobante ACDP
+</title>
+
+
+
+<style>
+
+
+body{
+
+font-family:Arial;
+padding:30px;
+}
+
+
+.ticket{
+
+width:300px;
+
+border:1px solid #000;
+
+padding:20px;
+
+text-align:center;
+
+}
+
+
+
+</style>
+
+
+
+</head>
+
+
+
+<body>
+
+
+
+
+<div class="ticket">
+
+
+
+<h2>
+ACDP - Gremio Docente
+</h2>
+
+
+
+<h3>
+Comprobante de pago
+</h3>
+
+
+
+<br>
+
+
+
+<b>Afiliado:</b>
+
+<br>
+
+${pago.afiliado}
+
+
+
+<br><br>
+
+
+<b>Nro:</b>
+
+${pago.numero}
+
+
+
+<br><br>
+
+
+
+<b>Meses abonados:</b>
+
+
+<br>
+
+${pago.meses.join(", ")}
+
+
+
+<br><br>
+
+
+
+<b>Monto:</b>
+
+<br>
+
+$${formatoPesos(pago.monto)}
+
+
+
+<br><br>
+
+
+
+<b>Método:</b>
+
+<br>
+
+${pago.metodo || "No especificado"}
+
+
+
+<br><br><br>
+
+
+
+Muchas gracias!
+
+
+
+
+</div>
+
+
+
+
+
+<script>
+
+window.onload=function(){
+
+window.print();
+
+window.close();
+
+}
+
+</script>
+
+
+
+
+</body>
+
+</html>
+
+
+`);
+
+
+
+
+
+ventana.document.close();
 
 
 
@@ -105,21 +200,55 @@ mostrarLogs();
 
 
 
-function guardarConfiguracion(){
+function imprimirCarnet(numero){
 
 
 
-if(
-usuarioActivo!=="Admin"
-){
+let afiliado =
+BD.afiliados.find(a=>
+
+a.numero===numero
+
+);
+
+
+
+
+
+if(!afiliado){
 
 
 alert(
-"Acceso restringido"
+"Afiliado inexistente"
 );
 
 
+
 return;
+
+}
+
+
+
+
+
+let color;
+
+
+
+if(
+afiliado.estado==="ACTIVO"
+){
+
+
+color="#F600FF";
+
+
+}
+else{
+
+
+color="#FFB700";
 
 
 }
@@ -127,219 +256,249 @@ return;
 
 
 
+
+
+
+let ventana =
+window.open(
+"",
+"",
+"width=500,height=400"
+);
+
+
+
+
+
+
+ventana.document.write(`
+
+
+
+<!DOCTYPE html>
+
+
+<html>
+
+
+<head>
+
+
+<title>
+Carnet ACDP
+</title>
+
+
+
+<style>
+
+
+
+.carnet{
+
+
+width:8cm;
+
+height:6cm;
+
+border:3px solid ${color};
+
+padding:10px;
+
+font-family:Arial;
+
+
+}
+
+
+
+
+.codigo{
+
+
+font-size:20px;
+
+letter-spacing:3px;
+
+}
+
+
+
+</style>
+
+
+
+</head>
+
+
+
+<body>
+
+
+
+
+
+<div class="carnet">
+
+
+
+
+
+<h2>
+
+ACDP
+
+</h2>
+
+
+
+<b>
+
+${afiliado.nombre}
+
+</b>
+
+
+<br>
+
+
+<b>
+
+${afiliado.apellido}
+
+</b>
+
+
+
+<br><br>
+
+
+
+DNI:
+
+${afiliado.dni}
+
+
+
+<br>
+
+
+
+Nº Afiliado:
+
+${afiliado.numero}
+
+
+
+
+<br><br>
+
+
+
+
+<div class="codigo">
+
+${crearCodigoBarras(
+afiliado.numero
+)}
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<script>
+
+
+window.onload=function(){
+
+window.print();
+
+window.close();
+
+}
+
+
+</script>
+
+
+
+</body>
+
+
+</html>
+
+
+
+`);
+
+
+
+
+ventana.document.close();
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function crearCodigoBarras(numero){
+
+
+
+let resultado="";
+
+
+
+
+
+for(
+let i=0;
+i<numero.length;
+i++
+){
 
 
 
 let valor =
-document
-.getElementById(
-"montoConfiguracion")
-.value;
-
-
-
-
-
-
-valor =
-limpiarNumero(
-valor
+Number(
+numero[i]
 );
 
 
 
 
-valor =
-Number(valor);
-
-
-
-
-
-
-
-
-if(
-valor < 10000
-||
-valor > 999999
-){
-
-
-alert(
-"El monto debe estar entre $10.000 y $999.999"
-);
-
-
-return;
-
-
-}
-
-
-
-
-
-
-
-BD.configuracion.cuota =
-valor;
-
-
-
-
-
-
-
-registrarHistorial({
-
-usuario:
-usuarioActivo,
-
-
-accion:
-"Configuración modificada",
-
-
-detalles:
-"Nuevo monto: $"
-+
-formatearNumero(valor)
-
-
-
-});
-
-
-
-
-
-
-agregarLog(
-
-"Cuota modificada: $"
-+
-formatearNumero(valor)
-
-);
-
-
-
-
-
-guardarBD();
-
-
-
-
-
-
-alert(
-"Configuración guardada"
-);
-
-
-
-
-
-cargarConfiguracion();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function agregarLog(texto){
-
-
-
-if(!BD.logs)
-BD.logs=[];
-
-
-
-
-
-BD.logs.push({
-
-
-
-fecha:
-obtenerFecha(),
-
-
-
-hora:
-obtenerHora(),
-
-
-
-texto
-
-
-
-});
-
-
-
-
-
-
-guardarBD();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function mostrarLogs(){
-
-
-
-let consola =
-document
-.getElementById(
-"consolaSistema"
-);
-
-
-
-
-
-consola.innerHTML="";
-
-
-
-
-
-if(
-!BD.logs
-||
-BD.logs.length===0
+for(
+let j=0;
+j<valor+1;
+j++
 ){
 
 
 
-consola.textContent =
-"Sin registros";
+resultado += "|";
+
+
+}
 
 
 
-return;
+resultado += " ";
 
 
 }
@@ -347,41 +506,7 @@ return;
 
 
 
-
-
-
-BD.logs
-.slice()
-.reverse()
-.forEach(log=>{
-
-
-
-let linea =
-document.createElement(
-"div"
-);
-
-
-
-linea.textContent =
-`
-
-[${log.fecha} ${log.hora}]
-${log.texto}
-
-`;
-
-
-
-consola.appendChild(
-linea
-);
-
-
-
-});
-
+return resultado;
 
 
 
@@ -395,14 +520,106 @@ linea
 
 
 
-function formatearNumero(valor){
+function imprimirTabla(id){
 
 
 
-return Number(valor)
-.toLocaleString(
-"es-AR"
+let tabla =
+document
+.getElementById(id)
+.outerHTML;
+
+
+
+
+
+
+let ventana =
+window.open(
+"",
+"",
+"width=900,height=700"
 );
+
+
+
+
+
+ventana.document.write(`
+
+
+<html>
+
+<head>
+
+<title>
+Impresión ACDP
+</title>
+
+
+<style>
+
+
+table{
+
+border-collapse:collapse;
+
+width:100%;
+
+}
+
+
+td,th{
+
+border:1px solid black;
+
+padding:8px;
+
+text-align:center;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+${tabla}
+
+
+
+<script>
+
+
+window.onload=function(){
+
+window.print();
+
+window.close();
+
+}
+
+
+</script>
+
+
+</body>
+
+
+</html>
+
+
+`);
+
+
+
+
+ventana.document.close();
 
 
 
