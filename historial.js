@@ -90,31 +90,54 @@ function eventosHistorial(){
 
 if(selector){
 
-    const actualizarDesdeFecha = ()=>{
+    selector.addEventListener("change",()=>{
 
-        if(selector.value){
-
-            fechaActual=new Date(
-                selector.value+"T00:00:00"
-            );
-
-            actualizarFecha();
-
-            cargarHistorialFecha();
-
+        if(!selector.value){
+            return;
         }
 
-    };
+
+        const partes =
+        selector.value.split("-");
 
 
-    selector.addEventListener("change", actualizarDesdeFecha);
+        fechaActual = new Date(
+            partes[0],
+            partes[1]-1,
+            partes[2]
+        );
+
+
+        cargarHistorialFecha();
+
+        actualizarFecha();
+
+    });
 
 
     selector.addEventListener("keydown",(e)=>{
 
         if(e.key==="Enter"){
 
-            actualizarDesdeFecha();
+            if(!selector.value){
+                return;
+            }
+
+
+            const partes =
+            selector.value.split("-");
+
+
+            fechaActual = new Date(
+                partes[0],
+                partes[1]-1,
+                partes[2]
+            );
+
+
+            cargarHistorialFecha();
+
+            actualizarFecha();
 
         }
 
