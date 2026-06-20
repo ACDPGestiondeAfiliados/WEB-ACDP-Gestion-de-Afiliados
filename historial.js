@@ -417,10 +417,15 @@ ${h.hora||""}
 
 <td>
 
+${
+h.accion==="Cobro"
+?
+
+`
 
 <img
 
-src="print.png"  width="25%" height="25%"
+src="print.png" width="25%" height="25%"
 
 class="iconoHistorial"
 
@@ -428,7 +433,6 @@ onclick="imprimirRegistro('${h.dni}','${h.fecha}','${h.hora}')"
 
 
 >
-
 
 
 <img
@@ -442,7 +446,13 @@ onclick="solicitarAnulacion('${h.dni}','${h.fecha}','${h.hora}')"
 
 >
 
+`
 
+:
+
+""
+
+}
 
 </td>
 
