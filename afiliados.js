@@ -183,6 +183,9 @@ function mostrarTabla(){
         Eliminar
         </button>
 
+        <button onclick="imprimirAfiliado('${a.dni}')">
+        Imprimir
+        </button>
 
         </td>
 
@@ -517,7 +520,46 @@ cargarAfiliados();
 
 }
 
+// ===============================
+// Imprimir afiliado
+// ===============================
 
+function imprimirAfiliado(dni){
+
+
+const afiliado=
+BD_afiliados.find(a=>a.dni===dni);
+
+
+
+if(!afiliado){
+
+    return;
+
+}
+
+
+
+generarPDF([{
+
+    afiliado:
+    afiliado.nombre+" "+afiliado.apellido,
+
+
+    dni:
+    afiliado.dni,
+
+
+    fecha:
+    afiliado.fecha,
+
+
+    detalle:
+    "Ficha de afiliado ACDP"
+
+}]);
+
+}
 
 // ===============================
 // Cerrar modal
