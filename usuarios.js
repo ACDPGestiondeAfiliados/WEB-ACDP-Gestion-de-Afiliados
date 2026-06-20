@@ -47,14 +47,14 @@ function cargarUsuarios() {
 
                 <img 
                     src="editar.png"
-                    class="iconoUsuarios"
+                    class="iconoHistorial"
                     title="Editar usuario"
                     onclick="abrirEditarUsuario(${index})"
                 >
 
                 <img 
                     src="eliminar.png"
-                    class="iconoUsuarios"
+                    class="iconoHistorial"
                     title="Eliminar usuario"
                     onclick="eliminarUsuario(${index})"
                 >
