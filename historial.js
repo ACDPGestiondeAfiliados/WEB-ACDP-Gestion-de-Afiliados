@@ -1,660 +1,260 @@
-/* =====================================
-   ACDP - HISTORIAL
-===================================== */
+// ===============================
+// HISTORIAL ACDP
+// Registro de pagos y consultas
+// ===============================
 
 
-let fechaHistorialActual = new Date();
-
-let filtroHistorialActual = "";
-
+let fechaActual=new Date();
+let historialVista=[];
 
 
+document.addEventListener("DOMContentLoaded",()=>{
 
-
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-
-iniciarHistorial();
-
+    iniciarHistorial();
 
 });
 
 
-
-
-
-
-
-
+// Inicialización del módulo
 
 function iniciarHistorial(){
 
+    cargarHistorial();
 
-
-document
-.getElementById(
-"historialAnterior")
-.onclick =
-()=>{
-
-
-cambiarDiaHistorial(-1);
-
-
-};
-
-
-
-
-
-
-document
-.getElementById(
-"historialSiguiente")
-.onclick =
-()=>{
-
-
-cambiarDiaHistorial(1);
-
-
-};
-
-
-
-
-
-
-document
-.getElementById(
-"filtroHistorial")
-.addEventListener(
-"input",
-()=>{
-
-
-filtroHistorialActual =
-limpiarNumero(
-document.getElementById(
-"filtroHistorial"
-).value
-);
-
-
-
-cargarHistorial();
-
-
-
-});
-
-
-
-
-
-
-document
-.getElementById(
-"btnImprimirHistorial")
-.onclick =
-()=>{
-
-
-imprimirTabla(
-"tablaHistorial"
-);
-
-
-
-};
-
-
+    eventosHistorial();
 
 }
 
 
 
+// Eventos del historial
+
+function eventosHistorial(){
+
+    const filtro=document.getElementById("filtroHistorial");
+    const anterior=document.getElementById("historialAnterior");
+    const siguiente=document.getElementById("historialSiguiente");
+    const imprimir=document.getElementById("btnImprimirHistorial");
+
+
+    if(filtro){
+
+        filtro.addEventListener("input",()=>{
+
+            filtrarHistorial(
+                filtro.value
+            );
+
+        });
+
+    }
+
+
+    if(anterior){
+
+        anterior.addEventListener("click",()=>{
+
+            cambiarFecha(-1);
+
+        });
+
+    }
+
+
+    if(siguiente){
+
+        siguiente.addEventListener("click",()=>{
+
+            cambiarFecha(1);
+
+        });
+
+    }
+
+
+    if(imprimir){
+
+        imprimir.addEventListener("click",()=>{
+
+            imprimirHistorial();
+
+        });
+
+    }
+
+}
 
 
 
-
-
+// Carga registros
 
 function cargarHistorial(){
 
+    historialVista=BD.historial;
 
-
-actualizarFechaHistorial();
-
-
-
-
-
-let tabla =
-document
-.querySelector(
-"#tablaHistorial tbody"
-);
-
-
-
-tabla.innerHTML="";
-
-
-
-
-
-
-
-let fecha =
-formatoFecha(
-fechaHistorialActual
-);
-
-
-
-
-
-
-
-let lista =
-BD.historial.filter(h=>
-
-h.fecha===fecha
-
-);
-
-
-
-
-
-
-if(
-filtroHistorialActual.length===8
-){
-
-
-
-lista =
-lista.filter(h=>
-
-h.dni===filtroHistorialActual
-||
-h.numero===filtroHistorialActual
-
-);
-
-
+    mostrarHistorial();
 
 }
 
 
 
+// Filtra registros
+
+function filtrarHistorial(valor){
+
+    valor=valor.trim();
 
 
+    if(!valor){
+
+        historialVista=BD.historial;
+
+    }else{
+
+        historialVista=
+        BD.historial.filter(h=>
+
+            h.dni===valor ||
+            h.numero===valor
+
+        );
+
+    }
 
 
-
-
-
-lista.forEach(h=>{
-
-
-
-let fila =
-document.createElement(
-"tr"
-);
-
-
-
-
-
-fila.innerHTML =
-`
-
-<td>${h.usuario}</td>
-
-<td>${h.afiliado}</td>
-
-<td>${h.dni}</td>
-
-<td>${h.numero}</td>
-
-<td>${h.fecha}</td>
-
-<td>${h.hora}</td>
-
-<td></td>
-
-<td>${h.detalles}</td>
-
-`;
-
-
-
-
-
-
-let acciones =
-fila.children[6];
-
-
-
-
-
-
-if(
-h.accion==="Pago registrado"
-&&
-!h.cancelado
-){
-
-
-
-
-
-acciones.appendChild(
-crearBoton(
-"Reimprimir",
-()=>reimprimirDesdeHistorial(h)
-)
-);
-
-
-
-
-
-
-acciones.appendChild(
-crearBoton(
-"Eliminar",
-()=>cancelarPagoHistorial(h)
-)
-);
-
-
-
-
-}
-
-else
-if(h.cancelado)
-{
-
-
-fila.classList.add(
-"fila-bloqueada"
-);
-
-
-
-acciones.textContent =
-"Cancelado";
-
-
+    mostrarHistorial();
 
 }
 
 
 
+// Render tabla
+
+function mostrarHistorial(){
+
+    const cuerpo=document
+    .getElementById("tablaHistorial")
+    .querySelector("tbody");
 
 
-tabla.appendChild(
-fila
-);
+    cuerpo.innerHTML="";
 
 
-
-});
-
+    let montoTotal=0;
 
 
+    historialVista.forEach(h=>{
 
 
-
-actualizarMontoHistorial(
-lista
-);
-
-
-
-}
+        montoTotal+=obtenerMonto(h.detalle);
 
 
 
+        cuerpo.innerHTML+=`
+
+        <tr>
+
+            <td>${h.usuario||""}</td>
+
+            <td>${h.afiliado||""}</td>
+
+            <td>${h.dni||""}</td>
+
+            <td>${h.numero||""}</td>
+
+            <td>${h.fecha||""}</td>
+
+            <td>${h.hora||""}</td>
+
+            <td>${h.accion||""}</td>
+
+            <td>${h.detalle||""}</td>
+
+        </tr>
+
+        `;
+
+    });
 
 
 
+    document.getElementById("montoHistorial")
+    .textContent=
+    "$"+montoTotal.toFixed(2);
 
 
 
-function cambiarDiaHistorial(dias){
-
-
-
-fechaHistorialActual.setDate(
-
-fechaHistorialActual.getDate()
-+
-dias
-
-);
-
-
-
-
-cargarHistorial();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function actualizarFechaHistorial(){
-
-
-
-document
-.getElementById(
-"fechaHistorial")
-.textContent =
-formatoFecha(
-fechaHistorialActual
-);
-
-
+    actualizarFecha();
 
 }
 
 
 
+// Cambia fecha visible
+
+function cambiarFecha(valor){
+
+    fechaActual.setDate(
+        fechaActual.getDate()+valor
+    );
 
 
-
-
-
-
-function formatoFecha(f){
-
-
-
-return (
-
-String(
-f.getDate()
-)
-.padStart(2,"0")
-
-+
-
-"/"
-
-+
-
-String(
-f.getMonth()+1
-)
-.padStart(2,"0")
-
-+
-
-"/"
-
-+
-
-f.getFullYear()
-
-
-);
-
-
+    actualizarFecha();
 
 }
 
 
 
+// Actualiza texto fecha
+
+function actualizarFecha(){
+
+    const fecha=document.getElementById("fechaHistorial");
 
 
+    if(fecha){
 
+        fecha.textContent=
+        fechaActual.toLocaleDateString();
 
-
-
-function actualizarMontoHistorial(lista){
-
-
-
-let total = 0;
-
-
-
-
-
-
-lista.forEach(h=>{
-
-
-
-if(
-h.accion==="Pago registrado"
-&&
-!h.cancelado
-){
-
-
-
-let pago =
-BD.pagos.find(p=>
-
-p.fecha===h.fecha
-&&
-p.hora===h.hora
-&&
-p.numero===h.numero
-
-);
-
-
-
-
-if(pago){
-
-total += pago.monto;
+    }
 
 }
 
 
 
-}
+// Obtiene monto desde texto
+
+function obtenerMonto(texto){
+
+    if(!texto) return 0;
 
 
-
-});
-
-
+    const numero=
+    texto.replace(/\D/g,"");
 
 
-
-
-
-document
-.getElementById(
-"montoHistorial")
-.textContent =
-"$"+
-formatoPesos(total);
-
-
+    return Number(numero)||0;
 
 }
 
 
 
+// Acción imprimir
 
+function imprimirHistorial(){
 
+    escribirConsola(
+        "Solicitud de impresión de historial"
+    );
 
 
+    if(typeof generarPDF==="function"){
 
+        generarPDF(
+            historialVista
+        );
 
-function reimprimirDesdeHistorial(h){
-
-
-
-let pago =
-BD.pagos.find(p=>
-
-p.numero===h.numero
-&&
-p.fecha===h.fecha
-&&
-p.hora===h.hora
-
-);
-
-
-
-
-if(!pago){
-
-alert(
-"Pago no encontrado"
-);
-
-return;
-
-}
-
-
-
-
-imprimirComprobante(
-pago
-);
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function cancelarPagoHistorial(h){
-
-
-
-let confirmar =
-confirm(
-"¿Desea cancelar este pago?"
-);
-
-
-
-if(!confirmar)
-return;
-
-
-
-
-
-
-
-h.cancelado = true;
-
-
-
-
-
-
-let pago =
-BD.pagos.find(p=>
-
-p.numero===h.numero
-&&
-p.fecha===h.fecha
-&&
-p.hora===h.hora
-
-);
-
-
-
-
-
-
-if(pago){
-
-
-pago.activo=false;
-
-
-}
-
-
-
-
-
-
-
-
-registrarHistorial({
-
-usuario:
-usuarioActivo,
-
-
-afiliado:
-h.afiliado,
-
-
-dni:
-h.dni,
-
-
-numero:
-h.numero,
-
-
-
-accion:
-"Pago cancelado",
-
-
-detalles:
-"Pago eliminado"
-
-
-
-});
-
-
-
-
-
-
-
-guardarBD();
-
-
-
-
-
-cargarHistorial();
-
-
+    }
 
 }
