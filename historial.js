@@ -298,7 +298,7 @@ h.numero===valor
 
 
 
-mostrarHistorial();
+mostrarHistorial;
 
 
 
@@ -811,8 +811,8 @@ hora
 ){
 
 
-crearModalPIN(
-()=>{
+crearModalPIN(()=>{
+
 
 anularRegistro(
 dni,
@@ -821,9 +821,7 @@ hora
 );
 
 
-}
-
-);
+});
 
 
 }
@@ -842,13 +840,13 @@ let div=document.createElement("div");
 div.id="modalPIN";
 
 
+div.className="modal-fondo activo";
+
+
 
 div.innerHTML=`
 
-<div class="fondoModal">
-
-
-<div class="contenidoModal">
+<div class="modal">
 
 
 <h3>
@@ -860,11 +858,13 @@ PIN Administrador
 <input 
 type="password"
 id="inputPINHistorial"
+placeholder="Ingrese PIN"
 >
 
 
 
 <br><br>
+
 
 
 <button onclick="confirmarPIN()">
@@ -881,9 +881,6 @@ Cancelar
 
 </button>
 
-
-
-</div>
 
 
 </div>
@@ -952,7 +949,11 @@ const m=
 document.getElementById("modalPIN");
 
 
-if(m)m.remove();
+if(m){
+
+m.remove();
+
+}
 
 
 }
@@ -1007,8 +1008,6 @@ registro.detalle +=
 
 
 
-// recuperar meses
-
 const afiliado =
 BD_afiliados.find(a=>
 
@@ -1023,9 +1022,17 @@ afiliado &&
 registro.meses
 ){
 
+
+if(!afiliado.mesesPagados){
+
+afiliado.mesesPagados=[];
+
+}
+
+
+
 afiliado.mesesPagados =
-afiliado.mesesPagados
-.filter(m=>
+afiliado.mesesPagados.filter(m=>
 
 !registro.meses.includes(m)
 
