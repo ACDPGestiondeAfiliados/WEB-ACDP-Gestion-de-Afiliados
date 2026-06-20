@@ -92,15 +92,17 @@ function eventosHistorial(){
 
 }
 
+
 // ===============================
 // Carga registros
 // ===============================
 function cargarHistorial(){
 
-    historialVista=BD_historial;
+    historialVista=[...BD_historial].reverse();
     mostrarHistorial();
 
 }
+
 
 // ===============================
 // Filtra registros
@@ -111,7 +113,7 @@ function filtrarHistorial(valor){
 
     if(!valor){
 
-        historialVista=BD_historial;
+        historialVista=[...BD_historial].reverse();
 
     }else{
 
@@ -121,13 +123,14 @@ function filtrarHistorial(valor){
             h.dni===valor ||
             h.numero===valor
 
-        );
+        ).reverse();
 
     }
 
     mostrarHistorial();
 
 }
+
 
 // ===============================
 // Render tabla
@@ -138,13 +141,35 @@ function mostrarHistorial(){
     .getElementById("tablaHistorial")
     .querySelector("tbody");
 
+
     cuerpo.innerHTML="";
+
 
     let montoTotal=0;
 
+
+    if(historialVista.length===0){
+
+        cuerpo.innerHTML=`
+
+        <tr>
+
+            <td colspan="8">
+            SIN REGISTRO
+            </td>
+
+        </tr>
+
+        `;
+
+    }
+
+
     historialVista.forEach(h=>{
 
+
         montoTotal+=obtenerMonto(h.detalle);
+
 
         cuerpo.innerHTML+=`
 
@@ -172,26 +197,92 @@ function mostrarHistorial(){
 
     });
 
+
     document.getElementById("montoHistorial")
     .textContent=
     "$"+montoTotal.toFixed(2);
 
+
     actualizarFecha();
 
 }
+
 
 // ===============================
 // Cambia fecha visible
 // ===============================
 function cambiarFecha(valor){
 
+
+    const hoy=new Date();
+
+
+    if(valor===1){
+
+        if(
+            fechaActual.toDateString() === hoy.toDateString()
+        ){
+
+            const siguiente=
+            document.getElementById("historialSiguiente");
+
+            if(siguiente){
+
+                siguiente.disabled=true;
+
+            }
+
+            return;
+
+        }
+
+    }
+
+
     fechaActual.setDate(
         fechaActual.getDate()+valor
     );
 
+
     actualizarFecha();
 
+
+    const registrosDia =
+    BD_historial.filter(h=>{
+
+
+        const fechaRegistro=
+        new Date(h.fecha);
+
+
+        return fechaRegistro.toLocaleDateString()
+        === fechaActual.toLocaleDateString();
+
+
+    });
+
+
+    historialVista=
+    registrosDia.reverse();
+
+
+    mostrarHistorial();
+
+
+    const siguiente=
+    document.getElementById("historialSiguiente");
+
+
+    if(siguiente){
+
+        siguiente.disabled =
+        fechaActual.toDateString() === hoy.toDateString();
+
+    }
+
+
 }
+
 
 // ===============================
 // Actualiza texto fecha
@@ -200,6 +291,7 @@ function actualizarFecha(){
 
     const fecha=document.getElementById("fechaHistorial");
 
+
     if(fecha){
 
         fecha.textContent=
@@ -207,7 +299,22 @@ function actualizarFecha(){
 
     }
 
+
+    const siguiente=
+    document.getElementById("historialSiguiente");
+
+
+    if(siguiente){
+
+        const hoy=new Date();
+
+        siguiente.disabled =
+        fechaActual.toDateString() === hoy.toDateString();
+
+    }
+
 }
+
 
 // ===============================
 // Obtiene monto desde texto
@@ -216,12 +323,15 @@ function obtenerMonto(texto){
 
     if(!texto) return 0;
 
+
     const numero=
     texto.replace(/\D/g,"");
+
 
     return Number(numero)||0;
 
 }
+
 
 // ===============================
 // ACTUALIZAR BD - SE REGISTRA ACCION NUEVA
@@ -230,7 +340,9 @@ function registrarHistorial(accion, afiliado, detalle){
 
     if(!Array.isArray(BD_historial)) return;
 
+
     const ahora=new Date();
+
 
     const usuarioReal =
         (typeof window.usuarioActivo !== "undefined" && window.usuarioActivo && window.usuarioActivo !== "Admin")
@@ -239,20 +351,33 @@ function registrarHistorial(accion, afiliado, detalle){
             ? usuarioActivo
             : "Sistema";
 
+
     BD_historial.push({
+
         usuario: usuarioReal,
+
         afiliado: afiliado?.nombre+" "+afiliado?.apellido || "",
+
         dni: afiliado?.dni || "",
+
         numero: afiliado?.numero || "",
+
         fecha: ahora.toLocaleDateString(),
+
         hora: ahora.toLocaleTimeString(),
+
         accion: accion,
+
         detalle: detalle || ""
+
     });
+
 
     guardarBD();
 
+
 }
+
 
 // ===============================
 // Acción imprimir
@@ -262,6 +387,7 @@ function imprimirHistorial(){
     escribirConsola(
         "Solicitud de impresión de historial"
     );
+
 
     if(typeof generarPDF==="function"){
 
