@@ -232,13 +232,13 @@ maxlength="20">
 
 <input id="nuevoCelular"
 placeholder="Celular"
-maxlength="15"
+maxlength="10"
 inputmode="numeric">
 
 
 <input id="nuevoCorreo"
 placeholder="Correo"
-maxlength="20">
+maxlength="30">
 
 
 <select id="nuevoEstado">
