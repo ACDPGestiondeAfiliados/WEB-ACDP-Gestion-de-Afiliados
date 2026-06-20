@@ -248,8 +248,6 @@ anterior.remove();
 }
 
 
-function crearModalCobro(afiliado){
-
 
 let meses=[
 
@@ -384,7 +382,7 @@ document.body.appendChild(div);
 
 
 }
-
+    
 // ===============================
 // Confirmar pago
 // ===============================
