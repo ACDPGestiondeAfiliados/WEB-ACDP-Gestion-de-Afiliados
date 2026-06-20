@@ -1,626 +1,104 @@
-/* =====================================
-   ACDP - IMPRESIÓN
-===================================== */
+// ===============================
+// IMPRESIÓN ACDP
+// Vista previa y generación temporal
+// de comprobantes
+// ===============================
 
 
+function generarPDF(datos){
 
-function imprimirComprobante(pago){
-
-
-
-let ventana =
-window.open(
-"",
-"",
-"width=500,height=700"
-);
-
-
-
-
-
-ventana.document.write(`
-
-
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<title>
-Comprobante ACDP
-</title>
-
-
-
-<style>
-
-
-body{
-
-font-family:Arial;
-padding:30px;
-}
-
-
-.ticket{
-
-width:300px;
-
-border:1px solid #000;
-
-padding:20px;
-
-text-align:center;
+    abrirVistaImpresion(datos);
 
 }
 
 
 
-</style>
+// Abre vista previa en modal
 
+function abrirVistaImpresion(datos){
 
+    const fondo=document.getElementById("modalFondo");
+    const contenido=document.getElementById("modalContenido");
 
-</head>
 
+    if(!fondo || !contenido){
 
+        return;
 
-<body>
+    }
 
 
 
+    let filas="";
 
-<div class="ticket">
 
+    datos.forEach(d=>{
 
 
-<h2>
-ACDP - Gremio Docente
-</h2>
+        filas+=`
 
+        <tr>
 
+            <td>${d.afiliado||""}</td>
+            <td>${d.dni||""}</td>
+            <td>${d.fecha||""}</td>
+            <td>${d.detalle||""}</td>
 
-<h3>
-Comprobante de pago
-</h3>
+        </tr>
 
+        `;
 
 
-<br>
+    });
 
 
 
-<b>Afiliado:</b>
+    contenido.innerHTML=`
 
-<br>
+    <h2>ACDP</h2>
 
-${pago.afiliado}
+    <h3>Comprobante</h3>
 
 
+    <table>
 
-<br><br>
+        <thead>
 
+            <tr>
 
-<b>Nro:</b>
+                <th>Afiliado</th>
+                <th>DNI</th>
+                <th>Fecha</th>
+                <th>Detalle</th>
 
-${pago.numero}
+            </tr>
 
+        </thead>
 
 
-<br><br>
+        <tbody>
 
+            ${filas}
 
+        </tbody>
 
-<b>Meses abonados:</b>
 
+    </table>
 
-<br>
 
-${pago.meses.join(", ")}
+    <br>
 
 
+    <button onclick="window.print()">
 
-<br><br>
+        Imprimir
 
+    </button>
 
+    `;
 
-<b>Monto:</b>
 
-<br>
 
-$${formatoPesos(pago.monto)}
-
-
-
-<br><br>
-
-
-
-<b>Método:</b>
-
-<br>
-
-${pago.metodo || "No especificado"}
-
-
-
-<br><br><br>
-
-
-
-Muchas gracias!
-
-
-
-
-</div>
-
-
-
-
-
-<script>
-
-window.onload=function(){
-
-window.print();
-
-window.close();
-
-}
-
-</script>
-
-
-
-
-</body>
-
-</html>
-
-
-`);
-
-
-
-
-
-ventana.document.close();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function imprimirCarnet(numero){
-
-
-
-let afiliado =
-BD.afiliados.find(a=>
-
-a.numero===numero
-
-);
-
-
-
-
-
-if(!afiliado){
-
-
-alert(
-"Afiliado inexistente"
-);
-
-
-
-return;
-
-}
-
-
-
-
-
-let color;
-
-
-
-if(
-afiliado.estado==="ACTIVO"
-){
-
-
-color="#F600FF";
-
-
-}
-else{
-
-
-color="#FFB700";
-
-
-}
-
-
-
-
-
-
-
-let ventana =
-window.open(
-"",
-"",
-"width=500,height=400"
-);
-
-
-
-
-
-
-ventana.document.write(`
-
-
-
-<!DOCTYPE html>
-
-
-<html>
-
-
-<head>
-
-
-<title>
-Carnet ACDP
-</title>
-
-
-
-<style>
-
-
-
-.carnet{
-
-
-width:8cm;
-
-height:6cm;
-
-border:3px solid ${color};
-
-padding:10px;
-
-font-family:Arial;
-
-
-}
-
-
-
-
-.codigo{
-
-
-font-size:20px;
-
-letter-spacing:3px;
-
-}
-
-
-
-</style>
-
-
-
-</head>
-
-
-
-<body>
-
-
-
-
-
-<div class="carnet">
-
-
-
-
-
-<h2>
-
-ACDP
-
-</h2>
-
-
-
-<b>
-
-${afiliado.nombre}
-
-</b>
-
-
-<br>
-
-
-<b>
-
-${afiliado.apellido}
-
-</b>
-
-
-
-<br><br>
-
-
-
-DNI:
-
-${afiliado.dni}
-
-
-
-<br>
-
-
-
-Nº Afiliado:
-
-${afiliado.numero}
-
-
-
-
-<br><br>
-
-
-
-
-<div class="codigo">
-
-${crearCodigoBarras(
-afiliado.numero
-)}
-
-</div>
-
-
-
-
-</div>
-
-
-
-
-
-
-
-<script>
-
-
-window.onload=function(){
-
-window.print();
-
-window.close();
-
-}
-
-
-</script>
-
-
-
-</body>
-
-
-</html>
-
-
-
-`);
-
-
-
-
-ventana.document.close();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function crearCodigoBarras(numero){
-
-
-
-let resultado="";
-
-
-
-
-
-for(
-let i=0;
-i<numero.length;
-i++
-){
-
-
-
-let valor =
-Number(
-numero[i]
-);
-
-
-
-
-for(
-let j=0;
-j<valor+1;
-j++
-){
-
-
-
-resultado += "|";
-
-
-}
-
-
-
-resultado += " ";
-
-
-}
-
-
-
-
-return resultado;
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function imprimirTabla(id){
-
-
-
-let tabla =
-document
-.getElementById(id)
-.outerHTML;
-
-
-
-
-
-
-let ventana =
-window.open(
-"",
-"",
-"width=900,height=700"
-);
-
-
-
-
-
-ventana.document.write(`
-
-
-<html>
-
-<head>
-
-<title>
-Impresión ACDP
-</title>
-
-
-<style>
-
-
-table{
-
-border-collapse:collapse;
-
-width:100%;
-
-}
-
-
-td,th{
-
-border:1px solid black;
-
-padding:8px;
-
-text-align:center;
-
-}
-
-
-</style>
-
-
-</head>
-
-
-<body>
-
-
-${tabla}
-
-
-
-<script>
-
-
-window.onload=function(){
-
-window.print();
-
-window.close();
-
-}
-
-
-</script>
-
-
-</body>
-
-
-</html>
-
-
-`);
-
-
-
-
-ventana.document.close();
-
-
+    fondo.classList.add("activo");
 
 }
