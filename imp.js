@@ -9,6 +9,12 @@
 // IMPRIMIR CARNET AFILIADO
 // ===============================
 
+// ===============================
+// IMPRESIÓN CARNET ACDP
+// Generación temporal PNG
+// Tamaño real 8x6cm
+// ===============================
+
 function generarPDF(afiliado){
 
 
@@ -16,7 +22,7 @@ const ventana =
 window.open(
 "",
 "_blank",
-"width=500,height=400"
+"width=600,height=500"
 );
 
 
@@ -26,16 +32,6 @@ if(!ventana){
     return;
 
 }
-
-
-
-const colorEstado =
-afiliado.estado==="ADHERENTE" ||
-afiliado.estado==="Adherente"
-?
-"#FFB700"
-:
-"#F600FF";
 
 
 
@@ -51,10 +47,7 @@ ventana.document.write(`
 <meta charset="UTF-8">
 
 
-<title>Carnet ACDP</title>
-
-
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 
 <style>
@@ -62,16 +55,9 @@ ventana.document.write(`
 
 @page{
 
-size:8.5cm 5.5cm;
-margin:0;
+size:auto;
 
-}
-
-
-
-*{
-
-box-sizing:border-box;
+margin:5mm;
 
 }
 
@@ -80,24 +66,33 @@ box-sizing:border-box;
 body{
 
 margin:0;
+
 padding:0;
-width:8.5cm;
-height:5.5cm;
-font-family:Arial,Helvetica,sans-serif;
-background:white;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+height:100vh;
 
 }
 
 
 
-.carnet{
+#carnet{
 
 
-width:8.5cm;
-height:5.5cm;
+width:8cm;
+
+height:6cm;
 
 
-border:2px solid ${colorEstado};
+border:2px solid #005baa;
+
+
+font-family:Arial,Helvetica,sans-serif;
 
 
 display:flex;
@@ -105,7 +100,7 @@ display:flex;
 padding:6px;
 
 
-overflow:hidden;
+box-sizing:border-box;
 
 
 }
@@ -114,9 +109,7 @@ overflow:hidden;
 
 .izquierda{
 
-
-width:28%;
-
+width:30%;
 
 display:flex;
 
@@ -124,85 +117,57 @@ align-items:center;
 
 justify-content:center;
 
-
 }
 
 
 
 .logo{
 
-
-width:50px;
-
-height:auto;
-
+width:55px;
 
 }
-
 
 
 
 .derecha{
 
-
-width:72%;
-
+width:70%;
 
 padding-left:6px;
 
-
-display:flex;
-
-flex-direction:column;
-
-
-justify-content:center;
-
-
 }
-
 
 
 
 .titulo{
 
-
-font-size:18px;
+font-size:20px;
 
 font-weight:bold;
 
 color:#005baa;
 
-margin-bottom:5px;
-
-
 }
-
 
 
 
 .subtitulo{
 
-
 font-size:10px;
 
 font-weight:bold;
 
-margin-bottom:6px;
-
+margin-bottom:8px;
 
 }
 
 
 
-
 .dato{
-
 
 font-size:10px;
 
-margin:2px 0;
-
+margin:3px 0;
 
 }
 
@@ -210,47 +175,19 @@ margin:2px 0;
 
 .valor{
 
-
 font-weight:bold;
 
-
 }
-
-
-
-
-.codigo{
-
-
-margin-top:5px;
-
-
-}
-
 
 
 
 #barra{
 
-
 width:120px;
 
-height:28px;
+height:25px;
 
-
-}
-
-
-
-.pie{
-
-
-font-size:7px;
-
-margin-top:3px;
-
-color:#555;
-
+margin-top:5px;
 
 }
 
@@ -265,42 +202,29 @@ color:#555;
 <body>
 
 
-
-<div class="carnet">
-
+<div id="carnet">
 
 
 <div class="izquierda">
 
 
-<img 
-src="logo.jpg"
-class="logo"
->
+<img src="logo.jpg" class="logo">
 
 
 </div>
-
-
 
 
 
 <div class="derecha">
 
 
-
 <div class="titulo">
-
 ACDP
-
 </div>
 
 
-
 <div class="subtitulo">
-
 Carnet de afiliado
-
 </div>
 
 
@@ -333,7 +257,6 @@ ${afiliado.apellido||""}
 
 
 
-
 <div class="dato">
 
 DNI:
@@ -345,7 +268,6 @@ ${afiliado.dni||""}
 </span>
 
 </div>
-
 
 
 
@@ -363,18 +285,17 @@ ${afiliado.numero||""}
 
 
 
-
-<div class="codigo">
-
-
 <svg id="barra"></svg>
 
 
 </div>
 
-</div>
 
 </div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
 
 <script>
@@ -392,7 +313,7 @@ format:"CODE128",
 
 displayValue:false,
 
-height:28,
+height:25,
 
 width:1.5,
 
@@ -406,7 +327,49 @@ margin:0
 
 window.onload=function(){
 
+
+html2canvas(
+
+document.getElementById("carnet"),
+
+{
+
+scale:4
+
+}
+
+).then(canvas=>{
+
+
+const imagen =
+canvas.toDataURL("image/png");
+
+
+
+document.body.innerHTML =
+`
+
+
+<img 
+src="${imagen}"
+style="
+width:8cm;
+height:6cm;
+object-fit:contain;
+"
+>
+
+
+`;
+
+
+
+setTimeout(()=>{
+
+
 window.print();
+
+
 
 window.onafterprint=function(){
 
@@ -414,8 +377,16 @@ window.close();
 
 };
 
-};
 
+
+},300);
+
+
+
+});
+
+
+};
 
 
 </script>
@@ -432,7 +403,6 @@ window.close();
 
 
 ventana.document.close();
-
 
 
 }
