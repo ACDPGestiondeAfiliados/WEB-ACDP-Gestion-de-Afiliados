@@ -1,13 +1,11 @@
 // ===============================
 // GESTIÓN DE AFILIADOS ACDP
-// Altas, búsqueda, tabla, edición y páginas
+// Altas, búsqueda, edición y páginas
 // ===============================
-
 
 let paginaActual=1;
 const cantidadPagina=10;
 let listaAfiliados=[];
-
 
 
 document.addEventListener("DOMContentLoaded",()=>{
@@ -15,7 +13,6 @@ document.addEventListener("DOMContentLoaded",()=>{
     iniciarAfiliados();
 
 });
-
 
 
 // ===============================
@@ -33,17 +30,15 @@ function iniciarAfiliados(){
 
 
 // ===============================
-// Eventos principales
+// Eventos
 // ===============================
 
 function eventosAfiliados(){
-
 
     const filtro=document.getElementById("filtroAfiliados");
     const nuevo=document.getElementById("btnNuevoAfiliado");
     const anterior=document.getElementById("afiliadosAnterior");
     const siguiente=document.getElementById("afiliadosSiguiente");
-
 
 
     if(filtro){
@@ -57,17 +52,11 @@ function eventosAfiliados(){
     }
 
 
-
     if(nuevo){
 
-        nuevo.addEventListener("click",()=>{
-
-            abrirNuevoAfiliado();
-
-        });
+        nuevo.addEventListener("click",abrirNuevoAfiliado);
 
     }
-
 
 
     if(anterior){
@@ -87,14 +76,12 @@ function eventosAfiliados(){
     }
 
 
-
     if(siguiente){
 
         siguiente.addEventListener("click",()=>{
 
-
             const total=Math.ceil(
-            listaAfiliados.length/cantidadPagina
+                listaAfiliados.length/cantidadPagina
             );
 
 
@@ -115,7 +102,7 @@ function eventosAfiliados(){
 
 
 // ===============================
-// Carga datos
+// Cargar datos
 // ===============================
 
 function cargarAfiliados(){
@@ -129,30 +116,19 @@ function cargarAfiliados(){
 
 
 // ===============================
-// Filtro
+// Buscar
 // ===============================
 
 function filtrarAfiliados(valor){
 
-
     valor=valor.trim();
 
 
-
-    if(!valor){
-
-        listaAfiliados=BD_afiliados;
-
-    }else{
-
-        listaAfiliados=buscarAfiliado(valor);
-
-    }
-
+    listaAfiliados=
+    valor ? buscarAfiliado(valor) : BD_afiliados;
 
 
     paginaActual=1;
-
 
     mostrarTabla();
 
@@ -161,482 +137,181 @@ function filtrarAfiliados(valor){
 
 
 // ===============================
-// Tabla afiliados
+// Tabla
 // ===============================
 
 function mostrarTabla(){
-
 
     const tabla=document
     .getElementById("tablaAfiliados")
     .querySelector("tbody");
 
 
-
     tabla.innerHTML="";
-
 
 
     const inicio=(paginaActual-1)*cantidadPagina;
 
 
-
-    const datos=listaAfiliados.slice(
-        inicio,
-        inicio+cantidadPagina
-    );
-
-
-
-    datos.forEach(a=>{
+    listaAfiliados
+    .slice(inicio,inicio+cantidadPagina)
+    .forEach(a=>{
 
 
         tabla.innerHTML+=`
 
-
         <tr>
 
+        <td>${a.numero||""}</td>
+        <td>${a.dni||""}</td>
+        <td>${a.nombre||""}</td>
+        <td>${a.apellido||""}</td>
+        <td>${a.celular||""}</td>
+        <td>${a.correo||""}</td>
+        <td>${a.estado||"Activo"}</td>
+        <td>${a.fecha||""}</td>
 
-            <td>${a.numero||""}</td>
+        <td>
 
-            <td>${a.dni||""}</td>
-
-            <td>${a.nombre||""}</td>
-
-            <td>${a.apellido||""}</td>
-
-            <td>${a.celular||""}</td>
-
-            <td>${a.correo||""}</td>
-
-            <td>${a.estado||"Activo"}</td>
-
-            <td>${a.fecha||""}</td>
+        <button onclick="editarAfiliado('${a.dni}')">
+        Editar
+        </button>
 
 
-            <td>
+        <button onclick="eliminarAfiliado('${a.dni}')">
+        Eliminar
+        </button>
 
 
-                <button onclick="editarAfiliado('${a.dni}')">
-
-                Editar
-
-                </button>
-
-
-                <button onclick="eliminarAfiliado('${a.dni}')">
-
-                Eliminar
-
-                </button>
-
-
-            </td>
-
+        </td>
 
         </tr>
 
-
         `;
 
-
     });
-
 
 
     document.getElementById("paginaAfiliados")
     .textContent=paginaActual;
 
-
 }
 
 
 
 // ===============================
-// Modal nuevo afiliado
+// Nuevo afiliado
 // ===============================
 
 function abrirNuevoAfiliado(){
 
-
-    const fondo=document.getElementById("modalFondo");
-    const contenido=document.getElementById("modalContenido");
-
+const contenido=document.getElementById("modalContenido");
+const fondo=document.getElementById("modalFondo");
 
 
-    contenido.innerHTML=`
+contenido.innerHTML=`
+
+<h3>Nuevo afiliado</h3>
 
 
-    <h3>Nuevo afiliado</h3>
+<input id="nuevoDni"
+placeholder="DNI"
+maxlength="8"
+inputmode="numeric">
 
 
-    <input 
-    id="nuevoDni"
-    placeholder="DNI"
-    maxlength="8"
-    inputmode="numeric">
+<input id="nuevoNombre"
+placeholder="Nombre"
+maxlength="20">
 
 
-    <input 
-    id="nuevoNombre"
-    placeholder="Nombre"
-    maxlength="20">
+<input id="nuevoApellido"
+placeholder="Apellido"
+maxlength="20">
 
 
-    <input 
-    id="nuevoApellido"
-    placeholder="Apellido"
-    maxlength="20">
+<input id="nuevoCelular"
+placeholder="Celular"
+maxlength="15"
+inputmode="numeric">
 
 
-    <input
-    id="nuevoCelular"
-    placeholder="Celular"
-    maxlength="15"
-    inputmode="numeric">
+<input id="nuevoCorreo"
+placeholder="Correo"
+maxlength="20">
 
 
-    <input
-    id="nuevoCorreo"
-    placeholder="Correo"
-    maxlength="20">
+<select id="nuevoEstado">
+
+<option value="Activo">Activo</option>
+
+<option value="Adherente">Adherente</option>
+
+</select>
 
 
-    <select id="nuevoEstado">
+<button onclick="guardarNuevoAfiliado()">
+Guardar
+</button>
 
-        <option value="Activo">
-        Activo
-        </option>
+`;
 
-        <option value="Adherente">
-        Adherente
-        </option>
-
-    </select>
+fondo.classList.add("activo");
 
 
-    <button onclick="guardarNuevoAfiliado()">
-
-    Guardar
-
-    </button>
-
-
-    `;
-
-
-
-    fondo.classList.add("activo");
-
-
-    aplicarValidacionesAfiliado();
+aplicarValidaciones(
+["nuevoDni","nuevoCelular"],
+["nuevoNombre","nuevoApellido"]
+);
 
 }
 
 
 
 // ===============================
-// Validaciones nuevo
+// Validaciones
 // ===============================
 
-function aplicarValidacionesAfiliado(){
+function aplicarValidaciones(numeros,textos){
 
 
-    const dni=document.getElementById("nuevoDni");
-    const nombre=document.getElementById("nuevoNombre");
-    const apellido=document.getElementById("nuevoApellido");
+numeros.forEach(id=>{
 
+const campo=document.getElementById(id);
 
+if(campo){
 
-    dni.addEventListener("input",()=>{
+campo.addEventListener("input",()=>{
 
+campo.value=
+campo.value.replace(/\D/g,"");
 
-        dni.value=dni.value
-        .replace(/[^0-9]/g,"")
-        .slice(0,8);
-
-
-    });
-
-
-
-    const validarTexto=(campo)=>{
-
-
-        campo.value=campo.value
-        .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g,"")
-        .slice(0,20);
-
-
-    };
-
-
-
-    nombre.addEventListener("input",()=>{
-
-        validarTexto(nombre);
-
-    });
-
-
-
-    apellido.addEventListener("input",()=>{
-
-        validarTexto(apellido);
-
-    });
-
+});
 
 }
-
-// ===============================
-// GESTIÓN DE AFILIADOS ACDP
-// Altas, búsqueda, tabla, edición y páginas
-// ===============================
-
-
-let paginaActual=1;
-const cantidadPagina=10;
-let listaAfiliados=[];
-
-
-
-document.addEventListener("DOMContentLoaded",()=>{
-
-    iniciarAfiliados();
 
 });
 
 
 
-// ===============================
-// Inicialización
-// ===============================
+textos.forEach(id=>{
 
-function iniciarAfiliados(){
+const campo=document.getElementById(id);
 
-    cargarAfiliados();
+if(campo){
 
-    eventosAfiliados();
+campo.addEventListener("input",()=>{
 
-}
+campo.value=
+campo.value
+.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g,"")
+.slice(0,20);
 
-
-
-// ===============================
-// Eventos principales
-// ===============================
-
-function eventosAfiliados(){
-
-
-    const filtro=document.getElementById("filtroAfiliados");
-    const nuevo=document.getElementById("btnNuevoAfiliado");
-    const anterior=document.getElementById("afiliadosAnterior");
-    const siguiente=document.getElementById("afiliadosSiguiente");
-
-
-
-    if(filtro){
-
-        filtro.addEventListener("input",()=>{
-
-            filtrarAfiliados(filtro.value);
-
-        });
-
-    }
-
-
-
-    if(nuevo){
-
-        nuevo.addEventListener("click",()=>{
-
-            abrirNuevoAfiliado();
-
-        });
-
-    }
-
-
-
-    if(anterior){
-
-        anterior.addEventListener("click",()=>{
-
-            if(paginaActual>1){
-
-                paginaActual--;
-
-                mostrarTabla();
-
-            }
-
-        });
-
-    }
-
-
-
-    if(siguiente){
-
-        siguiente.addEventListener("click",()=>{
-
-
-            const total=Math.ceil(
-            listaAfiliados.length/cantidadPagina
-            );
-
-
-            if(paginaActual<total){
-
-                paginaActual++;
-
-                mostrarTabla();
-
-            }
-
-        });
-
-    }
+});
 
 }
 
-
-
-// ===============================
-// Carga datos
-// ===============================
-
-function cargarAfiliados(){
-
-    listaAfiliados=BD_afiliados;
-
-    mostrarTabla();
-
-}
-
-
-
-// ===============================
-// Filtro
-// ===============================
-
-function filtrarAfiliados(valor){
-
-
-    valor=valor.trim();
-
-
-
-    if(!valor){
-
-        listaAfiliados=BD_afiliados;
-
-    }else{
-
-        listaAfiliados=buscarAfiliado(valor);
-
-    }
-
-
-
-    paginaActual=1;
-
-
-    mostrarTabla();
-
-}
-
-
-
-// ===============================
-// Tabla afiliados
-// ===============================
-
-function mostrarTabla(){
-
-
-    const tabla=document
-    .getElementById("tablaAfiliados")
-    .querySelector("tbody");
-
-
-
-    tabla.innerHTML="";
-
-
-
-    const inicio=(paginaActual-1)*cantidadPagina;
-
-
-
-    const datos=listaAfiliados.slice(
-        inicio,
-        inicio+cantidadPagina
-    );
-
-
-
-    datos.forEach(a=>{
-
-
-        tabla.innerHTML+=`
-
-
-        <tr>
-
-
-            <td>${a.numero||""}</td>
-
-            <td>${a.dni||""}</td>
-
-            <td>${a.nombre||""}</td>
-
-            <td>${a.apellido||""}</td>
-
-            <td>${a.celular||""}</td>
-
-            <td>${a.correo||""}</td>
-
-            <td>${a.estado||"Activo"}</td>
-
-            <td>${a.fecha||""}</td>
-
-
-            <td>
-
-
-                <button onclick="editarAfiliado('${a.dni}')">
-
-                Editar
-
-                </button>
-
-
-                <button onclick="eliminarAfiliado('${a.dni}')">
-
-                Eliminar
-
-                </button>
-
-
-            </td>
-
-
-        </tr>
-
-
-        `;
-
-
-    });
-
-
-
-    document.getElementById("paginaAfiliados")
-    .textContent=paginaActual;
+});
 
 
 }
@@ -644,138 +319,213 @@ function mostrarTabla(){
 
 
 // ===============================
-// Modal nuevo afiliado
+// Guardar nuevo
 // ===============================
 
-function abrirNuevoAfiliado(){
+function guardarNuevoAfiliado(){
 
 
-    const fondo=document.getElementById("modalFondo");
-    const contenido=document.getElementById("modalContenido");
+const ultimo=BD_afiliados.reduce(
+(m,a)=>Math.max(m,Number(a.numero)||0),
+0
+);
 
 
-
-    contenido.innerHTML=`
-
-
-    <h3>Nuevo afiliado</h3>
-
-
-    <input 
-    id="nuevoDni"
-    placeholder="DNI"
-    maxlength="8"
-    inputmode="numeric">
-
-
-    <input 
-    id="nuevoNombre"
-    placeholder="Nombre"
-    maxlength="20">
-
-
-    <input 
-    id="nuevoApellido"
-    placeholder="Apellido"
-    maxlength="20">
-
-
-    <input
-    id="nuevoCelular"
-    placeholder="Celular"
-    maxlength="15"
-    inputmode="numeric">
-
-
-    <input
-    id="nuevoCorreo"
-    placeholder="Correo"
-    maxlength="20">
-
-
-    <select id="nuevoEstado">
-
-        <option value="Activo">
-        Activo
-        </option>
-
-        <option value="Adherente">
-        Adherente
-        </option>
-
-    </select>
-
-
-    <button onclick="guardarNuevoAfiliado()">
-
-    Guardar
-
-    </button>
-
-
-    `;
+const numero=
+String(ultimo+1).padStart(8,"0");
 
 
 
-    fondo.classList.add("activo");
+BD_afiliados.push({
+
+dni:nuevoDni.value,
+
+numero,
+
+nombre:nuevoNombre.value,
+
+apellido:nuevoApellido.value,
+
+celular:nuevoCelular.value,
+
+correo:nuevoCorreo.value,
+
+estado:nuevoEstado.value,
+
+fecha:new Date().toLocaleDateString()
+
+});
 
 
-    aplicarValidacionesAfiliado();
+guardarBD();
+
+cerrarModal();
+
+cargarAfiliados();
 
 }
 
 
 
 // ===============================
-// Validaciones nuevo
+// Editar
 // ===============================
 
-function aplicarValidacionesAfiliado(){
+function editarAfiliado(dni){
 
 
-    const dni=document.getElementById("nuevoDni");
-    const nombre=document.getElementById("nuevoNombre");
-    const apellido=document.getElementById("nuevoApellido");
+const a=BD_afiliados.find(x=>x.dni===dni);
 
-
-
-    dni.addEventListener("input",()=>{
-
-
-        dni.value=dni.value
-        .replace(/[^0-9]/g,"")
-        .slice(0,8);
-
-
-    });
+if(!a)return;
 
 
 
-    const validarTexto=(campo)=>{
+modalContenido.innerHTML=`
+
+<h3>Editar afiliado</h3>
 
 
-        campo.value=campo.value
-        .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g,"")
-        .slice(0,20);
+<input id="editarDni"
+value="${a.dni}"
+maxlength="8"
+placeholder="DNI">
 
 
-    };
+<input id="editarNombre"
+value="${a.nombre}"
+maxlength="20"
+placeholder="Nombre">
+
+
+<input id="editarApellido"
+value="${a.apellido}"
+maxlength="20"
+placeholder="Apellido">
+
+
+<input id="editarCelular"
+value="${a.celular||""}"
+maxlength="15"
+placeholder="Celular">
+
+
+<input id="editarCorreo"
+value="${a.correo||""}"
+maxlength="20"
+placeholder="Correo">
+
+
+<select id="editarEstado">
+
+<option value="Activo">
+Activo
+</option>
+
+<option value="Adherente">
+Adherente
+</option>
+
+</select>
+
+
+<button onclick="guardarEdicion('${dni}')">
+Guardar cambios
+</button>
+
+`;
+
+
+editarEstado.value=a.estado;
+
+
+document.getElementById("modalFondo")
+.classList.add("activo");
+
+
+aplicarValidaciones(
+["editarDni","editarCelular"],
+["editarNombre","editarApellido"]
+);
+
+
+}
 
 
 
-    nombre.addEventListener("input",()=>{
+// ===============================
+// Guardar edición
+// ===============================
 
-        validarTexto(nombre);
-
-    });
+function guardarEdicion(dni){
 
 
+const a=BD_afiliados.find(x=>x.dni===dni);
 
-    apellido.addEventListener("input",()=>{
+if(!a)return;
 
-        validarTexto(apellido);
 
-    });
+a.dni=editarDni.value;
 
+a.nombre=editarNombre.value;
+
+a.apellido=editarApellido.value;
+
+a.celular=editarCelular.value;
+
+a.correo=editarCorreo.value;
+
+a.estado=editarEstado.value;
+
+
+guardarBD();
+
+cerrarModal();
+
+cargarAfiliados();
+
+}
+
+
+
+// ===============================
+// Eliminar
+// ===============================
+
+function eliminarAfiliado(dni){
+
+
+const a=BD_afiliados.find(x=>x.dni===dni);
+
+
+if(!a)return;
+
+
+if(!confirm("¿Eliminar afiliado?"))
+return;
+
+
+BD_afiliados=
+BD_afiliados.filter(x=>x.dni!==dni);
+
+
+guardarBD();
+
+
+cargarAfiliados();
+
+
+}
+
+
+
+// ===============================
+// Cerrar modal
+// ===============================
+
+function cerrarModal(){
+
+document
+.getElementById("modalFondo")
+.classList.remove("activo");
 
 }
