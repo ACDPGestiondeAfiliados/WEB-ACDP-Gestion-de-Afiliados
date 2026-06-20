@@ -1,9 +1,13 @@
 // ===============================
 // IMPRESIÓN ACDP
-// Ficha carnet afiliado
 // Generación temporal para imprimir
+// Carnet + Historial
 // ===============================
 
+
+// ===============================
+// IMPRIMIR CARNET AFILIADO
+// ===============================
 
 function generarPDF(afiliado){
 
@@ -372,6 +376,7 @@ ${afiliado.numero||""}
 
 </div>
 
+
 <script>
 
 
@@ -401,16 +406,13 @@ margin:0
 
 window.onload=function(){
 
-
 window.print();
-
 
 window.onafterprint=function(){
 
 window.close();
 
 };
-
 
 };
 
@@ -431,6 +433,230 @@ window.close();
 
 ventana.document.close();
 
+
+
+}
+
+
+
+
+// ===============================
+// IMPRIMIR HISTORIAL ACTUAL
+// ===============================
+
+function imprimirHistorial(){
+
+
+const ventana =
+window.open(
+"",
+"_blank",
+"width=900,height=700"
+);
+
+
+
+if(!ventana){
+
+    return;
+
+}
+
+
+
+const tabla =
+document.getElementById("tablaHistorial");
+
+
+
+const fecha =
+document.getElementById("fechaHistorial");
+
+
+
+const monto =
+document.getElementById("montoHistorial");
+
+
+
+ventana.document.write(`
+
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+
+<title>Historial ACDP</title>
+
+
+<style>
+
+
+@page{
+
+size:A4;
+
+margin:10mm;
+
+}
+
+
+
+body{
+
+font-family:Arial,Helvetica,sans-serif;
+
+display:flex;
+
+justify-content:center;
+
+}
+
+
+
+.contenedor{
+
+width:100%;
+
+text-align:center;
+
+}
+
+
+
+h2{
+
+margin-bottom:10px;
+
+}
+
+
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+
+}
+
+
+
+th,td{
+
+border:1px solid #000;
+
+padding:6px;
+
+font-size:12px;
+
+}
+
+
+
+th{
+
+font-weight:bold;
+
+}
+
+
+
+.fecha{
+
+margin-bottom:10px;
+
+}
+
+
+
+.total{
+
+margin-top:10px;
+
+font-weight:bold;
+
+}
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="contenedor">
+
+
+<h2>Historial ACDP</h2>
+
+
+<div class="fecha">
+
+Fecha:
+${fecha ? fecha.value || fecha.textContent : ""}
+
+</div>
+
+
+
+${tabla ? tabla.outerHTML : ""}
+
+
+
+<div class="total">
+
+Total:
+${monto ? monto.textContent : "$0"}
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+window.onload=function(){
+
+window.print();
+
+
+window.onafterprint=function(){
+
+window.close();
+
+};
+
+
+};
+
+
+</script>
+
+
+</body>
+
+
+</html>
+
+
+`);
+
+
+
+ventana.document.close();
 
 
 }
