@@ -202,6 +202,7 @@ function abrirNuevoAfiliado(){
 
     <h3>Nuevo afiliado</h3>
 
+
     <input 
     id="nuevoDni" 
     placeholder="DNI"
@@ -219,6 +220,31 @@ function abrirNuevoAfiliado(){
     id="nuevoApellido" 
     placeholder="Apellido"
     maxlength="20">
+
+
+    <input
+    id="nuevoCelular"
+    placeholder="Celular"
+    maxlength="15"
+    inputmode="numeric">
+
+
+    <input
+    id="nuevoCorreo"
+    placeholder="Correo">
+
+
+    <select id="nuevoEstado">
+
+        <option value="Activo">
+        Activo
+        </option>
+
+        <option value="Adherente">
+        Adherente
+        </option>
+
+    </select>
 
 
     <button onclick="guardarNuevoAfiliado()">
@@ -325,7 +351,16 @@ function guardarNuevoAfiliado(){
         document.getElementById("nuevoApellido").value,
 
 
-        estado:"Activo",
+        celular:
+        document.getElementById("nuevoCelular").value,
+
+
+        correo:
+        document.getElementById("nuevoCorreo").value,
+
+
+        estado:
+        document.getElementById("nuevoEstado").value,
 
 
         fecha:
