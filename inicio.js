@@ -218,6 +218,10 @@ function limitarNumeros() {
 // ===============================
 function iniciarSistema() {
 
+    if (!window.BD_configuracion) {
+        window.BD_configuracion = { monto: 0 };
+    }
+
     const consola = document.getElementById("consolaSistema");
 
     if (consola) {
@@ -232,22 +236,4 @@ function iniciarSistema() {
 // ===============================
 function cerrarModal() {
     document.getElementById("modalFondo").classList.remove("activo");
-}
-
-// ===============================
-// INICIA CONFIG
-// ===============================
-function iniciarSistema() {
-
-    if (!BD_configuracion) {
-        BD_configuracion = { monto: 0 };
-    }
-
-    const consola = document.getElementById("consolaSistema");
-
-    if (consola) {
-        consola.innerHTML = "Sistema ACDP iniciado correctamente.";
-    }
-
-    actualizarUsuarioActivo();
 }
