@@ -540,24 +540,40 @@ if(!afiliado){
 
 
 
-generarPDF([{
+generarPDF({
 
-    afiliado:
-    afiliado.nombre+" "+afiliado.apellido,
+    numero:
+    afiliado.numero||"",
 
 
     dni:
-    afiliado.dni,
+    afiliado.dni||"",
+
+
+    nombre:
+    afiliado.nombre||"",
+
+
+    apellido:
+    afiliado.apellido||"",
+
+
+    celular:
+    afiliado.celular||"",
+
+
+    correo:
+    afiliado.correo||"",
+
+
+    estado:
+    afiliado.estado||"Activo",
 
 
     fecha:
-    afiliado.fecha,
+    afiliado.fecha||""
 
-
-    detalle:
-    "Ficha de afiliado ACDP"
-
-}]);
+});
 
 }
 
