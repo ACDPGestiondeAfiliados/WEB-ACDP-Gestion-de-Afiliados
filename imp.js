@@ -45,19 +45,35 @@ function generarPDF(afiliado){
 body{
 
 font-family:Arial,Helvetica,sans-serif;
-margin:40px;
+margin:0;
+padding:30px;
+background:white;
 color:#222;
 
 }
 
 
+
 .ficha{
 
-border:2px solid #003b73;
-border-radius:12px;
-padding:30px;
-width:500px;
+width:600px;
 margin:auto;
+border:3px solid #005baa;
+border-radius:10px;
+padding:25px;
+
+}
+
+
+
+.encabezado{
+
+display:flex;
+align-items:center;
+justify-content:flex-start;
+gap:25px;
+border-bottom:3px solid #005baa;
+padding-bottom:15px;
 
 }
 
@@ -65,35 +81,43 @@ margin:auto;
 
 .logo{
 
-width:120px;
-display:block;
-margin:auto;
+width:90px;
+height:auto;
 
 }
 
 
 
-h1{
+.titulo{
 
-text-align:center;
-color:#003b73;
-
-}
-
-
-h2{
-
-text-align:center;
+text-align:left;
 
 }
 
 
 
-.linea{
+.titulo h1{
 
-height:2px;
-background:#003b73;
-margin:20px 0;
+margin:0;
+color:#005baa;
+font-size:34px;
+
+}
+
+
+
+.titulo h2{
+
+margin:5px 0 0;
+font-size:20px;
+
+}
+
+
+
+.contenido{
+
+margin-top:25px;
 
 }
 
@@ -108,9 +132,41 @@ margin:12px 0;
 
 
 
-strong{
+.dato span{
 
-color:#003b73;
+font-weight:bold;
+color:#005baa;
+
+}
+
+
+
+.codigo{
+
+margin-top:30px;
+text-align:center;
+
+}
+
+
+
+.barras{
+
+font-family:"Libre Barcode 39",
+monospace;
+font-size:55px;
+letter-spacing:3px;
+
+}
+
+
+
+.pie{
+
+margin-top:25px;
+text-align:center;
+font-size:13px;
+color:#555;
 
 }
 
@@ -129,26 +185,38 @@ color:#003b73;
 <div class="ficha">
 
 
+
+<div class="encabezado">
+
+
 <img 
 src="logo.jpg"
 class="logo"
 >
 
 
-<h1>ACDP</h1>
+<div class="titulo">
 
+<h1>ACDP</h1>
 
 <h2>Ficha de afiliado</h2>
 
+</div>
 
 
-<div class="linea"></div>
+</div>
+
+
+
+
+
+<div class="contenido">
 
 
 
 <div class="dato">
 
-<strong>Número afiliado:</strong>
+<span>Número afiliado:</span>
 
 ${afiliado.numero||""}
 
@@ -158,7 +226,7 @@ ${afiliado.numero||""}
 
 <div class="dato">
 
-<strong>DNI:</strong>
+<span>DNI:</span>
 
 ${afiliado.dni||""}
 
@@ -168,7 +236,7 @@ ${afiliado.dni||""}
 
 <div class="dato">
 
-<strong>Nombre:</strong>
+<span>Nombre:</span>
 
 ${afiliado.nombre||""}
 
@@ -178,7 +246,7 @@ ${afiliado.nombre||""}
 
 <div class="dato">
 
-<strong>Apellido:</strong>
+<span>Apellido:</span>
 
 ${afiliado.apellido||""}
 
@@ -188,7 +256,7 @@ ${afiliado.apellido||""}
 
 <div class="dato">
 
-<strong>Celular:</strong>
+<span>Celular:</span>
 
 ${afiliado.celular||""}
 
@@ -198,7 +266,7 @@ ${afiliado.celular||""}
 
 <div class="dato">
 
-<strong>Correo:</strong>
+<span>Correo:</span>
 
 ${afiliado.correo||""}
 
@@ -208,7 +276,7 @@ ${afiliado.correo||""}
 
 <div class="dato">
 
-<strong>Estado:</strong>
+<span>Estado:</span>
 
 ${afiliado.estado||""}
 
@@ -218,7 +286,7 @@ ${afiliado.estado||""}
 
 <div class="dato">
 
-<strong>Fecha alta:</strong>
+<span>Fecha de alta:</span>
 
 ${afiliado.fecha||""}
 
@@ -227,6 +295,34 @@ ${afiliado.fecha||""}
 
 
 </div>
+
+
+
+
+<div class="codigo">
+
+
+<div class="barras">
+
+*${afiliado.numero||afiliado.dni}*
+
+</div>
+
+
+</div>
+
+
+
+<div class="pie">
+
+Documento generado automáticamente - ACDP
+
+</div>
+
+
+
+</div>
+
 
 
 
@@ -254,7 +350,6 @@ window.close();
 
 
 </body>
-
 
 </html>
 
