@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 });
 
-
 // ===============================
 // UTIL: usuario activo
 // ===============================
@@ -21,9 +20,8 @@ function getUsuarioActivo(){
     return window.usuarioActivo || sesion?.usuario || "Desconocido";
 }
 
-
 // ===============================
-// UTIL: historial (NO MODIFICA BD ORIGINAL)
+// UTIL: historial
 // ===============================
 function registrarHistorial(accion,afiliado,detalle){
 
@@ -33,7 +31,7 @@ function registrarHistorial(accion,afiliado,detalle){
 
     BD_historial.push({
         usuario:getUsuarioActivo(),
-        afiliado:afiliado ? (afiliado.nombre+" "+afiliado.apellido) : "",
+        afiliado:afiliado?.nombre+" "+afiliado?.apellido || "",
         dni:afiliado?.dni || "",
         numero:afiliado?.numero || "",
         fecha:now.toLocaleDateString(),
@@ -53,13 +51,10 @@ function registrarHistorial(accion,afiliado,detalle){
 function iniciarAfiliados(){
 
     cargarAfiliados();
+
     eventosAfiliados();
 
-    registrarHistorial(
-        "CONSULTA",
-        null,
-        "Ingreso a afiliados"
-    );
+    registrarHistorial("CONSULTA",null,"Ingreso a afiliados"); // NUEVO
 
 }
 
@@ -83,12 +78,6 @@ function eventosAfiliados(){
 
             filtrarAfiliados(filtro.value);
 
-            registrarHistorial(
-                "CONSULTA",
-                null,
-                "Filtro aplicado: "+filtro.value
-            );
-
         });
 
     }
@@ -96,17 +85,7 @@ function eventosAfiliados(){
 
     if(nuevo){
 
-        nuevo.addEventListener("click",()=>{
-
-            abrirNuevoAfiliado();
-
-            registrarHistorial(
-                "CONSULTA",
-                null,
-                "Alta de formulario afiliado abierto"
-            );
-
-        });
+        nuevo.addEventListener("click",abrirNuevoAfiliado);
 
     }
 
@@ -118,13 +97,8 @@ function eventosAfiliados(){
             if(paginaActual>1){
 
                 paginaActual--;
-                mostrarTabla();
 
-                registrarHistorial(
-                    "CONSULTA",
-                    null,
-                    "Cambio pagina - anterior"
-                );
+                mostrarTabla();
 
             }
 
@@ -141,16 +115,12 @@ function eventosAfiliados(){
                 listaAfiliados.length/cantidadPagina
             );
 
+
             if(paginaActual<total){
 
                 paginaActual++;
-                mostrarTabla();
 
-                registrarHistorial(
-                    "CONSULTA",
-                    null,
-                    "Cambio pagina - siguiente"
-                );
+                mostrarTabla();
 
             }
 
@@ -168,7 +138,8 @@ function eventosAfiliados(){
 
 function cargarAfiliados(){
 
-    listaAfiliados=[...BD_afiliados].reverse();
+    listaAfiliados=
+    [...BD_afiliados].reverse();
 
     mostrarTabla();
 
@@ -184,7 +155,10 @@ function filtrarAfiliados(valor){
 
     valor=valor.trim();
 
-    listaAfiliados=valor ? buscarAfiliado(valor) : BD_afiliados;
+
+    listaAfiliados=
+    valor ? buscarAfiliado(valor) : BD_afiliados;
+
 
     paginaActual=1;
 
@@ -204,16 +178,22 @@ function mostrarTabla(){
     .getElementById("tablaAfiliados")
     .querySelector("tbody");
 
+
     tabla.innerHTML="";
 
+
     const inicio=(paginaActual-1)*cantidadPagina;
+
 
     listaAfiliados
     .slice(inicio,inicio+cantidadPagina)
     .forEach(a=>{
 
+
         tabla.innerHTML+=`
+
         <tr>
+
         <td>${a.numero||""}</td>
         <td>${a.dni||""}</td>
         <td>${a.nombre||""}</td>
@@ -222,22 +202,40 @@ function mostrarTabla(){
         <td>${a.correo||""}</td>
         <td>${a.estado||"Activo"}</td>
         <td>${a.fecha||""}</td>
+
         <td>
-        <button onclick="editarAfiliado('${a.dni}')">Editar</button>
-        <button onclick="eliminarAfiliado('${a.dni}')">Eliminar</button>
-        <button onclick="imprimirAfiliado('${a.dni}')">Imprimir</button>
+
+        <button onclick="editarAfiliado('${a.dni}')">
+        Editar
+        </button>
+
+
+        <button onclick="eliminarAfiliado('${a.dni}')">
+        Eliminar
+        </button>
+
+        <button onclick="imprimirAfiliado('${a.dni}')">
+        Imprimir
+        </button>
+
         </td>
-        </tr>`;
+
+        </tr>
+
+        `;
+
     });
 
-    document.getElementById("paginaAfiliados").textContent=paginaActual;
+
+    document.getElementById("paginaAfiliados")
+    .textContent=paginaActual;
 
 }
 
 
 
 // ===============================
-// Nuevo afiliado (SIN CAMBIOS VISUALES)
+// Nuevo afiliado
 // ===============================
 
 function abrirNuevoAfiliado(){
@@ -245,24 +243,56 @@ function abrirNuevoAfiliado(){
 const contenido=document.getElementById("modalContenido");
 const fondo=document.getElementById("modalFondo");
 
+
 contenido.innerHTML=`
+
 <h3>Nuevo afiliado</h3>
 
-<input id="nuevoDni" placeholder="DNI" maxlength="8" inputmode="numeric">
-<input id="nuevoNombre" placeholder="Nombre" maxlength="20">
-<input id="nuevoApellido" placeholder="Apellido" maxlength="20">
-<input id="nuevoCelular" placeholder="Celular" maxlength="10" inputmode="numeric">
-<input id="nuevoCorreo" placeholder="Correo" maxlength="30">
+
+<input id="nuevoDni"
+placeholder="DNI"
+maxlength="8"
+inputmode="numeric">
+
+
+<input id="nuevoNombre"
+placeholder="Nombre"
+maxlength="20">
+
+
+<input id="nuevoApellido"
+placeholder="Apellido"
+maxlength="20">
+
+
+<input id="nuevoCelular"
+placeholder="Celular"
+maxlength="10"
+inputmode="numeric">
+
+
+<input id="nuevoCorreo"
+placeholder="Correo"
+maxlength="30">
+
 
 <select id="nuevoEstado">
+
 <option value="Activo">Activo</option>
+
 <option value="Adherente">Adherente</option>
+
 </select>
 
-<button onclick="guardarNuevoAfiliado()">Guardar</button>
+
+<button onclick="guardarNuevoAfiliado()">
+Guardar
+</button>
+
 `;
 
 fondo.classList.add("activo");
+
 
 aplicarValidaciones(
 ["nuevoDni","nuevoCelular"],
@@ -274,83 +304,155 @@ aplicarValidaciones(
 
 
 // ===============================
-// Guardar nuevo + HISTORIAL
+// Validaciones
+// ===============================
+
+function aplicarValidaciones(numeros,textos){
+
+
+numeros.forEach(id=>{
+
+const campo=document.getElementById(id);
+
+if(campo){
+
+campo.addEventListener("input",()=>{
+
+campo.value=
+campo.value.replace(/\D/g,"");
+
+});
+
+}
+
+});
+
+
+
+textos.forEach(id=>{
+
+const campo=document.getElementById(id);
+
+if(campo){
+
+campo.addEventListener("input",()=>{
+
+campo.value=
+campo.value
+.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g,"")
+.slice(0,20);
+
+});
+
+}
+
+});
+
+
+}
+
+
+
+// ===============================
+// Guardar nuevo
 // ===============================
 
 function guardarNuevoAfiliado(){
+
 
 const ultimo=BD_afiliados.reduce(
 (m,a)=>Math.max(m,Number(a.numero)||0),
 0
 );
 
-const numero=String(ultimo+1).padStart(8,"0");
+
+const numero=
+String(ultimo+1).padStart(8,"0");
+
+
 
 const nuevo={
-    dni:nuevoDni.value,
-    numero,
-    nombre:nuevoNombre.value,
-    apellido:nuevoApellido.value,
-    celular:nuevoCelular.value,
-    correo:nuevoCorreo.value,
-    estado:nuevoEstado.value,
-    fecha:new Date().toLocaleDateString()
+
+dni:nuevoDni.value,
+
+numero,
+
+nombre:nuevoNombre.value,
+
+apellido:nuevoApellido.value,
+
+celular:nuevoCelular.value,
+
+correo:nuevoCorreo.value,
+
+estado:nuevoEstado.value,
+
+fecha:new Date().toLocaleDateString()
+
 };
+
 
 BD_afiliados.push(nuevo);
 
 guardarBD();
+
 cerrarModal();
+
 cargarAfiliados();
 
-registrarHistorial(
-    "ALTA",
-    nuevo,
-    "Alta de afiliado"
-);
+registrarHistorial("ALTA",nuevo,"Alta de afiliado"); // NUEVO
 
 }
 
 
 
 // ===============================
-// EDITAR + HISTORIAL
+// Editar
 // ===============================
 
 function guardarEdicion(dni){
 
+
 const a=BD_afiliados.find(x=>x.dni===dni);
+
 if(!a)return;
 
+
 a.dni=editarDni.value;
+
 a.nombre=editarNombre.value;
+
 a.apellido=editarApellido.value;
+
 a.celular=editarCelular.value;
+
 a.correo=editarCorreo.value;
+
 a.estado=editarEstado.value;
 
+
 guardarBD();
+
 cerrarModal();
+
 cargarAfiliados();
 
-registrarHistorial(
-    "EDICION",
-    a,
-    "Modificación de afiliado"
-);
+registrarHistorial("EDICION",a,"Modificación de afiliado"); // NUEVO
 
 }
 
 
 
 // ===============================
-// ELIMINAR (MODAL + MOTIVO OBLIGATORIO)
+// Eliminar (MODAL CON MOTIVO)
 // ===============================
 
 function eliminarAfiliado(dni){
 
 const a=BD_afiliados.find(x=>x.dni===dni);
+
 if(!a)return;
+
 
 const fondo=document.getElementById("modalFondo");
 const contenido=document.getElementById("modalContenido");
@@ -362,20 +464,20 @@ contenido.innerHTML=`
 
 <input id="motivoEliminar" maxlength="40">
 
-<div id="msgEliminar" style="color:#c00;font-size:12px;"></div>
+<div id="msgEliminar" style="color:red;font-size:12px;"></div>
 
-<button id="btnEliminarFinal">Confirmar</button>
+<button id="btnConfirmarEliminar">Confirmar</button>
 `;
 
 fondo.classList.add("activo");
 
-document.getElementById("btnEliminarFinal").onclick=()=>{
+
+document.getElementById("btnConfirmarEliminar").onclick=()=>{
 
     const motivo=document.getElementById("motivoEliminar").value.trim();
-    const msg=document.getElementById("msgEliminar");
 
     if(motivo.length<5 || motivo.length>40){
-        msg.textContent="Motivo inválido";
+        document.getElementById("msgEliminar").textContent="Motivo inválido";
         return;
     }
 
@@ -385,11 +487,7 @@ document.getElementById("btnEliminarFinal").onclick=()=>{
     cerrarModal();
     cargarAfiliados();
 
-    registrarHistorial(
-        "BAJA",
-        a,
-        motivo
-    );
+    registrarHistorial("BAJA",a,motivo); // NUEVO
 
 };
 
@@ -398,21 +496,22 @@ document.getElementById("btnEliminarFinal").onclick=()=>{
 
 
 // ===============================
-// IMPRIMIR + HISTORIAL
+// IMPRIMIR
 // ===============================
 
 function imprimirAfiliado(dni){
 
-const afiliado=BD_afiliados.find(a=>a.dni===dni);
+const afiliado=
+BD_afiliados.find(a=>a.dni===dni);
+
 if(!afiliado)return;
 
-registrarHistorial(
-    "IMPRESION",
-    afiliado,
-    "Impresión de carnet"
-);
+
+registrarHistorial("IMPRESION",afiliado,"Impresión de carnet"); // NUEVO
+
 
 generarPDF({
+
     numero:afiliado.numero||"",
     dni:afiliado.dni||"",
     nombre:afiliado.nombre||"",
@@ -421,6 +520,7 @@ generarPDF({
     correo:afiliado.correo||"",
     estado:afiliado.estado||"Activo",
     fecha:afiliado.fecha||""
+
 });
 
 }
@@ -428,39 +528,13 @@ generarPDF({
 
 
 // ===============================
-// VALIDACIONES (SIN CAMBIOS)
-// ===============================
-
-function aplicarValidaciones(numeros,textos){
-
-numeros.forEach(id=>{
-const campo=document.getElementById(id);
-if(campo){
-campo.addEventListener("input",()=>{
-campo.value=campo.value.replace(/\D/g,"");
-});
-}
-});
-
-textos.forEach(id=>{
-const campo=document.getElementById(id);
-if(campo){
-campo.addEventListener("input",()=>{
-campo.value=campo.value
-.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g,"")
-.slice(0,20);
-});
-}
-});
-
-}
-
-
-
-// ===============================
-// CERRAR MODAL
+// Cerrar modal
 // ===============================
 
 function cerrarModal(){
-document.getElementById("modalFondo").classList.remove("activo");
+
+document
+.getElementById("modalFondo")
+.classList.remove("activo");
+
 }
