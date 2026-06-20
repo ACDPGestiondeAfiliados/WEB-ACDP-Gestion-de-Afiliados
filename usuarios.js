@@ -46,14 +46,14 @@ function cargarUsuarios() {
             <td>
 
                 <img 
-                    src="editar.png"
+                    src="edit.png"
                     class="iconoHistorial"
                     title="Editar usuario"
                     onclick="abrirEditarUsuario(${index})"
                 >
 
                 <img 
-                    src="eliminar.png"
+                    src="delete.png"
                     class="iconoHistorial"
                     title="Eliminar usuario"
                     onclick="eliminarUsuario(${index})"
