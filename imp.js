@@ -1,6 +1,6 @@
 // ===============================
 // IMPRESIÓN ACDP
-// Ficha individual de afiliado
+// Ficha carnet afiliado
 // Generación temporal para imprimir
 // ===============================
 
@@ -8,23 +8,34 @@
 function generarPDF(afiliado){
 
 
-    const ventana=
-    window.open(
-        "",
-        "_blank",
-        "width=800,height=900"
-    );
-
-
-    if(!ventana){
-
-        return;
-
-    }
+const ventana =
+window.open(
+"",
+"_blank",
+"width=500,height=400"
+);
 
 
 
-    ventana.document.write(`
+if(!ventana){
+
+    return;
+
+}
+
+
+
+const colorEstado =
+afiliado.estado==="ADHERENTE" ||
+afiliado.estado==="Adherente"
+?
+"#FFB700"
+:
+"#F600FF";
+
+
+
+ventana.document.write(`
 
 
 <!DOCTYPE html>
@@ -36,44 +47,65 @@ function generarPDF(afiliado){
 <meta charset="UTF-8">
 
 
-<title>Ficha afiliado ACDP</title>
+<title>Carnet ACDP</title>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
 
 <style>
 
 
+@page{
+
+size:8cm 6cm;
+margin:0;
+
+}
+
+
+
 body{
 
-font-family:Arial,Helvetica,sans-serif;
 margin:0;
-padding:30px;
+padding:0;
+font-family:Arial,Helvetica,sans-serif;
 background:white;
-color:#222;
 
 }
 
 
 
-.ficha{
-
-width:600px;
-margin:auto;
-border:3px solid #005baa;
-border-radius:10px;
-padding:25px;
-
-}
+.carnet{
 
 
+width:8cm;
+height:6cm;
 
-.encabezado{
+border:3px solid ${colorEstado};
+
+box-sizing:border-box;
 
 display:flex;
+
+padding:8px;
+
+overflow:hidden;
+
+}
+
+
+
+.izquierda{
+
+
+width:35%;
+
+display:flex;
+
 align-items:center;
-justify-content:flex-start;
-gap:25px;
-border-bottom:3px solid #005baa;
-padding-bottom:15px;
+
+justify-content:center;
 
 }
 
@@ -81,8 +113,26 @@ padding-bottom:15px;
 
 .logo{
 
-width:90px;
+width:65px;
+
 height:auto;
+
+}
+
+
+
+.derecha{
+
+
+width:65%;
+
+padding-left:8px;
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
 
 }
 
@@ -90,34 +140,13 @@ height:auto;
 
 .titulo{
 
-text-align:left;
+font-size:18px;
 
-}
+font-weight:bold;
 
-
-
-.titulo h1{
-
-margin:0;
 color:#005baa;
-font-size:34px;
 
-}
-
-
-
-.titulo h2{
-
-margin:5px 0 0;
-font-size:20px;
-
-}
-
-
-
-.contenido{
-
-margin-top:25px;
+margin-bottom:8px;
 
 }
 
@@ -125,17 +154,17 @@ margin-top:25px;
 
 .dato{
 
-font-size:18px;
-margin:12px 0;
+font-size:12px;
+
+margin:3px 0;
 
 }
 
 
 
-.dato span{
+.valor{
 
 font-weight:bold;
-color:#005baa;
 
 }
 
@@ -143,30 +172,17 @@ color:#005baa;
 
 .codigo{
 
-margin-top:30px;
-text-align:center;
+margin-top:8px;
 
 }
 
 
 
-.barras{
+#barra{
 
-font-family:"Libre Barcode 39",
-monospace;
-font-size:55px;
-letter-spacing:3px;
+width:140px;
 
-}
-
-
-
-.pie{
-
-margin-top:25px;
-text-align:center;
-font-size:13px;
-color:#555;
+height:35px;
 
 }
 
@@ -182,11 +198,10 @@ color:#555;
 
 
 
-<div class="ficha">
+<div class="carnet">
 
 
-
-<div class="encabezado">
+<div class="izquierda">
 
 
 <img 
@@ -195,30 +210,18 @@ class="logo"
 >
 
 
+</div>
+
+
+
+
+<div class="derecha">
+
+
+
 <div class="titulo">
 
-<h1>ACDP</h1>
-
-<h2>Ficha de afiliado</h2>
-
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="contenido">
-
-
-
-<div class="dato">
-
-<span>Número afiliado:</span>
-
-${afiliado.numero||""}
+ACDP
 
 </div>
 
@@ -226,96 +229,71 @@ ${afiliado.numero||""}
 
 <div class="dato">
 
-<span>DNI:</span>
+Nombre:
 
-${afiliado.dni||""}
-
-</div>
-
-
-
-<div class="dato">
-
-<span>Nombre:</span>
+<span class="valor">
 
 ${afiliado.nombre||""}
 
+</span>
+
 </div>
 
 
 
 <div class="dato">
 
-<span>Apellido:</span>
+Apellido:
+
+<span class="valor">
 
 ${afiliado.apellido||""}
 
+</span>
+
 </div>
+
 
 
 
 <div class="dato">
 
-<span>Celular:</span>
+DNI:
 
-${afiliado.celular||""}
+<span class="valor">
+
+${afiliado.dni||""}
+
+</span>
 
 </div>
+
 
 
 
 <div class="dato">
 
-<span>Correo:</span>
+N° Afiliado:
 
-${afiliado.correo||""}
+<span class="valor">
 
-</div>
+${afiliado.numero||""}
 
-
-
-<div class="dato">
-
-<span>Estado:</span>
-
-${afiliado.estado||""}
+</span>
 
 </div>
-
-
-
-<div class="dato">
-
-<span>Fecha de alta:</span>
-
-${afiliado.fecha||""}
-
-</div>
-
-
-
-</div>
-
 
 
 
 <div class="codigo">
 
 
-<div class="barras">
-
-*${afiliado.numero||afiliado.dni}*
-
-</div>
+<svg id="barra"></svg>
 
 
 </div>
 
 
-
-<div class="pie">
-
-Documento generado automáticamente - ACDP
 
 </div>
 
@@ -329,8 +307,29 @@ Documento generado automáticamente - ACDP
 <script>
 
 
-window.onload=function(){
+JsBarcode(
 
+"#barra",
+
+"${afiliado.numero||afiliado.dni}",
+
+{
+
+format:"CODE128",
+
+displayValue:false,
+
+height:35,
+
+margin:0
+
+}
+
+);
+
+
+
+window.onload=function(){
 
 window.print();
 
@@ -345,20 +344,22 @@ window.close();
 };
 
 
-</script>
 
+</script>
 
 
 </body>
 
+
 </html>
 
 
-    `);
+`);
 
 
 
-    ventana.document.close();
+ventana.document.close();
+
 
 
 }
