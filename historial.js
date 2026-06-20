@@ -298,7 +298,7 @@ h.numero===valor
 
 
 
-mostrarHistorial;
+mostrarHistorial();
 
 
 
@@ -712,7 +712,11 @@ accion:accion,
 
 
 detalle:
-detalle || ""
+detalle || "",
+
+
+anio:
+ahora.getFullYear()
 
 
 
@@ -878,6 +882,28 @@ if(!registro)return;
 
 
 if(registro.estado==="Anulado"){
+
+return;
+
+}
+
+
+// ===============================
+// BLOQUEO ANULACIÓN AÑO ANTERIOR
+// ===============================
+
+const anioActual =
+new Date().getFullYear();
+
+
+if(
+registro.anio &&
+registro.anio < anioActual
+){
+
+alert(
+"No se pueden anular registros de años anteriores."
+);
 
 return;
 
