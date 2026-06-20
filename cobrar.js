@@ -182,14 +182,17 @@ crearModalCobro(afiliado);
 
 
 // ===============================
-// Obtener meses realmente pagados
-// Ignora cobros anulados
+// Obtener meses pagados por año
 // ===============================
 
 function obtenerMesesPagadosActivos(dni){
 
 
 let meses=[];
+
+
+const anioActual =
+new Date().getFullYear();
 
 
 
@@ -211,12 +214,30 @@ Array.isArray(c.meses)
 ){
 
 
+const anioCobro =
+c.anio || anioActual;
+
+
+
+if(anioCobro!==anioActual){
+
+return;
+
+}
+
+
+
 c.meses.forEach(m=>{
 
 
-if(!meses.includes(m)){
+const clave =
+m+"-"+anioCobro;
 
-meses.push(m);
+
+
+if(!meses.includes(clave)){
+
+meses.push(clave);
 
 }
 
@@ -276,6 +297,10 @@ let meses=[
 ];
 
 
+const anioActual =
+new Date().getFullYear();
+
+
 
 let pagados =
 obtenerMesesPagadosActivos(afiliado.dni);
@@ -289,8 +314,13 @@ let html="";
 meses.forEach((m)=>{
 
 
+const clave =
+m+"-"+anioActual;
+
+
+
 let existe =
-pagados.includes(m);
+pagados.includes(clave);
 
 
 
@@ -385,6 +415,8 @@ document.body.appendChild(div);
 
 
 }
+
+
 
 // ===============================
 // Cerrar modal
@@ -483,6 +515,11 @@ const fecha=new Date();
 
 
 
+const anioActual =
+fecha.getFullYear();
+
+
+
 const usuarioRegistro =
 (typeof usuarioActivo !== "undefined" &&
 usuarioActivo &&
@@ -523,6 +560,10 @@ fecha.toLocaleDateString(),
 
 hora:
 fecha.toLocaleTimeString(),
+
+
+anio:
+anioActual,
 
 
 accion:
@@ -586,10 +627,15 @@ afiliado.mesesPagados=[];
 nuevos.forEach(m=>{
 
 
-if(!afiliado.mesesPagados.includes(m)){
+const clave =
+m+"-"+anioActual;
 
 
-afiliado.mesesPagados.push(m);
+
+if(!afiliado.mesesPagados.includes(clave)){
+
+
+afiliado.mesesPagados.push(clave);
 
 
 }
@@ -631,7 +677,6 @@ total
 
 
 }
-
 
 
 
