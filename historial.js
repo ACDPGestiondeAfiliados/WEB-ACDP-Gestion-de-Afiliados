@@ -298,6 +298,9 @@ function cambiarFecha(valor){
 // ===============================
 // Actualiza texto fecha
 // ===============================
+// ===============================
+// Actualiza fecha visible
+// ===============================
 function actualizarFecha(){
 
     const fecha=document.getElementById("fechaHistorial");
@@ -305,34 +308,32 @@ function actualizarFecha(){
 
     if(fecha){
 
-        fecha.textContent=
-        fechaActual.toLocaleDateString();
+        if(fecha.tagName==="INPUT"){
 
-    }
-
-
-    const input =
-    document.getElementById("fechaHistorialInput");
+            const año =
+            fechaActual.getFullYear();
 
 
-    if(input){
-
-        const año =
-        fechaActual.getFullYear();
-
-
-        const mes =
-        String(fechaActual.getMonth()+1)
-        .padStart(2,"0");
+            const mes =
+            String(fechaActual.getMonth()+1)
+            .padStart(2,"0");
 
 
-        const dia =
-        String(fechaActual.getDate())
-        .padStart(2,"0");
+            const dia =
+            String(fechaActual.getDate())
+            .padStart(2,"0");
 
 
-        input.value =
-        año+"-"+mes+"-"+dia;
+            fecha.value =
+            año+"-"+mes+"-"+dia;
+
+
+        }else{
+
+            fecha.textContent =
+            fechaActual.toLocaleDateString();
+
+        }
 
     }
 
