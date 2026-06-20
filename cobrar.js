@@ -1,52 +1,73 @@
-// =====================================
-// ACDP - COBRAR
-// =====================================
-
+/* =====================================
+   ACDP - COBRAR
+===================================== */
 
 
 let afiliadoSeleccionadoPago = null;
 
 
 
-function cargarCobrar(){
+const meses =
+[
+"enero",
+"febrero",
+"marzo",
+"abril",
+"mayo",
+"junio",
+"julio",
+"agosto",
+"septiembre",
+"octubre",
+"noviembre",
+"diciembre"
+];
 
 
-let contenedor =
+
+
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+iniciarCobrar();
+
+
+});
+
+
+
+
+
+
+
+
+
+function iniciarCobrar(){
+
+
+
+let filtro =
 document.getElementById(
-"contenidoCobrar"
+"filtroCobrar"
 );
 
 
 
-contenedor.innerHTML = `
+if(filtro){
 
 
-<p>
-
-Busque un afiliado por DNI o Número de Afiliado
-
-</p>
-
-
-<input
-
-id="buscarPago"
-
-maxlength="8"
-
-placeholder="DNI o Nro Afiliado"
-
-oninput="buscarAfiliadoPago()"
-
->
+filtro.addEventListener(
+"input",
+buscarAfiliadoCobro
+);
 
 
-<div id="resultadoPago">
-
-</div>
-
-
-`;
+}
 
 
 
@@ -57,42 +78,70 @@ oninput="buscarAfiliadoPago()"
 
 
 
-function buscarAfiliadoPago(){
+
+
+function cargarCobrar(){
+
+
+
+document
+.querySelector(
+"#tablaCobrar tbody")
+.innerHTML="";
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function buscarAfiliadoCobro(){
 
 
 
 let valor =
+limpiarNumero(
 document.getElementById(
-"buscarPago"
-).value;
+"filtroCobrar"
+).value
+);
 
 
 
-valor =
-valor.replace(/\D/g,"");
+
+let tabla =
+document
+.querySelector(
+"#tablaCobrar tbody"
+);
 
 
 
-if(valor.length !== 8){
+tabla.innerHTML="";
 
 
-document.getElementById(
-"resultadoPago"
-).innerHTML="";
 
 
+if(
+valor.length!==8
+)
 return;
 
-}
 
 
 
 
+let encontrados =
+BD.afiliados.filter(a=>
 
-let afiliado =
-BD.afiliados.find(a=>
-
-a.dni===valor ||
+a.dni===valor
+||
 a.numero===valor
 
 );
@@ -101,21 +150,68 @@ a.numero===valor
 
 
 
-if(!afiliado){
 
 
-document.getElementById(
-"resultadoPago"
-).innerHTML=
-
-"Afiliado no encontrado";
+encontrados.forEach(a=>{
 
 
-return;
+let fila =
+document.createElement(
+"tr"
+);
+
+
+
+fila.innerHTML =
+`
+
+<td>${a.numero}</td>
+
+<td>${a.dni}</td>
+
+<td>${a.nombre}</td>
+
+<td>${a.apellido}</td>
+
+<td>${a.estado}</td>
+
+<td></td>
+
+`;
+
+
+
+
+
+fila.children[5]
+.appendChild(
+crearBoton(
+"Registrar Pago",
+()=>abrirPago(a)
+)
+);
+
+
+
+tabla.appendChild(fila);
+
+
+
+});
+
 
 
 }
 
+
+
+
+
+
+
+
+
+function abrirPago(afiliado){
 
 
 
@@ -124,65 +220,55 @@ afiliado;
 
 
 
+abrirModal();
 
+
+
+
+let caja =
 document.getElementById(
-"resultadoPago"
-).innerHTML = `
-
-
-<table>
-
-
-<tr>
-
-<th>Nro Afiliado</th>
-<th>DNI</th>
-<th>Nombre</th>
-<th>Apellido</th>
-<th>Estado</th>
-<th>Acción</th>
-
-
-</tr>
-
-
-<tr>
-
-
-<td>${afiliado.numero}</td>
-
-<td>${afiliado.dni}</td>
-
-<td>${afiliado.nombre}</td>
-
-<td>${afiliado.apellido}</td>
-
-<td>${afiliado.estado}</td>
-
-
-<td>
-
-<button onclick="abrirPago()">
-
-Registrar Pago
-
-</button>
-
-
-</td>
-
-
-</tr>
-
-
-</table>
-
-
-`;
+"modalContenido"
+);
 
 
 
-}
+caja.innerHTML="";
+
+
+
+
+
+let titulo =
+document.createElement(
+"h2"
+);
+
+
+
+titulo.textContent =
+"Registrar Pago";
+
+
+
+caja.appendChild(titulo);
+
+
+
+
+
+let texto =
+document.createElement(
+"p"
+);
+
+
+
+texto.textContent =
+"Seleccione meses a abonar";
+
+
+
+caja.appendChild(texto);
 
 
 
@@ -191,56 +277,37 @@ Registrar Pago
 
 
 
-function abrirPago(){
+let pagos =
+BD.pagos.filter(p=>
 
+p.numero===afiliado.numero
+&&
+p.activo!==false
 
-let a =
-afiliadoSeleccionadoPago;
-
-
-
-let meses=[
-
-"Enero",
-"Febrero",
-"Marzo",
-"Abril",
-"Mayo",
-"Junio",
-"Julio",
-"Agosto",
-"Septiembre",
-"Octubre",
-"Noviembre",
-"Diciembre"
-
-];
+);
 
 
 
 
-let html = `
-
-
-<h2>
-
-Registrar Pago
-
-</h2>
-
-
-<p>
-
-Seleccione meses que abonará
-
-</p>
+let pagados =
+[];
 
 
 
-<div id="listaMeses">
+
+pagos.forEach(p=>{
 
 
-`;
+p.meses.forEach(m=>{
+
+pagados.push(m);
+
+});
+
+
+});
+
+
 
 
 
@@ -249,31 +316,61 @@ Seleccione meses que abonará
 meses.forEach(m=>{
 
 
-html += `
+let label =
+document.createElement(
+"label"
+);
 
 
-<label>
+
+let check =
+document.createElement(
+"input"
+);
 
 
-<input
 
-type="checkbox"
-
-value="${m}"
-
-onchange="calcularPago()"
-
->
-
-${m}
+check.type =
+"checkbox";
 
 
-</label>
 
-<br>
+check.value =
+m;
 
 
-`;
+
+if(
+pagados.includes(m)
+){
+
+
+check.disabled =
+true;
+
+
+label.className =
+"bloqueado";
+
+
+}
+
+
+
+
+label.appendChild(check);
+
+
+label.appendChild(
+document.createTextNode(
+" "+m
+)
+);
+
+
+
+caja.appendChild(label);
+
 
 
 });
@@ -282,40 +379,17 @@ ${m}
 
 
 
-html += `
 
 
-<h3>
-
-Total:
-
-$<span id="totalPago">0</span>
-
-</h3>
+let boton =
+crearBoton(
+"Aceptar",
+confirmarPago
+);
 
 
 
-<button onclick="registrarPago()">
-
-Aceptar
-
-</button>
-
-
-
-<button onclick="cerrarModal()">
-
-Cancelar
-
-</button>
-
-
-
-`;
-
-
-
-abrirModal(html);
+caja.appendChild(boton);
 
 
 
@@ -324,96 +398,81 @@ abrirModal(html);
 
 
 
-function calcularPago(){
+
+
+
+
+
+function confirmarPago(){
 
 
 
 let checks =
-document.querySelectorAll(
-"#listaMeses input:checked"
-);
-
-
-
-let total =
-checks.length *
-BD.configuracion.cuota;
-
-
-
-document.getElementById(
-"totalPago"
-).innerHTML =
-formatearPesos(total);
-
-
-
-}
-
-
-
-
-
-
-
-
-function registrarPago(){
-
-
-
-let checks =
-document.querySelectorAll(
-"#listaMeses input:checked"
+document
+.querySelectorAll(
+"#modalContenido input[type=checkbox]:checked"
 );
 
 
 
 
-if(checks.length===0){
 
+let seleccionados =
+[];
 
-alert(
-"Seleccione al menos un mes"
-);
-
-
-return;
-
-}
-
-
-
-
-
-let meses=[];
 
 
 
 checks.forEach(c=>{
 
-meses.push(c.value);
+
+seleccionados.push(
+c.value
+);
+
 
 });
 
 
 
 
+
+
+
+if(
+seleccionados.length===0
+){
+
+
+alert(
+"Seleccione meses"
+);
+
+
+
+return;
+
+
+
+}
+
+
+
+
+
+
+
 let monto =
-checks.length *
+seleccionados.length *
 BD.configuracion.cuota;
 
 
 
 
 
-let a =
-afiliadoSeleccionadoPago;
 
 
-
-
-
-BD.pagos.push({
+let pago = {
 
 
 usuario:
@@ -421,38 +480,57 @@ usuarioActivo,
 
 
 numero:
-a.numero,
+afiliadoSeleccionadoPago.numero,
 
 
 dni:
-a.dni,
+afiliadoSeleccionadoPago.dni,
+
 
 
 afiliado:
-a.nombre+" "+a.apellido,
+afiliadoSeleccionadoPago.nombre
++" "
++afiliadoSeleccionadoPago.apellido,
 
 
-meses,
+
+meses:
+seleccionados,
+
 
 
 monto,
 
 
-fecha:
-fechaActual(),
 
+fecha:
+obtenerFecha(),
 
 hora:
-horaActual(),
+obtenerHora(),
 
 
-estado:
-"ACTIVO"
+
+activo:true,
 
 
-});
+metodo:
+""
 
 
+
+};
+
+
+
+
+
+
+
+BD.pagos.push(
+pago
+);
 
 
 
@@ -465,15 +543,16 @@ usuarioActivo,
 
 
 afiliado:
-a.nombre+" "+a.apellido,
+pago.afiliado,
 
 
 dni:
-a.dni,
+pago.dni,
 
 
 numero:
-a.numero,
+pago.numero,
+
 
 
 accion:
@@ -481,7 +560,7 @@ accion:
 
 
 detalles:
-"Meses: "+meses.join(", ")
+seleccionados.join(", ")
 
 });
 
@@ -494,9 +573,6 @@ guardarBD();
 
 
 
-alert(
-"PAGO REGISTRADO"
-);
 
 
 
@@ -504,32 +580,25 @@ cerrarModal();
 
 
 
-cargarCobrar();
 
 
 
-}
-
-
-
-
-function formatearPesos(valor){
-
-
-return Number(valor)
-.toLocaleString(
-"es-AR",
-{
-
-minimumFractionDigits:2,
-
-maximumFractionDigits:2
-
-}
+alert(
+"PAGO REGISTRADO"
 );
 
 
+
+
+
+
+
+imprimirComprobante(
+pago
+);
+
+
+
+
+
 }
-
-
-
