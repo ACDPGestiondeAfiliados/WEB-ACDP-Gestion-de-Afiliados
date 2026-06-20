@@ -202,13 +202,24 @@ function abrirNuevoAfiliado(){
 
     <h3>Nuevo afiliado</h3>
 
-    <input id="nuevoDni" placeholder="DNI">
+    <input 
+    id="nuevoDni" 
+    placeholder="DNI"
+    maxlength="8"
+    inputmode="numeric">
 
-    <input id="nuevoNumero" placeholder="Nro afiliado">
 
-    <input id="nuevoNombre" placeholder="Nombre">
+    <input 
+    id="nuevoNombre" 
+    placeholder="Nombre"
+    maxlength="20">
 
-    <input id="nuevoApellido" placeholder="Apellido">
+
+    <input 
+    id="nuevoApellido" 
+    placeholder="Apellido"
+    maxlength="20">
+
 
     <button onclick="guardarNuevoAfiliado()">
         Guardar
@@ -219,6 +230,54 @@ function abrirNuevoAfiliado(){
 
     fondo.classList.add("activo");
 
+
+    aplicarValidacionesAfiliado();
+
+}
+
+
+
+// Validaciones de campos del modal
+
+function aplicarValidacionesAfiliado(){
+
+    const dni=document.getElementById("nuevoDni");
+    const nombre=document.getElementById("nuevoNombre");
+    const apellido=document.getElementById("nuevoApellido");
+
+
+    dni.addEventListener("input",()=>{
+
+        dni.value=dni.value
+        .replace(/[^0-9]/g,"")
+        .slice(0,8);
+
+    });
+
+
+
+    const validarTexto=(campo)=>{
+
+        campo.value=campo.value
+        .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ ]/g,"")
+        .slice(0,20);
+
+    };
+
+
+    nombre.addEventListener("input",()=>{
+
+        validarTexto(nombre);
+
+    });
+
+
+    apellido.addEventListener("input",()=>{
+
+        validarTexto(apellido);
+
+    });
+
 }
 
 
@@ -227,21 +286,47 @@ function abrirNuevoAfiliado(){
 
 function guardarNuevoAfiliado(){
 
+    const ultimoNumero=BD.afiliados.reduce(
+
+        (max,a)=>{
+
+            const numero=Number(a.numero)||0;
+
+            return numero>max?numero:max;
+
+        },
+
+        0
+
+    );
+
+
+    const nuevoNumero=
+    String(ultimoNumero+1).padStart(8,"0");
+
+
+
     const afiliado={
+
 
         dni:
         document.getElementById("nuevoDni").value,
 
+
         numero:
-        document.getElementById("nuevoNumero").value,
+        nuevoNumero,
+
 
         nombre:
         document.getElementById("nuevoNombre").value,
 
+
         apellido:
         document.getElementById("nuevoApellido").value,
 
+
         estado:"Activo",
+
 
         fecha:
         new Date().toLocaleDateString()
@@ -249,21 +334,24 @@ function guardarNuevoAfiliado(){
     };
 
 
+
     BD.afiliados.push(afiliado);
+
 
     guardarBD();
 
 
     cerrarModal();
 
+
     cargarAfiliados();
 
+
     escribirConsola(
-        "Nuevo afiliado registrado"
+        "Nuevo afiliado registrado N° "+nuevoNumero
     );
 
 }
-
 
 
 // Cierra modal global
