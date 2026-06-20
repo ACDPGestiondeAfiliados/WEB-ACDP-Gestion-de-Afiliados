@@ -1,94 +1,34 @@
-// =====================================
-// ACDP - IMPRESIÓN TEMPORAL
-// =====================================
+/* =====================================
+   ACDP - CONFIGURACIÓN
+===================================== */
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+iniciarConfiguracion();
+
+
+});
 
 
 
-// -------------------------------------
-// COMPROBANTE DE PAGO
-// -------------------------------------
-
-
-function imprimirComprobante(pago){
-
-
-let html = `
-
-
-<div class="comprobante">
-
-
-<h2>
-ACDP - Gremio Docente
-</h2>
-
-
-<h3>
-Comprobante de pago
-</h3>
 
 
 
-<br>
 
 
-<b>Afiliado:</b>
-
-${pago.afiliado}
+function iniciarConfiguracion(){
 
 
 
-<br>
-
-
-<b>Nro:</b>
-
-${pago.numero}
-
-
-
-<br><br>
-
-
-<b>Meses abonados:</b>
-
-${pago.meses.join(", ")}
-
-
-
-<br><br>
-
-
-
-<b>Monto:</b>
-
-$${formatearPesos(pago.monto)}
-
-
-
-<br><br>
-
-
-<b>Método:</b>
-
-${pago.metodo || "No especificado"}
-
-
-
-<br><br><br>
-
-
-Muchas gracias!
-
-
-</div>
-
-
-`;
-
-
-
-abrirVentanaImpresion(html);
+document
+.getElementById(
+"guardarConfiguracion")
+.onclick =
+guardarConfiguracion;
 
 
 
@@ -102,150 +42,85 @@ abrirVentanaImpresion(html);
 
 
 
-// -------------------------------------
-// CARNET AFILIADO
-// -------------------------------------
-
-
-function imprimirCarnet(numero){
+function cargarConfiguracion(){
 
 
 
-let afiliado =
-BD.afiliados.find(a=>
+if(
+usuarioActivo!=="Admin"
+){
 
-a.numero===numero
 
+
+document
+.getElementById(
+"montoConfiguracion")
+.value =
+"";
+
+
+
+document
+.getElementById(
+"consolaSistema")
+.textContent =
+"Acceso restringido";
+
+
+
+return;
+
+
+}
+
+
+
+
+
+
+document
+.getElementById(
+"montoConfiguracion")
+.value =
+formatearNumero(
+BD.configuracion.cuota
 );
 
 
 
 
-if(!afiliado){
+
+
+mostrarLogs();
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function guardarConfiguracion(){
+
+
+
+if(
+usuarioActivo!=="Admin"
+){
 
 
 alert(
-"Afiliado inexistente"
+"Acceso restringido"
 );
 
 
 return;
 
-}
-
-
-
-
-let color =
-afiliado.estado==="ACTIVO"
-
-?
-
-"#F600FF"
-
-:
-
-"#FFB700";
-
-
-
-
-
-
-
-let html = `
-
-
-
-<div class="carnet"
-style="
-width:8cm;
-height:6cm;
-border:3px solid ${color};
-padding:15px;
-">
-
-
-<div>
-
-
-<h3>
-
-ACDP
-
-</h3>
-
-
-
-</div>
-
-
-
-<div>
-
-
-<b>
-${afiliado.nombre}
-</b>
-
-
-<br>
-
-
-<b>
-${afiliado.apellido}
-</b>
-
-
-
-<br><br>
-
-
-
-DNI:
-
-${afiliado.dni}
-
-
-
-<br>
-
-
-Afiliado:
-
-${afiliado.numero}
-
-
-
-<br><br>
-
-
-
-<div class="codigo">
-
-${generarCodigoBarras(
-afiliado.numero
-)}
-
-</div>
-
-
-
-</div>
-
-
-</div>
-
-
-
-`;
-
-
-
-
-abrirVentanaImpresion(html);
-
-
 
 }
 
@@ -255,180 +130,119 @@ abrirVentanaImpresion(html);
 
 
 
-
-
-
-// -------------------------------------
-// GENERADOR SIMPLE DE CODIGO BARRAS
-// -------------------------------------
-
-
-function generarCodigoBarras(numero){
-
-
-
-let barras = "";
-
-
-
-
-for(let i=0;i<numero.length;i++){
-
-
-let n =
-Number(numero[i]);
-
-
-
-for(let j=0;j<n+1;j++){
-
-
-barras += "|";
-
-}
-
-
-barras += " ";
-
-
-}
-
-
-
-
-return barras;
-
-
-
-}
+let valor =
+document
+.getElementById(
+"montoConfiguracion")
+.value;
 
 
 
 
 
 
-
-
-
-
-// -------------------------------------
-// IMPRESIÓN GENERAL
-// -------------------------------------
-
-
-function abrirVentanaImpresion(contenido){
-
-
-
-let ventana =
-window.open(
-"",
-"_blank",
-"width=700,height=700"
+valor =
+limpiarNumero(
+valor
 );
 
 
 
 
-ventana.document.write(`
+valor =
+Number(valor);
 
 
 
-<html>
-
-
-<head>
-
-
-<title>
-Impresión ACDP
-</title>
 
 
 
-<style>
 
 
-body{
+if(
+valor < 10000
+||
+valor > 999999
+){
 
-font-family:Arial;
-padding:30px;
+
+alert(
+"El monto debe estar entre $10.000 y $999.999"
+);
+
+
+return;
+
 
 }
 
 
 
-.comprobante{
-
-text-align:center;
-
-border:1px solid #000;
-
-padding:25px;
-
-}
-
-
-
-.carnet{
-
-font-family:Arial;
-
-}
-
-
-
-.codigo{
-
-font-size:22px;
-
-letter-spacing:2px;
-
-}
-
-
-
-</style>
-
-
-</head>
-
-
-
-<body>
-
-
-${contenido}
-
-
-
-<script>
-
-
-window.onload=function(){
-
-window.print();
-
-}
-
-
-</script>
-
-
-
-</body>
-
-
-</html>
-
-
-
-`);
 
 
 
 
-ventana.document.close();
+BD.configuracion.cuota =
+valor;
+
+
+
+
+
+
+
+registrarHistorial({
+
+usuario:
+usuarioActivo,
+
+
+accion:
+"Configuración modificada",
+
+
+detalles:
+"Nuevo monto: $"
++
+formatearNumero(valor)
+
+
+
+});
+
+
+
+
+
+
+agregarLog(
+
+"Cuota modificada: $"
++
+formatearNumero(valor)
+
+);
+
+
+
+
+
+guardarBD();
+
+
+
+
+
+
+alert(
+"Configuración guardada"
+);
+
+
+
+
+
+cargarConfiguracion();
 
 
 
@@ -442,37 +256,152 @@ ventana.document.close();
 
 
 
-
-// -------------------------------------
-// IMPRIMIR TABLA HISTORIAL
-// -------------------------------------
-
-
-function imprimirTabla(elemento){
+function agregarLog(texto){
 
 
 
-let contenido =
-document.getElementById(elemento)
-.innerHTML;
+if(!BD.logs)
+BD.logs=[];
 
 
 
-abrirVentanaImpresion(
 
+
+BD.logs.push({
+
+
+
+fecha:
+obtenerFecha(),
+
+
+
+hora:
+obtenerHora(),
+
+
+
+texto
+
+
+
+});
+
+
+
+
+
+
+guardarBD();
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function mostrarLogs(){
+
+
+
+let consola =
+document
+.getElementById(
+"consolaSistema"
+);
+
+
+
+
+
+consola.innerHTML="";
+
+
+
+
+
+if(
+!BD.logs
+||
+BD.logs.length===0
+){
+
+
+
+consola.textContent =
+"Sin registros";
+
+
+
+return;
+
+
+}
+
+
+
+
+
+
+
+BD.logs
+.slice()
+.reverse()
+.forEach(log=>{
+
+
+
+let linea =
+document.createElement(
+"div"
+);
+
+
+
+linea.textContent =
 `
 
-<h2>
+[${log.fecha} ${log.hora}]
+${log.texto}
 
-ACDP - Historial
-
-</h2>
+`;
 
 
-${contenido}
 
-`
+consola.appendChild(
+linea
+);
 
+
+
+});
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function formatearNumero(valor){
+
+
+
+return Number(valor)
+.toLocaleString(
+"es-AR"
 );
 
 
