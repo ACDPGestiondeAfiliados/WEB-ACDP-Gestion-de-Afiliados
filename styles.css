@@ -11,7 +11,7 @@ color:#222;
 
 
 .header{
-background:#003b73;
+background:#F600FF;
 color:white;
 text-align:center;
 padding:20px;
@@ -42,13 +42,13 @@ padding:12px 20px;
 border:0;
 border-radius:6px;
 cursor:pointer;
-background:#005baa;
+background:#F600FF;
 color:white;
 }
 
 
 .menu button:hover{
-background:#00457f;
+background:#F882FF;
 }
 
 
@@ -99,12 +99,12 @@ padding:10px;
 
 td{
 padding:10px;
-border-bottom:1px solid #ddd;
+border-bottom:1px solid #000000;
 }
 
 
 tr:hover{
-background:#eef5ff;
+background:#E8E3E3;
 }
 
 
