@@ -88,23 +88,39 @@ function eventosHistorial(){
     }
 
 
-    if(selector){
+if(selector){
 
-        selector.addEventListener("change",()=>{
+    const actualizarDesdeFecha = ()=>{
 
-            if(selector.value){
+        if(selector.value){
 
-                fechaActual=new Date(
-                    selector.value+"T00:00:00"
-                );
+            fechaActual=new Date(
+                selector.value+"T00:00:00"
+            );
 
-                cargarHistorialFecha();
+            actualizarFecha();
 
-            }
+            cargarHistorialFecha();
 
-        });
+        }
 
-    }
+    };
+
+
+    selector.addEventListener("change", actualizarDesdeFecha);
+
+
+    selector.addEventListener("keydown",(e)=>{
+
+        if(e.key==="Enter"){
+
+            actualizarDesdeFecha();
+
+        }
+
+    });
+
+}
 
 
     if(imprimir){
