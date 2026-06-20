@@ -420,7 +420,7 @@ ${h.hora||""}
 
 <img
 
-src="print.png"
+src="print.png"  width="25%" height="25%"
 
 class="iconoHistorial"
 
@@ -433,7 +433,7 @@ onclick="imprimirRegistro('${h.dni}','${h.fecha}','${h.hora}')"
 
 <img
 
-src="delete.png"
+src="delete.png" width="25%" height="25%"
 
 class="iconoHistorial"
 
