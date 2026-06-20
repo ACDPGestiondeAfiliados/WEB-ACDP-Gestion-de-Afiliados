@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // SESIÓN ACTIVA
 // ===============================
 let usuarioActivo = null;
+window.usuarioActivo = null;
 
 // ===============================
 // CONTROL DE ACCESO GLOBAL
@@ -102,6 +103,7 @@ function pedirPinUsuario(callback) {
         }
 
         usuarioActivo = usuario ? usuario.usuario : "Admin";
+        window.usuarioActivo = usuarioActivo;
 
         cerrarModal();
         callback();
@@ -147,6 +149,7 @@ function pedirPinAdmin(callback) {
         }
 
         usuarioActivo = usuario ? usuario.usuario : "Admin";
+        window.usuarioActivo = usuarioActivo;
 
         cerrarModal();
         callback();
