@@ -11,8 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarConfiguracion();
     iniciarResetSemanal();
 
+    // 🔥 ACTIVAR CONSOLA + INTERCEPTOR GLOBAL
     setTimeout(() => {
+
         iniciarConsolaLogs();
+        activarInterceptoresGlobales();
+
     }, 300);
 
 });
@@ -87,7 +91,7 @@ function guardarMonto() {
 
 
 // ===============================
-// LOG GLOBAL
+// LOG GLOBAL BASE
 // ===============================
 function registrarLog({ accion, detalle }) {
 
@@ -124,10 +128,7 @@ function iniciarConsolaLogs() {
     const input = document.getElementById("inputLogs");
     const consola = document.getElementById("consolaSistema");
 
-    if (!input || !consola) {
-        console.warn("Consola de logs no disponible en DOM");
-        return;
-    }
+    if (!input || !consola) return;
 
     renderConsolaLogs(">todo");
 
@@ -141,11 +142,7 @@ function iniciarConsolaLogs() {
 
             if (!comando) return;
 
-            try {
-                renderConsolaLogs(comando);
-            } catch (err) {
-                console.error("Error consola logs:", err);
-            }
+            renderConsolaLogs(comando);
 
             input.value = "";
 
@@ -206,7 +203,7 @@ function procesarFiltroLogs(comando) {
 
 
 // ===============================
-// RENDER CONSOLA (ROBUSTO + COLORES)
+// RENDER CONSOLA (ROBUSTA + COLORES)
 // ===============================
 function renderConsolaLogs(comando) {
 
@@ -217,7 +214,6 @@ function renderConsolaLogs(comando) {
     const logs = procesarFiltroLogs(comando);
 
     let html = "";
-
 
     logs.forEach(l => {
 
@@ -230,10 +226,13 @@ function renderConsolaLogs(comando) {
         else if (accion.includes("COBRO")) color = "#00ff66";
         else if (accion.includes("ELIMINACION")) color = "#ff3b3b";
         else if (accion.includes("SISTEMA")) color = "#b36bff";
+        else if (accion.includes("AFILIADOS")) color = "#00ffd5";
+        else if (accion.includes("HISTORIAL")) color = "#ffb347";
 
 
         let detalle = (l.detalle || "").toString();
 
+        // 🔥 resaltar DNI / números largos
         detalle = detalle.replace(
             /(\d{6,12})/g,
             `<b style="color:#ffffff">$1</b>`
@@ -250,16 +249,14 @@ ${detalle}
         `;
     });
 
-
     consola.innerHTML = html || "<span style='color:#999'>Sin registros</span>";
-
     consola.scrollTop = consola.scrollHeight;
 
 }
 
 
 // ===============================
-// RESET SEMANAL
+// RESET SEMANAL (DOMINGO 00:00)
 // ===============================
 function iniciarResetSemanal() {
 
@@ -302,4 +299,91 @@ function resetLogs() {
 
     renderConsolaLogs(">todo");
 
+}
+
+
+// =====================================================
+// 🔥 INTERCEPTORES GLOBALES (CLAVE DEL SISTEMA)
+// =====================================================
+function activarInterceptoresGlobales() {
+
+    // ===============================
+    // AFILIADOS
+    // ===============================
+    if (Array.isArray(window.BD_afiliados)) {
+
+        const original = window.BD_afiliados.push;
+
+        window.BD_afiliados.push = function (...args) {
+
+            const result = original.apply(this, args);
+
+            registrarLog({
+                accion: "AFILIADOS",
+                detalle: "Nuevo registro: " + JSON.stringify(args[0])
+            });
+
+            return result;
+        };
+    }
+
+    // ===============================
+    // USUARIOS
+    // ===============================
+    if (Array.isArray(window.BD_usuarios)) {
+
+        const original = window.BD_usuarios.push;
+
+        window.BD_usuarios.push = function (...args) {
+
+            const result = original.apply(this, args);
+
+            registrarLog({
+                accion: "USUARIO",
+                detalle: "Usuario creado: " + (args[0]?.usuario || "")
+            });
+
+            return result;
+        };
+    }
+
+    // ===============================
+    // COBROS
+    // ===============================
+    if (Array.isArray(window.BD_cobros)) {
+
+        const original = window.BD_cobros.push;
+
+        window.BD_cobros.push = function (...args) {
+
+            const result = original.apply(this, args);
+
+            registrarLog({
+                accion: "COBRO",
+                detalle: "Nuevo cobro registrado"
+            });
+
+            return result;
+        };
+    }
+
+    // ===============================
+    // HISTORIAL
+    // ===============================
+    if (Array.isArray(window.BD_historial)) {
+
+        const original = window.BD_historial.push;
+
+        window.BD_historial.push = function (...args) {
+
+            const result = original.apply(this, args);
+
+            registrarLog({
+                accion: "HISTORIAL",
+                detalle: args[0]?.detalle || "Movimiento en historial"
+            });
+
+            return result;
+        };
+    }
 }
