@@ -160,3 +160,9 @@ min-height:120px;
 padding:15px;
 font-family:monospace;
 }
+
+.logoFicha{
+    width:120px;
+    display:block;
+    margin:auto;
+}
