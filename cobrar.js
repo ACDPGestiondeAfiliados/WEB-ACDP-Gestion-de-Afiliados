@@ -211,8 +211,7 @@ let meses=[
 
 
 
-let pagados =
-afiliado.mesesPagados || [];
+let pagados = obtenerMesesPagadosActivos(afiliado.dni);
 
 
 
