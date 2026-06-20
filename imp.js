@@ -1,7 +1,12 @@
 // ===============================
-// IMPRESIÓN CARNET ACDP
-// Generación temporal PNG
-// Tamaño real 8x6cm
+// IMPRESIÓN ACDP
+// Carnet PNG temporal + Historial A4
+// ===============================
+
+
+
+// ===============================
+// IMPRIMIR CARNET AFILIADO
 // ===============================
 
 function generarPDF(afiliado){
@@ -25,6 +30,7 @@ if(!ventana){
 
 
 ventana.document.write(`
+
 
 <!DOCTYPE html>
 
@@ -51,33 +57,29 @@ margin:0;
 }
 
 
-
 body{
 
 margin:0;
 padding:0;
+
 display:flex;
 justify-content:center;
 align-items:center;
+
 width:8cm;
 height:6cm;
 
 }
 
 
-
 #carnet{
-
 
 width:8cm;
 height:6cm;
 
-
 border:2px solid #005baa;
 
-
 font-family:Arial,Helvetica,sans-serif;
-
 
 display:flex;
 
@@ -85,9 +87,7 @@ padding:6px;
 
 box-sizing:border-box;
 
-
 }
-
 
 
 .izquierda{
@@ -95,13 +95,10 @@ box-sizing:border-box;
 width:30%;
 
 display:flex;
-
 align-items:center;
-
 justify-content:center;
 
 }
-
 
 
 .logo{
@@ -115,7 +112,6 @@ width:55px;
 .derecha{
 
 width:70%;
-
 padding-left:6px;
 
 }
@@ -169,7 +165,6 @@ height:25px;
 
 </style>
 
-
 </head>
 
 
@@ -190,37 +185,62 @@ height:25px;
 
 
 <div class="titulo">
+
 ACDP
+
 </div>
 
 
 <div class="subtitulo">
+
 Carnet de afiliado
+
 </div>
 
 
+
 <div class="dato">
+
 Nombre:
-<span class="valor">${afiliado.nombre||""}</span>
+<span class="valor">
+${afiliado.nombre||""}
+</span>
+
 </div>
 
 
+
 <div class="dato">
+
 Apellido:
-<span class="valor">${afiliado.apellido||""}</span>
+<span class="valor">
+${afiliado.apellido||""}
+</span>
+
 </div>
 
 
+
 <div class="dato">
+
 DNI:
-<span class="valor">${afiliado.dni||""}</span>
+<span class="valor">
+${afiliado.dni||""}
+</span>
+
 </div>
+
 
 
 <div class="dato">
+
 Afiliado N°:
-<span class="valor">${afiliado.numero||""}</span>
+<span class="valor">
+${afiliado.numero||""}
+</span>
+
 </div>
+
 
 
 <svg id="barra"></svg>
@@ -232,10 +252,11 @@ Afiliado N°:
 </div>
 
 
+
 <script>
 
 
-function iniciar(){
+window.onload=function(){
 
 
 JsBarcode(
@@ -275,21 +296,13 @@ scale:4
 ).then(canvas=>{
 
 
-document.body.innerHTML=`
+document.body.innerHTML=
 
+`
 
 <img src="${canvas.toDataURL("image/png")}"
 
-style="
-
-width:8cm;
-
-height:6cm;
-
-object-fit:contain;
-
-">
-
+style="width:8cm;height:6cm;">
 
 `;
 
@@ -299,6 +312,7 @@ setTimeout(()=>{
 
 
 window.print();
+
 
 
 window.onafterprint=function(){
@@ -315,16 +329,6 @@ window.close();
 });
 
 
-}
-
-
-
-window.onload=()=>{
-
-
-setTimeout(iniciar,500);
-
-
 };
 
 
@@ -345,448 +349,6 @@ ventana.document.close();
 
 }
 
-// ===============================
-// IMPRIMIR HISTORIAL ACTUAL
-// ===============================
-
-// ===============================
-// IMPRESIÓN ACDP
-// Generación temporal para imprimir
-// Carnet + Historial
-// ===============================
-
-
-// ===============================
-// IMPRIMIR CARNET AFILIADO
-// ===============================
-
-function generarPDF(afiliado){
-
-
-const ventana =
-window.open(
-"",
-"_blank",
-"width=500,height=400"
-);
-
-
-
-if(!ventana){
-
-    return;
-
-}
-
-
-
-const colorEstado =
-afiliado.estado==="ADHERENTE" ||
-afiliado.estado==="Adherente"
-?
-"#FFB700"
-:
-"#F600FF";
-
-
-
-ventana.document.write(`
-
-
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<meta charset="UTF-8">
-
-
-<title>Carnet ACDP</title>
-
-
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-
-
-<style>
-
-
-@page{
-
-size:8.5cm 5.5cm;
-margin:0;
-
-}
-
-
-
-*{
-
-box-sizing:border-box;
-
-}
-
-
-
-body{
-
-margin:0;
-padding:0;
-width:8.5cm;
-height:5.5cm;
-font-family:Arial,Helvetica,sans-serif;
-background:white;
-
-}
-
-
-
-.carnet{
-
-
-width:8.5cm;
-height:5.5cm;
-
-
-border:2px solid ${colorEstado};
-
-
-display:flex;
-
-padding:6px;
-
-
-overflow:hidden;
-
-
-}
-
-
-
-.izquierda{
-
-
-width:28%;
-
-
-display:flex;
-
-align-items:center;
-
-justify-content:center;
-
-
-}
-
-
-
-.logo{
-
-
-width:50px;
-
-height:auto;
-
-
-}
-
-
-
-
-.derecha{
-
-
-width:72%;
-
-
-padding-left:6px;
-
-
-display:flex;
-
-flex-direction:column;
-
-
-justify-content:center;
-
-
-}
-
-
-
-
-.titulo{
-
-
-font-size:18px;
-
-font-weight:bold;
-
-color:#005baa;
-
-margin-bottom:5px;
-
-
-}
-
-
-
-
-.subtitulo{
-
-
-font-size:10px;
-
-font-weight:bold;
-
-margin-bottom:6px;
-
-
-}
-
-
-
-
-.dato{
-
-
-font-size:10px;
-
-margin:2px 0;
-
-
-}
-
-
-
-.valor{
-
-
-font-weight:bold;
-
-
-}
-
-
-
-
-.codigo{
-
-
-margin-top:5px;
-
-
-}
-
-
-
-
-#barra{
-
-
-width:120px;
-
-height:28px;
-
-
-}
-
-
-
-.pie{
-
-
-font-size:7px;
-
-margin-top:3px;
-
-color:#555;
-
-
-}
-
-
-
-</style>
-
-
-</head>
-
-
-<body>
-
-
-
-<div class="carnet">
-
-
-
-<div class="izquierda">
-
-
-<img 
-src="logo.jpg"
-class="logo"
->
-
-
-</div>
-
-
-
-
-
-<div class="derecha">
-
-
-
-<div class="titulo">
-
-ACDP
-
-</div>
-
-
-
-<div class="subtitulo">
-
-Carnet de afiliado
-
-</div>
-
-
-
-<div class="dato">
-
-Nombre:
-
-<span class="valor">
-
-${afiliado.nombre||""}
-
-</span>
-
-</div>
-
-
-
-<div class="dato">
-
-Apellido:
-
-<span class="valor">
-
-${afiliado.apellido||""}
-
-</span>
-
-</div>
-
-
-
-
-<div class="dato">
-
-DNI:
-
-<span class="valor">
-
-${afiliado.dni||""}
-
-</span>
-
-</div>
-
-
-
-
-<div class="dato">
-
-Afiliado N°:
-
-<span class="valor">
-
-${afiliado.numero||""}
-
-</span>
-
-</div>
-
-
-
-
-<div class="codigo">
-
-
-<svg id="barra"></svg>
-
-
-</div>
-
-</div>
-
-</div>
-
-
-<script>
-
-
-JsBarcode(
-
-"#barra",
-
-"${afiliado.numero||afiliado.dni}",
-
-{
-
-format:"CODE128",
-
-displayValue:false,
-
-height:28,
-
-width:1.5,
-
-margin:0
-
-}
-
-);
-
-
-
-window.onload=function(){
-
-window.print();
-
-window.onafterprint=function(){
-
-window.close();
-
-};
-
-};
-
-
-
-</script>
-
-
-</body>
-
-
-</html>
-
-
-`);
-
-
-
-ventana.document.close();
-
-
-
-}
 
 
 
@@ -794,6 +356,7 @@ ventana.document.close();
 // ===============================
 // IMPRIMIR HISTORIAL ACTUAL
 // ===============================
+
 
 function imprimirHistorial(){
 
@@ -819,10 +382,8 @@ const tabla =
 document.getElementById("tablaHistorial");
 
 
-
 const fecha =
 document.getElementById("fechaHistorial");
-
 
 
 const monto =
@@ -837,7 +398,9 @@ ventana.document.write(`
 
 <html>
 
+
 <head>
+
 
 <meta charset="UTF-8">
 
@@ -862,10 +425,6 @@ body{
 
 font-family:Arial,Helvetica,sans-serif;
 
-display:flex;
-
-justify-content:center;
-
 }
 
 
@@ -875,14 +434,6 @@ justify-content:center;
 width:100%;
 
 text-align:center;
-
-}
-
-
-
-h2{
-
-margin-bottom:10px;
 
 }
 
@@ -910,32 +461,6 @@ font-size:12px;
 
 
 
-th{
-
-font-weight:bold;
-
-}
-
-
-
-.fecha{
-
-margin-bottom:10px;
-
-}
-
-
-
-.total{
-
-margin-top:10px;
-
-font-weight:bold;
-
-}
-
-
-
 </style>
 
 
@@ -951,12 +476,12 @@ font-weight:bold;
 <h2>Historial ACDP</h2>
 
 
-<div class="fecha">
+<p>
 
 Fecha:
 ${fecha ? fecha.value || fecha.textContent : ""}
 
-</div>
+</p>
 
 
 
@@ -964,12 +489,12 @@ ${tabla ? tabla.outerHTML : ""}
 
 
 
-<div class="total">
+<h3>
 
 Total:
 ${monto ? monto.textContent : "$0"}
 
-</div>
+</h3>
 
 
 </div>
@@ -1012,9 +537,12 @@ ventana.document.close();
 
 }
 
+
+
 // ===============================
-// COMPATIBILIDAD GLOBAL ACDP
+// CONECTORES GLOBALES
 // ===============================
 
 window.generarPDF = generarPDF;
+
 window.imprimirHistorial = imprimirHistorial;
