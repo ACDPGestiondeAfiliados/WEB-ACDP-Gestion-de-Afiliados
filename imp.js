@@ -63,7 +63,7 @@ ventana.document.write(`
 
 size:8cm 6cm;
 
-margin:30%;
+margin:75%;
 
 }
 
