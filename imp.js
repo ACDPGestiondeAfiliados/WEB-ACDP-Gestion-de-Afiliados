@@ -35,35 +35,35 @@ ventana.document.write(`
 <meta charset="UTF-8">
 
 
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
-
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 
 <style>
 
+
 @page{
 
-size:auto;
-margin:5mm;
+size:8cm 6cm;
+margin:0;
 
 }
+
 
 
 body{
 
 margin:0;
 padding:0;
-
 display:flex;
-
 justify-content:center;
 align-items:center;
-
-height:100vh;
+width:8cm;
+height:6cm;
 
 }
+
 
 
 #carnet{
@@ -76,15 +76,18 @@ height:6cm;
 border:2px solid #005baa;
 
 
+font-family:Arial,Helvetica,sans-serif;
+
+
 display:flex;
 
 padding:6px;
 
 box-sizing:border-box;
 
-font-family:Arial,Helvetica,sans-serif;
 
 }
+
 
 
 .izquierda{
@@ -98,6 +101,7 @@ align-items:center;
 justify-content:center;
 
 }
+
 
 
 .logo{
@@ -117,12 +121,11 @@ padding-left:6px;
 }
 
 
+
 .titulo{
 
 font-size:20px;
-
 font-weight:bold;
-
 color:#005baa;
 
 }
@@ -132,9 +135,7 @@ color:#005baa;
 .subtitulo{
 
 font-size:10px;
-
 font-weight:bold;
-
 margin-bottom:8px;
 
 }
@@ -144,7 +145,6 @@ margin-bottom:8px;
 .dato{
 
 font-size:10px;
-
 margin:3px 0;
 
 }
@@ -162,7 +162,6 @@ font-weight:bold;
 #barra{
 
 width:120px;
-
 height:25px;
 
 }
@@ -182,72 +181,45 @@ height:25px;
 
 <div class="izquierda">
 
-
 <img src="logo.jpg" class="logo">
 
-
 </div>
-
 
 
 <div class="derecha">
 
 
 <div class="titulo">
-
 ACDP
-
 </div>
 
 
 <div class="subtitulo">
-
 Carnet de afiliado
-
 </div>
 
 
 <div class="dato">
-
 Nombre:
-
-<span class="valor">
-${afiliado.nombre||""}
-</span>
-
+<span class="valor">${afiliado.nombre||""}</span>
 </div>
 
 
 <div class="dato">
-
 Apellido:
-
-<span class="valor">
-${afiliado.apellido||""}
-</span>
-
+<span class="valor">${afiliado.apellido||""}</span>
 </div>
 
 
 <div class="dato">
-
 DNI:
-
-<span class="valor">
-${afiliado.dni||""}
-</span>
-
+<span class="valor">${afiliado.dni||""}</span>
 </div>
 
 
 <div class="dato">
-
 Afiliado N°:
-
-<span class="valor">
-${afiliado.numero||""}
-</span>
-
+<span class="valor">${afiliado.numero||""}</span>
 </div>
 
 
@@ -260,11 +232,10 @@ ${afiliado.numero||""}
 </div>
 
 
-
 <script>
 
 
-window.onload=function(){
+function iniciar(){
 
 
 JsBarcode(
@@ -291,9 +262,6 @@ margin:0
 
 
 
-setTimeout(()=>{
-
-
 html2canvas(
 
 document.getElementById("carnet"),
@@ -307,17 +275,28 @@ scale:4
 ).then(canvas=>{
 
 
-const imagen =
-canvas.toDataURL("image/png");
+document.body.innerHTML=`
 
 
+<img src="${canvas.toDataURL("image/png")}"
 
-document.body.innerHTML =
-`<img src="${imagen}" style="width:8cm;height:6cm;">`;
+style="
+
+width:8cm;
+
+height:6cm;
+
+object-fit:contain;
+
+">
+
+
+`;
 
 
 
 setTimeout(()=>{
+
 
 window.print();
 
@@ -332,10 +311,18 @@ window.close();
 },300);
 
 
+
 });
 
 
-},500);
+}
+
+
+
+window.onload=()=>{
+
+
+setTimeout(iniciar,500);
 
 
 };
@@ -348,6 +335,7 @@ window.close();
 
 </html>
 
+
 `);
 
 
@@ -356,9 +344,6 @@ ventana.document.close();
 
 
 }
-
-
-
 
 // ===============================
 // IMPRIMIR HISTORIAL ACTUAL
