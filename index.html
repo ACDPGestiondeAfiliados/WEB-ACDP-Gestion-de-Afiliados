@@ -1,1 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>ACDP - Gestión de Afiliados</title>
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+
+<header class="header">
+
+    <h1>ACDP</h1>
+    <p>Sistema de Gestión de Afiliados</p>
+
+</header>
+
+
+<nav class="menu">
+
+    <button data-section="cobrar">
+        COBRAR
+    </button>
+
+    <button data-section="historial">
+        HISTORIAL
+    </button>
+
+    <button data-section="afiliados">
+        AFILIADOS
+    </button>
+
+    <button data-section="usuarios">
+        USUARIOS
+    </button>
+
+    <button data-section="configuracion">
+        CONFIGURACIÓN
+    </button>
+
+</nav>
+
+
+
+<main class="contenedor">
+
+
+<section id="cobrar" class="seccion activa">
+
+    <h2>COBRAR</h2>
+
+    <div id="contenidoCobrar">
+
+    </div>
+
+</section>
+
+
+
+<section id="historial" class="seccion">
+
+    <h2>HISTORIAL</h2>
+
+    <div id="contenidoHistorial">
+
+    </div>
+
+</section>
+
+
+
+
+<section id="afiliados" class="seccion">
+
+    <h2>AFILIADOS</h2>
+
+    <div id="contenidoAfiliados">
+
+    </div>
+
+</section>
+
+
+
+
+<section id="usuarios" class="seccion">
+
+    <h2>USUARIOS</h2>
+
+    <div id="contenidoUsuarios">
+
+    </div>
+
+</section>
+
+
+
+
+<section id="configuracion" class="seccion">
+
+    <h2>CONFIGURACIÓN</h2>
+
+    <div id="contenidoConfig">
+
+    </div>
+
+</section>
+
+
+
+</main>
+
+
+
+<!-- MODALES -->
+
+<div id="modalFondo" class="modal-fondo">
+
+    <div id="modal" class="modal">
+
+        <div id="modalContenido">
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+<script src="js/bd.js"></script>
+<script src="js/inicio.js"></script>
+<script src="js/afiliados.js"></script>
+<script src="js/cobrar.js"></script>
+<script src="js/historial.js"></script>
+<script src="js/usuarios.js"></script>
+<script src="js/config.js"></script>
+<script src="js/imp.js"></script>
+
+
+
+</body>
+</html>
