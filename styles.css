@@ -177,3 +177,34 @@ font-family:monospace;
     object-fit:contain;
     margin:3px;
 }
+
+#consolaSistema{
+    background:#0f0f0f;
+    color:#00ff66;
+    font-family:monospace;
+    padding:10px;
+    height:300px;
+    overflow-y:auto;
+    border:1px solid #222;
+    margin-bottom:10px;
+    white-space:pre-wrap;
+}
+
+#inputLogs{
+    width:100%;
+    padding:10px;
+    background:#111;
+    color:#0f0;
+    border:1px solid #333;
+    font-family:monospace;
+}
+
+.ayudaLogs{
+    margin-top:10px;
+    font-size:12px;
+    font-family:monospace;
+    background:#111;
+    color:#aaa;
+    padding:10px;
+    border:1px solid #222;
+}
