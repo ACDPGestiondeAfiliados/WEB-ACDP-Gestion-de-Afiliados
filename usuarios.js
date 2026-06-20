@@ -56,7 +56,7 @@ function cargarUsuarios(){
     cuerpo.innerHTML="";
 
 
-    BD.usuarios.forEach((u,index)=>{
+    BD_usuarios.forEach((u,index)=>{
 
 
         cuerpo.innerHTML+=`
@@ -156,7 +156,7 @@ function guardarUsuario(){
 
 
 
-    BD.usuarios.push({
+    BD_usuarios.push({
 
         usuario,
         pin,
@@ -187,7 +187,7 @@ function guardarUsuario(){
 
 function eliminarUsuario(index){
 
-    const usuario=BD.usuarios[index];
+    const usuario=BD_usuarios[index];
 
 
     // El administrador principal no puede eliminarse
@@ -203,7 +203,7 @@ function eliminarUsuario(index){
     }
 
 
-    BD.usuarios.splice(index,1);
+    BD_usuarios.splice(index,1);
 
 
     guardarBD();
