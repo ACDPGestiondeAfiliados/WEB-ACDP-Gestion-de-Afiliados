@@ -360,6 +360,39 @@ fecha:afiliado.fecha||""
 
 }
 
+// ===============================
+// Editar afiliado
+// ===============================
+
+function editarAfiliado(dni){
+
+    const a = BD_afiliados.find(x => x.dni === dni);
+    if(!a) return;
+
+    const contenido = document.getElementById("modalContenido");
+    const fondo = document.getElementById("modalFondo");
+
+    contenido.innerHTML = `
+    <h3>Editar afiliado</h3>
+
+    <input id="editarDni" value="${a.dni}" maxlength="8">
+    <input id="editarNombre" value="${a.nombre}" maxlength="20">
+    <input id="editarApellido" value="${a.apellido}" maxlength="20">
+    <input id="editarCelular" value="${a.celular||""}" maxlength="10">
+    <input id="editarCorreo" value="${a.correo||""}" maxlength="30">
+
+    <select id="editarEstado">
+        <option value="Activo">Activo</option>
+        <option value="Adherente">Adherente</option>
+    </select>
+
+    <button onclick="guardarEdicion('${dni}')">Guardar cambios</button>
+    `;
+
+    document.getElementById("editarEstado").value = a.estado || "Activo";
+
+    fondo.classList.add("activo");
+}
 
 // ===============================
 // Cerrar modal
