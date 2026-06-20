@@ -289,11 +289,11 @@ function cambiarFecha(valor){
         fechaActual.getDate()+valor
     );
 
+    actualizarFecha();
 
     cargarHistorialFecha();
 
 }
-
 
 // ===============================
 // Actualiza texto fecha
@@ -308,25 +308,24 @@ function actualizarFecha(){
 
     if(fecha){
 
+        const año =
+        fechaActual.getFullYear();
+
+
+        const mes =
+        String(fechaActual.getMonth()+1)
+        .padStart(2,"0");
+
+
+        const dia =
+        String(fechaActual.getDate())
+        .padStart(2,"0");
+
+
         if(fecha.tagName==="INPUT"){
-
-            const año =
-            fechaActual.getFullYear();
-
-
-            const mes =
-            String(fechaActual.getMonth()+1)
-            .padStart(2,"0");
-
-
-            const dia =
-            String(fechaActual.getDate())
-            .padStart(2,"0");
-
 
             fecha.value =
             año+"-"+mes+"-"+dia;
-
 
         }else{
 
