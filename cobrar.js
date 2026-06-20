@@ -3,6 +3,7 @@
 // Gestión de cuotas y pagos
 // ===============================
 
+
 document.addEventListener("DOMContentLoaded",()=>{
 
     iniciarCobrar();
@@ -18,7 +19,9 @@ function iniciarCobrar(){
 
     cargarTablaCobrar();
 
+
     const filtro=document.getElementById("filtroCobrar");
+
 
     if(filtro){
 
@@ -54,6 +57,7 @@ function buscarParaCobrar(valor){
 
     valor=valor.trim();
 
+
     if(!valor){
 
         mostrarCobros(BD_afiliados);
@@ -61,6 +65,7 @@ function buscarParaCobrar(valor){
         return;
 
     }
+
 
     mostrarCobros(
         buscarAfiliado(valor)
@@ -80,11 +85,15 @@ function mostrarCobros(lista){
     .getElementById("tablaCobrar")
     .querySelector("tbody");
 
+
     cuerpo.innerHTML="";
+
 
     lista.forEach(a=>{
 
+
         let boton="";
+
 
         if(a.estado==="Eliminado"){
 
@@ -107,6 +116,8 @@ function mostrarCobros(lista){
             `;
 
         }
+
+
 
         cuerpo.innerHTML+=`
 
@@ -132,6 +143,7 @@ function mostrarCobros(lista){
 
         `;
 
+
     });
 
 }
@@ -144,11 +156,14 @@ function mostrarCobros(lista){
 
 function cobrarAfiliado(dni){
 
+
     const afiliado=BD_afiliados.find(a=>
 
         a.dni===dni
 
     );
+
+
 
     if(!afiliado){
 
@@ -156,21 +171,39 @@ function cobrarAfiliado(dni){
 
     }
 
+
+
     // Bloqueo afiliados eliminados
 
     if(afiliado.estado==="Eliminado"){
+
 
         alert(
         "Este afiliado fue eliminado, por favor, consulte en HISTORIAL, o pregunte a un administrador."
         );
 
+
         return;
 
     }
 
+
+
     const monto = (BD_configuracion && BD_configuracion.monto) ? BD_configuracion.monto : 0;
 
+
+
     const fecha=new Date();
+
+
+
+    // 🔥 FIX REAL: asegurar usuario activo correcto en este scope
+    const usuarioRegistro =
+        (typeof usuarioActivo !== "undefined" && usuarioActivo && usuarioActivo !== "Admin")
+        ? usuarioActivo
+        : "Sistema";
+
+
 
     registrarHistorial(
         "Cobro",
@@ -178,27 +211,40 @@ function cobrarAfiliado(dni){
         "Cuota abonada: $" + monto
     );
 
+
+
     BD_cobros.push({
 
-        usuario: (typeof usuarioActivo !== "undefined" && usuarioActivo) ? usuarioActivo : "Sistema",
+        usuario: usuarioRegistro,
 
-        afiliado: afiliado.nombre + " " + afiliado.apellido,
+        afiliado:
+        afiliado.nombre + " " + afiliado.apellido,
 
-        dni: afiliado.dni,
+        dni:
+        afiliado.dni,
 
-        numero: afiliado.numero,
+        numero:
+        afiliado.numero,
 
-        fecha: fecha.toLocaleDateString(),
+        fecha:
+        fecha.toLocaleDateString(),
 
-        hora: fecha.toLocaleTimeString(),
+        hora:
+        fecha.toLocaleTimeString(),
 
-        accion: "Cobro",
+        accion:
+        "Cobro",
 
-        detalle: "Cuota abonada: $" + monto
+        detalle:
+        "Cuota abonada: $" + monto
 
     });
 
+
+
     guardarBD();
+
+
 
     if(typeof escribirConsola==="function"){
 
@@ -208,8 +254,11 @@ function cobrarAfiliado(dni){
 
     }
 
+
+
     alert(
     "Cobro registrado correctamente"
     );
+
 
 }
