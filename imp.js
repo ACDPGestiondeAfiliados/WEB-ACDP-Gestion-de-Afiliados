@@ -37,6 +37,13 @@ contenido.innerHTML=`
 <div class="fichaImpresion">
 
 
+<img 
+src="logo.jpg"
+class="logoFicha"
+>
+
+
+
 <h2>ACDP</h2>
 
 <h3>Ficha de afiliado</h3>
@@ -93,7 +100,7 @@ ${afiliado.estado}
 
 
 <p>
-<strong>Fecha alta:</strong>
+<strong>Fecha de alta:</strong>
 ${afiliado.fecha}
 </p>
 
