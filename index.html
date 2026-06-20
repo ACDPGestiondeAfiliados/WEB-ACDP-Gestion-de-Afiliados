@@ -1,114 +1,637 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>ACDP - Gestión de Afiliados</title>
+<meta charset="UTF-8">
 
-    <link rel="stylesheet" href="styles.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ACDP - Gestión de Afiliados</title>
+
+<link rel="stylesheet" href="styles.css">
+
 </head>
+
+
 
 <body>
 
 
 <header class="header">
 
-    <h1>ACDP</h1>
-    <p>Sistema de Gestión de Afiliados</p>
+
+<h1>ACDP</h1>
+
+<p>
+Sistema de Gestión de Afiliados
+</p>
+
+
+<div id="usuarioActivo">
+
+</div>
+
 
 </header>
 
 
+
+
+
 <nav class="menu">
 
-    <button data-section="cobrar">
-        COBRAR
-    </button>
 
-    <button data-section="historial">
-        HISTORIAL
-    </button>
+<button data-seccion="cobrar">
+COBRAR
+</button>
 
-    <button data-section="afiliados">
-        AFILIADOS
-    </button>
 
-    <button data-section="usuarios">
-        USUARIOS
-    </button>
+<button data-seccion="historial">
+HISTORIAL
+</button>
 
-    <button data-section="configuracion">
-        CONFIGURACIÓN
-    </button>
+
+<button data-seccion="afiliados">
+AFILIADOS
+</button>
+
+
+<button data-seccion="usuarios">
+USUARIOS
+</button>
+
+
+<button data-seccion="configuracion">
+CONFIGURACIÓN
+</button>
+
 
 </nav>
 
 
 
-<main class="contenedor">
 
 
-<section id="cobrar" class="seccion activa">
 
-    <h2>COBRAR</h2>
 
-    <div id="contenidoCobrar">
 
-    </div>
+<main id="app">
+
+
+
+
+
+
+
+<!-- ================= COBRAR ================= -->
+
+
+<section id="cobrar" class="seccion">
+
+
+<h2>
+COBRAR
+</h2>
+
+
+
+<div class="bloque">
+
+
+<input
+id="filtroCobrar"
+maxlength="8"
+placeholder="DNI o Nro Afiliado"
+>
+
+
+</div>
+
+
+
+<table id="tablaCobrar">
+
+
+<thead>
+
+<tr>
+
+<th>
+Nro Afiliado
+</th>
+
+
+<th>
+DNI
+</th>
+
+
+<th>
+Nombre(s)
+</th>
+
+
+<th>
+Apellido(s)
+</th>
+
+
+<th>
+Estado
+</th>
+
+
+<th>
+Acción
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+<tbody>
+
+
+</tbody>
+
+
+</table>
+
+
 
 </section>
+
+
+
+
+
+
+
+
+
+<!-- ================= HISTORIAL ================= -->
 
 
 
 <section id="historial" class="seccion">
 
-    <h2>HISTORIAL</h2>
 
-    <div id="contenidoHistorial">
+<h2>
+HISTORIAL
+</h2>
 
-    </div>
+
+
+<p id="textoHistorial">
+
+Bienvenido
+
+</p>
+
+
+
+
+<div class="fecha-control">
+
+
+<button id="historialAnterior">
+&lt;
+</button>
+
+
+<span id="fechaHistorial">
+
+</span>
+
+
+<button id="historialSiguiente">
+&gt;
+</button>
+
+
+</div>
+
+
+
+
+<div class="bloque">
+
+
+<input
+id="filtroHistorial"
+maxlength="8"
+placeholder="DNI o Nro Afiliado"
+>
+
+
+<button id="btnImprimirHistorial">
+
+Imprimir
+
+</button>
+
+
+</div>
+
+
+
+
+
+<table id="tablaHistorial">
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+Usuario
+</th>
+
+
+<th>
+Afiliado
+</th>
+
+
+<th>
+DNI
+</th>
+
+
+<th>
+Nro Afiliado
+</th>
+
+
+<th>
+Fecha
+</th>
+
+
+<th>
+Hora
+</th>
+
+
+<th>
+Acción
+</th>
+
+
+<th>
+Detalles
+</th>
+
+
+
+</tr>
+
+
+</thead>
+
+
+<tbody>
+
+
+</tbody>
+
+
+</table>
+
+
+
+
+
+<h3>
+
+Monto:
+<span id="montoHistorial">
+$0,00
+</span>
+
+</h3>
+
+
 
 </section>
 
+
+
+
+
+
+
+
+
+<!-- ================= AFILIADOS ================= -->
 
 
 
 <section id="afiliados" class="seccion">
 
-    <h2>AFILIADOS</h2>
 
-    <div id="contenidoAfiliados">
+<h2>
+AFILIADOS
+</h2>
 
-    </div>
+
+
+<p id="textoAfiliados">
+
+</p>
+
+
+
+
+<div class="bloque">
+
+
+<input
+id="filtroAfiliados"
+maxlength="8"
+placeholder="DNI o Nro Afiliado"
+>
+
+
+
+<button id="btnNuevoAfiliado">
+
+Agregar Afiliado Nuevo
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+<table id="tablaAfiliados">
+
+
+<thead>
+
+
+<tr>
+
+
+<th>
+Nro Afiliado
+</th>
+
+
+<th>
+DNI
+</th>
+
+
+<th>
+Nombre(s)
+</th>
+
+
+<th>
+Apellido(s)
+</th>
+
+
+<th>
+Celular
+</th>
+
+
+<th>
+Correo
+</th>
+
+
+<th>
+Estado
+</th>
+
+
+<th>
+Fecha
+</th>
+
+
+<th>
+Acción
+</th>
+
+
+
+</tr>
+
+
+</thead>
+
+
+<tbody>
+
+</tbody>
+
+
+</table>
+
+
+
+
+
+<div class="paginacion">
+
+
+<button id="afiliadosAnterior">
+
+&lt;
+
+</button>
+
+
+<span id="paginaAfiliados">
+
+1
+
+</span>
+
+
+<button id="afiliadosSiguiente">
+
+&gt;
+
+</button>
+
+
+
+</div>
+
+
+
 
 </section>
 
+
+
+
+
+
+
+
+
+<!-- ================= USUARIOS ================= -->
 
 
 
 <section id="usuarios" class="seccion">
 
-    <h2>USUARIOS</h2>
 
-    <div id="contenidoUsuarios">
+<h2>
+Usuarios
+</h2>
 
-    </div>
+
+<p>
+
+Cree, edite o elimine usuarios.
+Solo administradores.
+
+</p>
+
+
+
+
+<button id="btnNuevoUsuario">
+
+Agregar usuario nuevo
+
+</button>
+
+
+
+
+
+<table id="tablaUsuarios">
+
+
+<thead>
+
+
+<tr>
+
+<th>
+Usuario
+</th>
+
+
+<th>
+Tipo
+</th>
+
+
+<th>
+Acción
+</th>
+
+
+</tr>
+
+
+</thead>
+
+
+<tbody>
+
+</tbody>
+
+
+</table>
+
+
 
 </section>
+
+
+
+
+
+
+
+
+
+<!-- ================= CONFIGURACION ================= -->
 
 
 
 
 <section id="configuracion" class="seccion">
 
-    <h2>CONFIGURACIÓN</h2>
 
-    <div id="contenidoConfig">
+<h2>
+Configuración y Monto
+</h2>
 
-    </div>
+
+
+
+<div class="bloque">
+
+
+<label>
+
+Monto cuota:
+
+</label>
+
+
+
+<input
+id="montoConfiguracion"
+>
+
+
+<button id="guardarConfiguracion">
+
+Guardar
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<h3>
+
+Registro del sistema
+
+</h3>
+
+
+
+<div id="consolaSistema">
+
+
+</div>
+
+
+
 
 </section>
+
+
 
 
 
@@ -116,33 +639,68 @@
 
 
 
-<!-- MODALES -->
+
+
+
+
+
+
+<!-- ================= MODAL GENERAL ================= -->
+
+
 
 <div id="modalFondo" class="modal-fondo">
 
-    <div id="modal" class="modal">
 
-        <div id="modalContenido">
 
-        </div>
+<div id="modal" class="modal">
 
-    </div>
+
+
+<button id="cerrarModal">
+
+X
+
+</button>
+
+
+
+<div id="modalContenido">
+
+</div>
+
+
+
+</div>
+
 
 </div>
 
 
 
 
+
+
+
+
 <script src="js/bd.js"></script>
+
 <script src="js/inicio.js"></script>
+
 <script src="js/afiliados.js"></script>
+
 <script src="js/cobrar.js"></script>
+
 <script src="js/historial.js"></script>
+
 <script src="js/usuarios.js"></script>
+
 <script src="js/config.js"></script>
+
 <script src="js/imp.js"></script>
 
 
 
 </body>
+
 </html>
