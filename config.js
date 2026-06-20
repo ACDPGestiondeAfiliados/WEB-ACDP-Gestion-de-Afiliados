@@ -35,21 +35,23 @@ function cargarConfiguracion() {
 
     if (!input) return;
 
+
     if (typeof BD_configuracion === "undefined" || !BD_configuracion) {
 
-        window.BD_configuracion = {
-            monto: 0
+        BD_configuracion = {
+            monto:0
         };
 
     }
 
-    input.value = BD_configuracion.monto;
+
+    input.value = BD_configuracion.monto ?? 0;
 
 }
 
 
 // ===============================
-// GUARDAR MONTO EN MEMORIA GLOBAL
+// GUARDAR MONTO EN BD REAL
 // ===============================
 function guardarMonto() {
 
@@ -76,8 +78,8 @@ function guardarMonto() {
 
     if (typeof BD_configuracion === "undefined" || !BD_configuracion) {
 
-        window.BD_configuracion = {
-            monto: 0
+        BD_configuracion = {
+            monto:0
         };
 
     }
@@ -86,13 +88,15 @@ function guardarMonto() {
     BD_configuracion.monto = valor;
 
 
+    guardarBD();
+
+
     escribirConsola(
         "Monto actualizado: $" + BD_configuracion.monto.toFixed(2)
     );
 
 
-    input.value = BD_configuracion.monto;
-
+    cargarConfiguracion();
 
 }
 
@@ -105,6 +109,7 @@ function iniciarResetDiario() {
     setInterval(() => {
 
         const ahora = new Date();
+
 
         const esMedianoche =
             ahora.getHours() === 0 &&
