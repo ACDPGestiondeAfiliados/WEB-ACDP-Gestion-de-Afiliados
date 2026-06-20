@@ -1,409 +1,100 @@
-/* =====================================
-   ACDP - CONFIGURACIÓN
-===================================== */
+// ===============================
+// CONFIGURACIÓN DEL SISTEMA ACDP
+// Control de monto de cuota y consola
+// ===============================
 
+document.addEventListener("DOMContentLoaded",()=>{
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+    cargarConfiguracion();
 
-
-iniciarConfiguracion();
-
+    iniciarConfiguracion();
 
 });
 
 
-
-
-
-
-
+// Inicializa eventos de configuración
 
 function iniciarConfiguracion(){
 
+    const boton=document.getElementById("guardarConfiguracion");
+
+    if(!boton) return;
 
 
-document
-.getElementById(
-"guardarConfiguracion")
-.onclick =
-guardarConfiguracion;
+    boton.addEventListener("click",()=>{
 
+        guardarMonto();
 
+    });
 
 }
 
 
 
-
-
-
-
-
+// Carga el monto actual guardado
 
 function cargarConfiguracion(){
 
+    const input=document.getElementById("montoConfiguracion");
+
+    if(!input) return;
 
 
-if(
-usuarioActivo!=="Admin"
-){
+    const config=obtenerConfiguracion();
 
-
-
-document
-.getElementById(
-"montoConfiguracion")
-.value =
-"";
-
-
-
-document
-.getElementById(
-"consolaSistema")
-.textContent =
-"Acceso restringido";
-
-
-
-return;
-
+    input.value=config.monto || 0;
 
 }
 
 
 
+// Guarda nuevo monto de cuota
+
+function guardarMonto(){
+
+    const input=document.getElementById("montoConfiguracion");
+
+    const valor=Number(input.value);
 
 
+    if(valor<0){
 
-document
-.getElementById(
-"montoConfiguracion")
-.value =
-formatearNumero(
-BD.configuracion.cuota
-);
+        escribirConsola("Monto inválido.");
 
+        return;
+
+    }
 
 
+    actualizarConfiguracion({
+
+        monto:valor
+
+    });
 
 
-
-mostrarLogs();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function guardarConfiguracion(){
-
-
-
-if(
-usuarioActivo!=="Admin"
-){
-
-
-alert(
-"Acceso restringido"
-);
-
-
-return;
-
+    escribirConsola(
+        "Monto actualizado: $" + valor.toFixed(2)
+    );
 
 }
 
 
 
+// Escribe mensajes del sistema
 
+function escribirConsola(texto){
 
+    const consola=document.getElementById("consolaSistema");
 
+    if(!consola) return;
 
-let valor =
-document
-.getElementById(
-"montoConfiguracion")
-.value;
 
+    const fecha=new Date()
+    .toLocaleString();
 
 
-
-
-
-valor =
-limpiarNumero(
-valor
-);
-
-
-
-
-valor =
-Number(valor);
-
-
-
-
-
-
-
-
-if(
-valor < 10000
-||
-valor > 999999
-){
-
-
-alert(
-"El monto debe estar entre $10.000 y $999.999"
-);
-
-
-return;
-
-
-}
-
-
-
-
-
-
-
-BD.configuracion.cuota =
-valor;
-
-
-
-
-
-
-
-registrarHistorial({
-
-usuario:
-usuarioActivo,
-
-
-accion:
-"Configuración modificada",
-
-
-detalles:
-"Nuevo monto: $"
-+
-formatearNumero(valor)
-
-
-
-});
-
-
-
-
-
-
-agregarLog(
-
-"Cuota modificada: $"
-+
-formatearNumero(valor)
-
-);
-
-
-
-
-
-guardarBD();
-
-
-
-
-
-
-alert(
-"Configuración guardada"
-);
-
-
-
-
-
-cargarConfiguracion();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function agregarLog(texto){
-
-
-
-if(!BD.logs)
-BD.logs=[];
-
-
-
-
-
-BD.logs.push({
-
-
-
-fecha:
-obtenerFecha(),
-
-
-
-hora:
-obtenerHora(),
-
-
-
-texto
-
-
-
-});
-
-
-
-
-
-
-guardarBD();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function mostrarLogs(){
-
-
-
-let consola =
-document
-.getElementById(
-"consolaSistema"
-);
-
-
-
-
-
-consola.innerHTML="";
-
-
-
-
-
-if(
-!BD.logs
-||
-BD.logs.length===0
-){
-
-
-
-consola.textContent =
-"Sin registros";
-
-
-
-return;
-
-
-}
-
-
-
-
-
-
-
-BD.logs
-.slice()
-.reverse()
-.forEach(log=>{
-
-
-
-let linea =
-document.createElement(
-"div"
-);
-
-
-
-linea.textContent =
-`
-
-[${log.fecha} ${log.hora}]
-${log.texto}
-
-`;
-
-
-
-consola.appendChild(
-linea
-);
-
-
-
-});
-
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function formatearNumero(valor){
-
-
-
-return Number(valor)
-.toLocaleString(
-"es-AR"
-);
-
-
+    consola.innerHTML +=
+    `[${fecha}] ${texto}<br>`;
 
 }
