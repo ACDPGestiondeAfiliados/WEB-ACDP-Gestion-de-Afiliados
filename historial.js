@@ -232,8 +232,15 @@ function registrarHistorial(accion, afiliado, detalle){
 
     const ahora=new Date();
 
+    const usuarioReal =
+        (typeof window.usuarioActivo !== "undefined" && window.usuarioActivo && window.usuarioActivo !== "Admin")
+        ? window.usuarioActivo
+        : (typeof usuarioActivo !== "undefined" && usuarioActivo)
+            ? usuarioActivo
+            : "Sistema";
+
     BD_historial.push({
-        usuario: (typeof usuarioActivo!=="undefined" && usuarioActivo) ? usuarioActivo : "Sistema",
+        usuario: usuarioReal,
         afiliado: afiliado?.nombre+" "+afiliado?.apellido || "",
         dni: afiliado?.dni || "",
         numero: afiliado?.numero || "",
