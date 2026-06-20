@@ -50,7 +50,7 @@ function eventosHistorial(){
     const anterior=document.getElementById("historialAnterior");
     const siguiente=document.getElementById("historialSiguiente");
     const imprimir=document.getElementById("btnImprimirHistorial");
-    const selector=document.getElementById("fechaHistorialInput");
+    const selector=document.getElementById("fechaHistorial");
 
 
     if(filtro){
