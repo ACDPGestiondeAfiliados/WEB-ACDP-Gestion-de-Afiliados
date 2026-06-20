@@ -11,11 +11,14 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 
 
-// Inicializa buscador y tabla
+// ===============================
+// Inicialización del módulo
+// ===============================
 
 function iniciarCobrar(){
 
     cargarTablaCobrar();
+
 
     const filtro=document.getElementById("filtroCobrar");
 
@@ -24,9 +27,7 @@ function iniciarCobrar(){
 
         filtro.addEventListener("input",()=>{
 
-            buscarParaCobrar(
-                filtro.value
-            );
+            buscarParaCobrar(filtro.value);
 
         });
 
@@ -36,17 +37,21 @@ function iniciarCobrar(){
 
 
 
+// ===============================
 // Carga tabla inicial
+// ===============================
 
 function cargarTablaCobrar(){
 
-    mostrarCobros(BD.afiliados);
+    mostrarCobros(BD_afiliados);
 
 }
 
 
 
-// Busca afiliados
+// ===============================
+// Buscar afiliados
+// ===============================
 
 function buscarParaCobrar(valor){
 
@@ -55,7 +60,7 @@ function buscarParaCobrar(valor){
 
     if(!valor){
 
-        mostrarCobros(BD.afiliados);
+        mostrarCobros(BD_afiliados);
 
         return;
 
@@ -70,7 +75,9 @@ function buscarParaCobrar(valor){
 
 
 
-// Render tabla cobrar
+// ===============================
+// Render tabla de cobro
+// ===============================
 
 function mostrarCobros(lista){
 
@@ -85,6 +92,33 @@ function mostrarCobros(lista){
     lista.forEach(a=>{
 
 
+        let boton="";
+
+
+        if(a.estado==="Eliminado"){
+
+            boton=`
+
+            <button onclick="cobrarAfiliado('${a.dni}')">
+            Bloqueado
+            </button>
+
+            `;
+
+        }else{
+
+            boton=`
+
+            <button onclick="cobrarAfiliado('${a.dni}')">
+            Cobrar
+            </button>
+
+            `;
+
+        }
+
+
+
         cuerpo.innerHTML+=`
 
         <tr>
@@ -97,13 +131,11 @@ function mostrarCobros(lista){
 
             <td>${a.apellido||""}</td>
 
-            <td>${a.estado||""}</td>
+            <td>${a.estado||"Activo"}</td>
 
             <td>
 
-                <button onclick="cobrarAfiliado('${a.dni}')">
-                    Cobrar
-                </button>
+                ${boton}
 
             </td>
 
@@ -118,15 +150,19 @@ function mostrarCobros(lista){
 
 
 
+// ===============================
 // Ejecuta cobro
+// ===============================
 
 function cobrarAfiliado(dni){
 
-    const afiliado=BD.afiliados.find(a=>
+
+    const afiliado=BD_afiliados.find(a=>
 
         a.dni===dni
 
     );
+
 
 
     if(!afiliado){
@@ -136,31 +172,60 @@ function cobrarAfiliado(dni){
     }
 
 
-    const monto=obtenerConfiguracion()
-    .monto || 0;
+
+    // Bloqueo afiliados eliminados
+
+    if(afiliado.estado==="Eliminado"){
+
+
+        alert(
+        "Este afiliado fue eliminado, por favor, consulte en HISTORIAL, o pregunte a un administrador."
+        );
+
+
+        return;
+
+    }
+
+
+
+    const monto=
+    BD_configuracion.monto || 0;
+
+
+
+    const fecha=new Date();
 
 
 
     const pago={
 
+
         usuario:"Admin",
+
 
         afiliado:
         afiliado.nombre+" "+afiliado.apellido,
 
+
         dni:
         afiliado.dni,
+
 
         numero:
         afiliado.numero,
 
+
         fecha:
-        new Date().toLocaleDateString(),
+        fecha.toLocaleDateString(),
+
 
         hora:
-        new Date().toLocaleTimeString(),
+        fecha.toLocaleTimeString(),
+
 
         accion:"Cobro",
+
 
         detalle:
         "Cuota abonada: $"+monto
@@ -169,17 +234,35 @@ function cobrarAfiliado(dni){
 
 
 
-    registrarHistorial(pago);
+    // Guarda en historial
+
+    BD_historial.push(pago);
 
 
 
-    escribirConsola(
+    // Guarda en registro de cobros
+
+    BD_cobros.push(pago);
+
+
+
+    guardarBD();
+
+
+
+    if(typeof escribirConsola==="function"){
+
+        escribirConsola(
         "Cobro registrado: "+afiliado.dni
-    );
+        );
+
+    }
+
 
 
     alert(
-        "Cobro registrado correctamente"
+    "Cobro registrado correctamente"
     );
+
 
 }
