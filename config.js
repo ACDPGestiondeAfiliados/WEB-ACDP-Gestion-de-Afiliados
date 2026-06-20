@@ -1,4 +1,34 @@
 // ===============================
+// PUENTE GLOBAL DE LOGS (CRÍTICO)
+// ===============================
+
+(function () {
+
+    if (!Array.isArray(window.BD_logsSistema)) {
+        window.BD_logsSistema = [];
+    }
+
+    // intercepta historial SI existe
+    const originalHistorial = window.registrarHistorial;
+
+    window.registrarHistorial = function (accion, afiliado, detalle) {
+
+        if (typeof originalHistorial === "function") {
+            originalHistorial(accion, afiliado, detalle);
+        }
+
+        if (typeof window.registrarLog === "function") {
+            window.registrarLog({
+                accion,
+                detalle: detalle + " | HISTORIAL"
+            });
+        }
+
+    };
+
+})();
+
+// ===============================
 // CONFIGURACIÓN DEL SISTEMA ACDP
 // LOG + MONTO + RESET SEMANAL + CONSOLA
 // ===============================
@@ -55,7 +85,7 @@ function cargarConfiguracion() {
 
 
 // ===============================
-// GUARDAR MONTO
+// GUARDAR MONTO (FIX ESTABLE)
 // ===============================
 function guardarMonto() {
 
@@ -70,6 +100,7 @@ function guardarMonto() {
         return;
     }
 
+    // asegurar config
     if (!window.BD_configuracion) {
         window.BD_configuracion = { monto: 0 };
     }
@@ -78,17 +109,38 @@ function guardarMonto() {
 
     guardarBD();
 
-    registrarLog({
-        accion: "CONFIGURACION",
-        detalle: `Monto actualizado a $${valor}`
-    });
+    // 1) LOG UNIFICADO (NO DEPENDE DE NADA MÁS)
+    if (typeof registrarLog === "function") {
+        registrarLog({
+            accion: "CONFIGURACION",
+            detalle: `Monto actualizado a $${valor}`
+        });
+    }
 
+    // 2) FALLBACK DIRECTO (si registrarLog falla)
+    if (typeof window.BD_logsSistema !== "undefined") {
+        window.BD_logsSistema.push({
+            fecha: new Date().toLocaleDateString(),
+            hora: new Date().toLocaleTimeString(),
+            usuario: window.usuarioActivo || "Sistema",
+            rol: window.usuarioActivo === "Admin" ? "ADMIN" : "USER",
+            accion: "CONFIGURACION",
+            detalle: `Monto actualizado a $${valor}`
+        });
+    }
+
+    // feedback UI
     escribirConsola("Monto actualizado: $" + valor.toFixed(2));
 
-    renderConsolaLogs(">todo");
+    // refrescar consola si existe
+    if (typeof renderConsolaLogs === "function") {
+        renderConsolaLogs(">todo");
+    }
+
+    // recargar input
+    input.value = window.BD_configuracion.monto;
 
 }
-
 
 // ===============================
 // LOG GLOBAL BASE
