@@ -172,7 +172,7 @@ function guardarUsuario() {
 
 //
 // ======================================================
-// ELIMINAR
+// ELIMINAR USUARIO
 // ======================================================
 //
 function eliminarUsuario(index) {
@@ -184,12 +184,51 @@ function eliminarUsuario(index) {
         return;
     }
 
-    BD_usuarios.splice(index, 1);
+    const fondo = document.getElementById("modalFondo");
+    const contenido = document.getElementById("modalContenido");
 
-    guardarBD();
-    cargarUsuarios();
+    contenido.innerHTML = `
+        <h3>Confirmar eliminación</h3>
 
-    escribirConsola("Usuario eliminado");
+        <p>Ingrese PIN de administrador para continuar</p>
+
+        <input id="adminPinEliminar"
+            type="password"
+            placeholder="PIN administrador"
+            maxlength="4"
+            inputmode="numeric"
+        >
+
+        <div id="msgEliminar" style="font-size:12px;color:#c00;margin-top:6px;"></div>
+
+        <button id="btnConfirmarEliminar">Eliminar usuario</button>
+    `;
+
+    fondo.classList.add("activo");
+
+    document.getElementById("btnConfirmarEliminar").onclick = () => {
+
+        const pin = document.getElementById("adminPinEliminar").value;
+
+        const esAdmin =
+            pin === "9999" ||
+            BD_usuarios.some(x => x.tipo === "Administrador" && x.pin === pin);
+
+        if (!esAdmin) {
+            document.getElementById("msgEliminar").textContent =
+                "Necesita un PIN de administrador";
+            return;
+        }
+
+        BD_usuarios.splice(index, 1);
+
+        guardarBD();
+        cargarUsuarios();
+
+        cerrarModal();
+
+        escribirConsola("Usuario eliminado: " + u.usuario);
+    };
 }
 
 //
