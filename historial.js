@@ -811,155 +811,34 @@ hora
 ){
 
 
-crearModalPIN(()=>{
+if(typeof pedirPinAdmin==="function"){
 
 
-anularRegistro(
-dni,
-fecha,
-hora
-);
+    pedirPinAdmin(()=>{
 
 
-});
+        anularRegistro(
+            dni,
+            fecha,
+            hora
+        );
 
 
-}
+    });
 
 
+}else{
 
 
-
-
-function crearModalPIN(accion){
-
-
-let div=document.createElement("div");
-
-
-div.id="modalPIN";
-
-
-div.className="modal-fondo activo";
-
-
-
-div.innerHTML=`
-
-<div class="modal">
-
-
-<h3>
-PIN Administrador
-</h3>
-
-
-
-<input 
-type="password"
-id="inputPINHistorial"
-placeholder="Ingrese PIN"
->
-
-
-
-<br><br>
-
-
-
-<button onclick="confirmarPIN()">
-
-Aceptar
-
-</button>
-
-
-
-<button onclick="cerrarPIN()">
-
-Cancelar
-
-</button>
-
-
-
-</div>
-
-`;
-
-
-
-document.body.appendChild(div);
-
-
-
-window.accionPIN=accion;
+    alert(
+    "No se pudo abrir el acceso administrador"
+    );
 
 
 }
 
 
-
-
-
-
-function confirmarPIN(){
-
-
-const pin =
-document.getElementById("inputPINHistorial")
-.value;
-
-
-
-if(pin!=="9999"){
-
-
-alert("PIN incorrecto");
-
-return;
-
 }
-
-
-
-cerrarPIN();
-
-
-
-if(window.accionPIN){
-
-window.accionPIN();
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-function cerrarPIN(){
-
-const m=
-document.getElementById("modalPIN");
-
-
-if(m){
-
-m.remove();
-
-}
-
-
-}
-
-
-
 
 
 
@@ -1082,11 +961,6 @@ alert(
 
 
 }
-
-
-
-
-
 // ===============================
 // impresión general
 // ===============================
