@@ -1,50 +1,44 @@
 // ===============================
 // INICIO ACDP
-// Control general de interfaz
+// Control general de interfaz + accesos
 // ===============================
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
 
     iniciarMenu();
     iniciarModal();
     limitarNumeros();
     iniciarSistema();
+    iniciarAccesoGlobal();
 
 });
 
+// ===============================
+// SESIÓN SIMPLE
+// ===============================
+let sesion = {
+    tipo: null // "Normal" | "Administrador"
+};
 
 // ===============================
-// Navegación entre pestañas
+// CONTROL DE ACCESO GLOBAL
 // ===============================
+function iniciarAccesoGlobal() {
 
-function iniciarMenu(){
+    const botones = document.querySelectorAll(".menu button");
+    const secciones = document.querySelectorAll(".seccion");
 
-    const botones=document.querySelectorAll(".menu button");
-    const secciones=document.querySelectorAll(".seccion");
+    botones.forEach(boton => {
 
+        boton.addEventListener("click", () => {
 
-    if(!botones.length || !secciones.length) return;
+            const destino = boton.getAttribute("data-seccion");
 
-
-    botones.forEach(boton=>{
-
-        boton.addEventListener("click",()=>{
-
-            const destino=boton.getAttribute("data-seccion");
-
-
-            secciones.forEach(seccion=>{
-                seccion.classList.remove("activa");
-            });
-
-
-            const nueva=document.getElementById(destino);
-
-
-            if(nueva){
-
-                nueva.classList.add("activa");
-
+            if (destino === "usuarios" || destino === "configuracion") {
+                pedirPinAdmin(() => abrirSeccion(destino));
+            }
+            else {
+                pedirPinUsuario(() => abrirSeccion(destino));
             }
 
         });
@@ -53,88 +47,175 @@ function iniciarMenu(){
 
 }
 
+// ===============================
+// ABRIR SECCIÓN
+// ===============================
+function abrirSeccion(destino) {
 
+    const secciones = document.querySelectorAll(".seccion");
+
+    secciones.forEach(s => s.classList.remove("activa"));
+
+    const nueva = document.getElementById(destino);
+
+    if (nueva) nueva.classList.add("activa");
+}
 
 // ===============================
-// Modal global
+// PIN USUARIO (NORMAL O ADMIN)
 // ===============================
+function pedirPinUsuario(callback) {
 
-function iniciarModal(){
+    const fondo = document.getElementById("modalFondo");
+    const contenido = document.getElementById("modalContenido");
 
-    const fondo=document.getElementById("modalFondo");
-    const cerrar=document.getElementById("cerrarModal");
+    contenido.innerHTML = `
+        <h3>Acceso requerido</h3>
 
+        <p>Ingrese PIN de usuario o administrador</p>
 
-    if(!fondo || !cerrar) return;
+        <input id="pinAcceso"
+            type="password"
+            placeholder="PIN"
+            maxlength="4"
+            inputmode="numeric"
+        >
 
+        <div id="msgAcceso" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
-    cerrar.addEventListener("click",()=>{
+        <button id="btnAcceso">Ingresar</button>
+    `;
 
-        fondo.classList.remove("activo");
+    fondo.classList.add("activo");
 
-    });
+    document.getElementById("btnAcceso").onclick = () => {
 
+        const pin = document.getElementById("pinAcceso").value;
 
-    fondo.addEventListener("click",(evento)=>{
+        const esValido =
+            pin === "9999" ||
+            BD_usuarios.some(u => u.pin === pin);
 
-        if(evento.target===fondo){
-
-            fondo.classList.remove("activo");
-
+        if (!esValido) {
+            document.getElementById("msgAcceso").textContent =
+                "PIN incorrecto";
+            return;
         }
 
-    });
-
+        cerrarModal();
+        callback();
+    };
 }
 
+// ===============================
+// PIN SOLO ADMIN
+// ===============================
+function pedirPinAdmin(callback) {
 
+    const fondo = document.getElementById("modalFondo");
+    const contenido = document.getElementById("modalContenido");
+
+    contenido.innerHTML = `
+        <h3>Acceso administrador</h3>
+
+        <p>Ingrese PIN de administrador</p>
+
+        <input id="pinAdminAcceso"
+            type="password"
+            placeholder="PIN admin"
+            maxlength="4"
+            inputmode="numeric"
+        >
+
+        <div id="msgAdminAcceso" style="font-size:12px;color:#c00;margin-top:6px;"></div>
+
+        <button id="btnAdminAcceso">Ingresar</button>
+    `;
+
+    fondo.classList.add("activo");
+
+    document.getElementById("btnAdminAcceso").onclick = () => {
+
+        const pin = document.getElementById("pinAdminAcceso").value;
+
+        const esAdmin =
+            pin === "9999" ||
+            BD_usuarios.some(u => u.tipo === "Administrador" && u.pin === pin);
+
+        if (!esAdmin) {
+            document.getElementById("msgAdminAcceso").textContent =
+                "Necesita un PIN de administrador";
+            return;
+        }
+
+        cerrarModal();
+        callback();
+    };
+}
 
 // ===============================
-// Inputs numéricos
+// MENÚ BASE (sin seguridad)
 // ===============================
+function iniciarMenu() {
+    // se deja vacío a propósito
+    // ahora el control lo maneja iniciarAccesoGlobal
+}
 
-function limitarNumeros(){
+// ===============================
+// MODAL GLOBAL
+// ===============================
+function iniciarModal() {
 
-    const inputs=document.querySelectorAll(".inputNumero");
+    const fondo = document.getElementById("modalFondo");
+    const cerrar = document.getElementById("cerrarModal");
 
+    if (!fondo || !cerrar) return;
 
-    inputs.forEach(input=>{
+    cerrar.addEventListener("click", () => {
+        fondo.classList.remove("activo");
+    });
 
-        input.addEventListener("input",()=>{
+    fondo.addEventListener("click", (e) => {
+        if (e.target === fondo) {
+            fondo.classList.remove("activo");
+        }
+    });
+}
 
-            input.value=input.value.replace(/[^0-9]/g,"");
+// ===============================
+// INPUTS NUMÉRICOS
+// ===============================
+function limitarNumeros() {
 
+    const inputs = document.querySelectorAll(".inputNumero");
+
+    inputs.forEach(input => {
+        input.addEventListener("input", () => {
+            input.value = input.value.replace(/[^0-9]/g, "");
         });
-
     });
-
 }
 
-
-
 // ===============================
-// Inicio visual del sistema
+// SISTEMA
 // ===============================
+function iniciarSistema() {
 
-function iniciarSistema(){
+    const consola = document.getElementById("consolaSistema");
+    const usuario = document.getElementById("usuarioActivo");
 
-    const consola=document.getElementById("consolaSistema");
-    const usuario=document.getElementById("usuarioActivo");
-
-
-    if(consola){
-
-        consola.innerHTML=
-        "Sistema ACDP iniciado correctamente.";
-
+    if (consola) {
+        consola.innerHTML = "Sistema ACDP iniciado correctamente.";
     }
 
-
-    if(usuario){
-
-        usuario.innerHTML=
-        "Sesión: Administrador";
-
+    if (usuario) {
+        usuario.innerHTML = "Sesión: Sistema protegido por PIN";
     }
+}
 
+// ===============================
+// CIERRE MODAL
+// ===============================
+function cerrarModal() {
+    document.getElementById("modalFondo").classList.remove("activo");
 }
