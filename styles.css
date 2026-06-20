@@ -162,8 +162,8 @@ font-family:monospace;
 }
 
 .iconoHistorial{
-    width:16px;
-    height:16px;
+    width:32px;
+    height:32px;
     cursor:pointer;
     object-fit:contain;
     margin:3px;
