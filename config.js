@@ -8,7 +8,6 @@
         window.BD_logsSistema = [];
     }
 
-    // intercepta historial SI existe
     const originalHistorial = window.registrarHistorial;
 
     window.registrarHistorial = function (accion, afiliado, detalle) {
@@ -20,13 +19,14 @@
         if (typeof window.registrarLog === "function") {
             window.registrarLog({
                 accion,
-                detalle: detalle + " | HISTORIAL"
+                detalle: (detalle || "") + " | HISTORIAL"
             });
         }
 
     };
 
 })();
+
 
 // ===============================
 // CONFIGURACIÓN DEL SISTEMA ACDP
@@ -41,13 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarConfiguracion();
     iniciarResetSemanal();
 
-    // 🔥 ACTIVAR CONSOLA + INTERCEPTOR GLOBAL
+    iniciarConsolaLogs();
+
     setTimeout(() => {
-
-        iniciarConsolaLogs();
         activarInterceptoresGlobales();
-
-    }, 300);
+    }, 0);
 
 });
 
@@ -58,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
 function iniciarConfiguracion() {
 
     const boton = document.getElementById("guardarConfiguracion");
-
     if (!boton) return;
 
     boton.addEventListener("click", guardarMonto);
@@ -72,7 +69,6 @@ function iniciarConfiguracion() {
 function cargarConfiguracion() {
 
     const input = document.getElementById("montoConfiguracion");
-
     if (!input) return;
 
     if (!window.BD_configuracion) {
@@ -85,12 +81,11 @@ function cargarConfiguracion() {
 
 
 // ===============================
-// GUARDAR MONTO (FIX ESTABLE)
+// GUARDAR MONTO
 // ===============================
 function guardarMonto() {
 
     const input = document.getElementById("montoConfiguracion");
-
     if (!input) return;
 
     const valor = Number(input.value.trim());
@@ -100,7 +95,6 @@ function guardarMonto() {
         return;
     }
 
-    // asegurar config
     if (!window.BD_configuracion) {
         window.BD_configuracion = { monto: 0 };
     }
@@ -109,15 +103,11 @@ function guardarMonto() {
 
     guardarBD();
 
-    // 1) LOG UNIFICADO (NO DEPENDE DE NADA MÁS)
-    if (typeof registrarLog === "function") {
-        registrarLog({
-            accion: "CONFIGURACION",
-            detalle: `Monto actualizado a $${valor}`
-        });
-    }
+    registrarLog({
+        accion: "CONFIGURACION",
+        detalle: `Monto actualizado a $${valor}`
+    });
 
-    // 2) FALLBACK DIRECTO (si registrarLog falla)
     if (typeof window.BD_logsSistema !== "undefined") {
         window.BD_logsSistema.push({
             fecha: new Date().toLocaleDateString(),
@@ -129,18 +119,16 @@ function guardarMonto() {
         });
     }
 
-    // feedback UI
     escribirConsola("Monto actualizado: $" + valor.toFixed(2));
 
-    // refrescar consola si existe
     if (typeof renderConsolaLogs === "function") {
         renderConsolaLogs(">todo");
     }
 
-    // recargar input
     input.value = window.BD_configuracion.monto;
 
 }
+
 
 // ===============================
 // LOG GLOBAL BASE
@@ -171,10 +159,6 @@ function registrarLog({ accion, detalle }) {
 // CONSOLA SYSTEM
 // =====================================================
 
-
-// ===============================
-// INICIALIZAR CONSOLA
-// ===============================
 function iniciarConsolaLogs() {
 
     const input = document.getElementById("inputLogs");
@@ -191,11 +175,9 @@ function iniciarConsolaLogs() {
             e.preventDefault();
 
             const comando = (input.value || "").trim();
-
             if (!comando) return;
 
             renderConsolaLogs(comando);
-
             input.value = "";
 
         }
@@ -218,14 +200,12 @@ function procesarFiltroLogs(comando) {
 
     if (comando === ">todo") return logs;
 
-
     if (comando.startsWith(">filtrarusuario")) {
         const user = comando.replace(">filtrarusuario", "").trim();
         return logs.filter(l =>
             (l.usuario || "").toLowerCase() === user
         );
     }
-
 
     if (comando.startsWith(">buscardni")) {
         const dni = comando.replace(">buscardni", "").trim();
@@ -234,14 +214,12 @@ function procesarFiltroLogs(comando) {
         );
     }
 
-
     if (comando.startsWith(">buscarfecha")) {
         const fecha = comando.replace(">buscarfecha", "").trim();
         return logs.filter(l =>
             (l.fecha || "").includes(fecha)
         );
     }
-
 
     if (comando.startsWith(">buscaraccion")) {
         const acc = comando.replace(">buscaraccion", "").trim();
@@ -255,12 +233,11 @@ function procesarFiltroLogs(comando) {
 
 
 // ===============================
-// RENDER CONSOLA (ROBUSTA + COLORES)
+// RENDER CONSOLA
 // ===============================
 function renderConsolaLogs(comando) {
 
     const consola = document.getElementById("consolaSistema");
-
     if (!consola) return;
 
     const logs = procesarFiltroLogs(comando);
@@ -281,15 +258,9 @@ function renderConsolaLogs(comando) {
         else if (accion.includes("AFILIADOS")) color = "#00ffd5";
         else if (accion.includes("HISTORIAL")) color = "#ffb347";
 
-
         let detalle = (l.detalle || "").toString();
 
-        // 🔥 resaltar DNI / números largos
-        detalle = detalle.replace(
-            /(\d{6,12})/g,
-            `<b style="color:#ffffff">$1</b>`
-        );
-
+        detalle = detalle.replace(/(\d{6,12})/g, `<b style="color:#fff">$1</b>`);
 
         html += `
 <div style="color:${color}; margin-bottom:2px; font-family:monospace;">
@@ -308,7 +279,7 @@ ${detalle}
 
 
 // ===============================
-// RESET SEMANAL (DOMINGO 00:00)
+// RESET SEMANAL
 // ===============================
 function iniciarResetSemanal() {
 
@@ -317,7 +288,6 @@ function iniciarResetSemanal() {
         const ahora = new Date();
 
         const esDomingo = ahora.getDay() === 0;
-
         const esMedianoche =
             ahora.getHours() === 0 &&
             ahora.getMinutes() === 0;
@@ -355,13 +325,10 @@ function resetLogs() {
 
 
 // =====================================================
-// 🔥 INTERCEPTORES GLOBALES (CLAVE DEL SISTEMA)
+// INTERCEPTORES GLOBALES
 // =====================================================
 function activarInterceptoresGlobales() {
 
-    // ===============================
-    // AFILIADOS
-    // ===============================
     if (Array.isArray(window.BD_afiliados)) {
 
         const original = window.BD_afiliados.push;
@@ -379,9 +346,6 @@ function activarInterceptoresGlobales() {
         };
     }
 
-    // ===============================
-    // USUARIOS
-    // ===============================
     if (Array.isArray(window.BD_usuarios)) {
 
         const original = window.BD_usuarios.push;
@@ -399,9 +363,6 @@ function activarInterceptoresGlobales() {
         };
     }
 
-    // ===============================
-    // COBROS
-    // ===============================
     if (Array.isArray(window.BD_cobros)) {
 
         const original = window.BD_cobros.push;
@@ -419,9 +380,6 @@ function activarInterceptoresGlobales() {
         };
     }
 
-    // ===============================
-    // HISTORIAL
-    // ===============================
     if (Array.isArray(window.BD_historial)) {
 
         const original = window.BD_historial.push;
