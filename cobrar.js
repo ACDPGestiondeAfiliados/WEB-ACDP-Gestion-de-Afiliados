@@ -11,8 +11,9 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 
 
+
 // ===============================
-// Inicialización del módulo
+// Inicialización
 // ===============================
 
 function iniciarCobrar(){
@@ -38,7 +39,7 @@ function iniciarCobrar(){
 
 
 // ===============================
-// Carga tabla inicial
+// Tabla
 // ===============================
 
 function cargarTablaCobrar(){
@@ -49,9 +50,6 @@ function cargarTablaCobrar(){
 
 
 
-// ===============================
-// Buscar afiliados
-// ===============================
 
 function buscarParaCobrar(valor){
 
@@ -61,7 +59,6 @@ function buscarParaCobrar(valor){
     if(!valor){
 
         mostrarCobros(BD_afiliados);
-
         return;
 
     }
@@ -75,14 +72,11 @@ function buscarParaCobrar(valor){
 
 
 
-// ===============================
-// Render tabla de cobro
-// ===============================
 
 function mostrarCobros(lista){
 
-    const cuerpo=document
-    .getElementById("tablaCobrar")
+    const cuerpo=
+    document.getElementById("tablaCobrar")
     .querySelector("tbody");
 
 
@@ -92,7 +86,18 @@ function mostrarCobros(lista){
     lista.forEach(a=>{
 
 
-        let boton="";
+        let boton=`
+
+
+        <button onclick="cobrarAfiliado('${a.dni}')">
+
+        Cobrar
+
+        </button>
+
+
+        `;
+
 
 
         if(a.estado==="Eliminado"){
@@ -100,17 +105,9 @@ function mostrarCobros(lista){
             boton=`
 
             <button onclick="cobrarAfiliado('${a.dni}')">
+
             Bloqueado
-            </button>
 
-            `;
-
-        }else{
-
-            boton=`
-
-            <button onclick="cobrarAfiliado('${a.dni}')">
-            Cobrar
             </button>
 
             `;
@@ -119,25 +116,23 @@ function mostrarCobros(lista){
 
 
 
+
         cuerpo.innerHTML+=`
 
         <tr>
 
-            <td>${a.numero||""}</td>
+        <td>${a.numero||""}</td>
 
-            <td>${a.dni||""}</td>
+        <td>${a.dni||""}</td>
 
-            <td>${a.nombre||""}</td>
+        <td>${a.nombre||""}</td>
 
-            <td>${a.apellido||""}</td>
+        <td>${a.apellido||""}</td>
 
-            <td>${a.estado||"Activo"}</td>
+        <td>${a.estado||"Activo"}</td>
 
-            <td>
+        <td>${boton}</td>
 
-                ${boton}
-
-            </td>
 
         </tr>
 
@@ -146,119 +141,541 @@ function mostrarCobros(lista){
 
     });
 
+
 }
 
 
 
 // ===============================
-// Ejecuta cobro
+// Abrir modal cobro
 // ===============================
+
 
 function cobrarAfiliado(dni){
 
 
-    const afiliado=BD_afiliados.find(a=>
-
-        a.dni===dni
-
-    );
+const afiliado=
+BD_afiliados.find(a=>a.dni===dni);
 
 
 
-    if(!afiliado){
-
-        return;
-
-    }
+if(!afiliado)return;
 
 
 
-    // Bloqueo afiliados eliminados
+if(afiliado.estado==="Eliminado"){
 
-    if(afiliado.estado==="Eliminado"){
+alert(
+"Este afiliado fue eliminado."
+);
 
+return;
 
-        alert(
-        "Este afiliado fue eliminado, por favor, consulte en HISTORIAL, o pregunte a un administrador."
-        );
-
-
-        return;
-
-    }
+}
 
 
 
-    const monto = (BD_configuracion && BD_configuracion.monto) ? BD_configuracion.monto : 0;
+crearModalCobro(afiliado);
 
 
 
-    const fecha=new Date();
+}
 
 
 
-    // 🔥 FIX REAL: asegurar usuario activo correcto en este scope
-    const usuarioRegistro =
-        (typeof usuarioActivo !== "undefined" && usuarioActivo && usuarioActivo !== "Admin")
-        ? usuarioActivo
-        : "Sistema";
+
+// ===============================
+// Modal
+// ===============================
+
+
+function crearModalCobro(afiliado){
+
+
+let meses=[
+
+"Enero",
+"Febrero",
+"Marzo",
+"Abril",
+"Mayo",
+"Junio",
+"Julio",
+"Agosto",
+"Septiembre",
+"Octubre",
+"Noviembre",
+"Diciembre"
+
+];
 
 
 
-    registrarHistorial(
-        "Cobro",
-        afiliado,
-        "Cuota abonada: $" + monto
-    );
+let pagados =
+afiliado.mesesPagados || [];
 
 
 
-    BD_cobros.push({
-
-        usuario: usuarioRegistro,
-
-        afiliado:
-        afiliado.nombre + " " + afiliado.apellido,
-
-        dni:
-        afiliado.dni,
-
-        numero:
-        afiliado.numero,
-
-        fecha:
-        fecha.toLocaleDateString(),
-
-        hora:
-        fecha.toLocaleTimeString(),
-
-        accion:
-        "Cobro",
-
-        detalle:
-        "Cuota abonada: $" + monto
-
-    });
+let html="";
 
 
 
-    guardarBD();
+meses.forEach((m,i)=>{
+
+
+let existe =
+pagados.includes(m);
 
 
 
-    if(typeof escribirConsola==="function"){
+html+=`
 
-        escribirConsola(
-        "Cobro registrado: "+afiliado.dni
-        );
-
-    }
+<label>
 
 
+<input 
+type="checkbox"
+class="checkMes"
+value="${m}"
+${existe ? "checked disabled":""}
+>
 
-    alert(
-    "Cobro registrado correctamente"
-    );
+
+${m}
+
+
+</label>
+
+<br>
+
+
+`;
+
+
+
+});
+
+
+
+
+
+const div=document.createElement("div");
+
+div.id="modalCobro";
+
+
+div.innerHTML=`
+
+<div class="fondoModal">
+
+
+<div class="contenidoModal">
+
+
+<h3>
+
+Cobrar afiliado
+
+</h3>
+
+
+<p>
+
+${afiliado.nombre}
+${afiliado.apellido}
+
+</p>
+
+
+${html}
+
+
+<br>
+
+
+<button onclick="confirmarCobro('${afiliado.dni}')">
+
+Aceptar
+
+</button>
+
+
+<button onclick="cerrarModalCobro()">
+
+Cancelar
+
+</button>
+
+
+
+</div>
+
+
+</div>
+
+`;
+
+
+
+document.body.appendChild(div);
+
+
+
+}
+
+
+
+
+function cerrarModalCobro(){
+
+const m=
+document.getElementById("modalCobro");
+
+
+if(m)m.remove();
+
+}
+
+
+
+
+// ===============================
+// Confirmar pago
+// ===============================
+
+
+function confirmarCobro(dni){
+
+
+
+const afiliado=
+BD_afiliados.find(a=>a.dni===dni);
+
+
+
+if(!afiliado)return;
+
+
+
+
+const checks=
+document.querySelectorAll(".checkMes");
+
+
+
+let nuevos=[];
+
+
+
+checks.forEach(c=>{
+
+
+if(c.checked && !c.disabled){
+
+nuevos.push(c.value);
+
+}
+
+
+});
+
+
+
+
+
+if(nuevos.length===0){
+
+alert(
+"Seleccione al menos un mes."
+);
+
+return;
+
+}
+
+
+
+
+if(!afiliado.mesesPagados){
+
+afiliado.mesesPagados=[];
+
+}
+
+
+
+nuevos.forEach(m=>{
+
+
+if(!afiliado.mesesPagados.includes(m)){
+
+
+afiliado.mesesPagados.push(m);
+
+
+}
+
+
+});
+
+
+
+
+
+const monto=
+(BD_configuracion && BD_configuracion.monto)
+?
+BD_configuracion.monto
+:
+0;
+
+
+
+const total =
+monto * nuevos.length;
+
+
+
+
+const fecha=new Date();
+
+
+
+const usuarioRegistro =
+(typeof usuarioActivo !== "undefined" &&
+usuarioActivo &&
+usuarioActivo!=="Admin")
+?
+usuarioActivo
+:
+"Sistema";
+
+
+
+
+
+
+registrarHistorial(
+
+"Cobro",
+
+afiliado,
+
+"Meses: "+
+nuevos.join(", ")+
+" | Total: $"+
+total
+
+);
+
+
+
+
+
+
+
+BD_cobros.push({
+
+usuario:usuarioRegistro,
+
+afiliado:
+afiliado.nombre+
+" "+
+afiliado.apellido,
+
+dni:
+afiliado.dni,
+
+numero:
+afiliado.numero,
+
+
+fecha:
+fecha.toLocaleDateString(),
+
+hora:
+fecha.toLocaleTimeString(),
+
+
+accion:
+"Cobro",
+
+
+detalle:
+"Meses: "+
+nuevos.join(", ")+
+" | Total: $"+
+total,
+
+
+meses:
+nuevos,
+
+
+total:
+total
+
+
+});
+
+
+
+
+
+guardarBD();
+
+
+
+
+cerrarModalCobro();
+
+
+
+alert(
+"Cobro registrado correctamente"
+);
+
+
+
+
+generarComprobanteCobro(
+
+afiliado,
+
+nuevos,
+
+total
+
+);
+
+
+
+}
+
+
+
+// ===============================
+// Ticket
+// ===============================
+
+
+function generarComprobanteCobro(
+afiliado,
+meses,
+total
+){
+
+
+
+const ventana=
+window.open(
+"",
+"_blank",
+"width=400,height=600"
+);
+
+
+
+if(!ventana)return;
+
+
+
+
+ventana.document.write(`
+
+
+<html>
+
+<body style="font-family:Arial;text-align:center">
+
+
+<h2>
+
+ACDP - Comprobante
+
+</h2>
+
+
+<p>
+
+Afiliado:
+
+<br>
+
+${afiliado.nombre}
+${afiliado.apellido}
+
+</p>
+
+
+
+<p>
+
+DNI:
+
+<br>
+
+${afiliado.dni}
+
+</p>
+
+
+
+<p>
+
+Meses:
+
+<br>
+
+${meses.join("<br>")}
+
+</p>
+
+
+
+<h3>
+
+Total:
+
+<br>
+
+$${total}
+
+</h3>
+
+
+
+<br>
+
+
+<p>
+
+Muchas gracias!
+
+</p>
+
+
+
+<script>
+
+window.print();
+
+</script>
+
+
+
+</body>
+
+
+</html>
+
+
+`);
+
+
+
+ventana.document.close();
+
 
 
 }
