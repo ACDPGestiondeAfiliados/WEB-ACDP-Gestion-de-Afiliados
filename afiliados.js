@@ -103,7 +103,7 @@ function eventosAfiliados(){
 
 function cargarAfiliados(){
 
-    listaAfiliados=BD.afiliados;
+    listaAfiliados=BD_afiliados;
 
     mostrarTabla();
 
@@ -335,7 +335,7 @@ function guardarNuevoAfiliado(){
 
 
 
-    BD.afiliados.push(afiliado);
+    BD_afiliados.push(afiliado);
 
 
     guardarBD();
