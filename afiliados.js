@@ -421,13 +421,8 @@ placeholder="Correo">
 
 <select id="editarEstado">
 
-<option value="Activo">
-Activo
-</option>
-
-<option value="Adherente">
-Adherente
-</option>
+<option value="Activo">Activo</option>
+<option value="Adherente">Adherente</option>
 
 </select>
 
@@ -438,8 +433,9 @@ Guardar cambios
 
 `;
 
-
-editarEstado.value=a.estado;
+// FIX IMPORTANTE
+const select=document.getElementById("editarEstado");
+if(select) select.value=a.estado || "Activo";
 
 
 document.getElementById("modalFondo")
@@ -450,7 +446,6 @@ aplicarValidaciones(
 ["editarDni","editarCelular"],
 ["editarNombre","editarApellido"]
 );
-
 
 }
 
@@ -469,15 +464,10 @@ if(!a)return;
 
 
 a.dni=editarDni.value;
-
 a.nombre=editarNombre.value;
-
 a.apellido=editarApellido.value;
-
 a.celular=editarCelular.value;
-
 a.correo=editarCorreo.value;
-
 a.estado=editarEstado.value;
 
 
@@ -487,12 +477,18 @@ cerrarModal();
 
 cargarAfiliados();
 
+
+// FIX HISTORIAL
+if(typeof registrarHistorial==="function"){
+    registrarHistorial("EDICION",a,"Modificación de afiliado");
+}
+
 }
 
 
 
 // ===============================
-// Eliminar
+// Eliminar (FIX MODAL + HISTORIAL)
 // ===============================
 
 function eliminarAfiliado(dni){
@@ -500,25 +496,54 @@ function eliminarAfiliado(dni){
 
 const a=BD_afiliados.find(x=>x.dni===dni);
 
-
 if(!a)return;
 
 
-if(!confirm("¿Eliminar afiliado?"))
-return;
+const fondo=document.getElementById("modalFondo");
+const contenido=document.getElementById("modalContenido");
 
 
-BD_afiliados=
-BD_afiliados.filter(x=>x.dni!==dni);
+contenido.innerHTML=`
+<h3>Eliminar afiliado</h3>
+
+<p>Motivo (5 a 40 caracteres)</p>
+
+<input id="motivoEliminar" maxlength="40">
+
+<div id="msgEliminar" style="color:red;font-size:12px;"></div>
+
+<button id="btnConfirmarEliminar">Confirmar</button>
+`;
+
+fondo.classList.add("activo");
 
 
-guardarBD();
+document.getElementById("btnConfirmarEliminar").onclick=()=>{
+
+    const motivo=document.getElementById("motivoEliminar").value.trim();
+
+    if(motivo.length<5 || motivo.length>40){
+        document.getElementById("msgEliminar").textContent="Motivo inválido";
+        return;
+    }
+
+    BD_afiliados=
+    BD_afiliados.filter(x=>x.dni!==dni);
+
+    guardarBD();
+    cerrarModal();
+    cargarAfiliados();
 
 
-cargarAfiliados();
+    if(typeof registrarHistorial==="function"){
+        registrarHistorial("BAJA",a,motivo);
+    }
 
+};
 
 }
+
+
 
 // ===============================
 // Imprimir afiliado
@@ -576,6 +601,8 @@ generarPDF({
 });
 
 }
+
+
 
 // ===============================
 // Cerrar modal
