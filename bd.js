@@ -1,348 +1,120 @@
-/* =====================================
-   ACDP - BASE DE DATOS
-===================================== */
+// ===============================
+// BASE DE DATOS LOCAL ACDP
+// Maneja almacenamiento permanente
+// del navegador mediante localStorage
+// ===============================
+
+const BD_KEY="acdp_datos";
 
 
+// Estructura inicial del sistema
 
-const BD_KEY = "ACDP_BASE_DATOS";
-
-
-
-let BD = {
-
-
-    afiliados: [],
-
-
-    pagos: [],
-
-
-    historial: [],
-
-
-    usuarios: [
-
-
+const datosIniciales={
+    usuarios:[
         {
-
             usuario:"Admin",
-
-            tipo:"Administrador",
-
-            pin:"9999"
-
+            pin:"9999",
+            tipo:"Administrador"
         }
-
-
     ],
 
+    afiliados:[],
 
+    historial:[],
 
     configuracion:{
-
-
-        cuota:15000
-
-
+        monto:0
     }
-
-
-
 };
 
 
+// Cargar base de datos existente
+// Si no existe, crea una nueva
 
+function cargarBD(){
 
+    const datos=localStorage.getItem(BD_KEY);
 
+    if(!datos){
 
-function iniciarBD(){
+        localStorage.setItem(
+            BD_KEY,
+            JSON.stringify(datosIniciales)
+        );
 
-
-
-    let datos =
-    localStorage.getItem(BD_KEY);
-
-
-
-    if(datos){
-
-
-        BD =
-        JSON.parse(datos);
-
-
-    }
-    else{
-
-
-        guardarBD();
-
-
+        return datosIniciales;
     }
 
-
+    return JSON.parse(datos);
 
 }
 
 
 
+// Variable global de trabajo
+
+let BD=cargarBD();
 
 
+
+// Guardar cambios en la base
 
 function guardarBD(){
 
-
     localStorage.setItem(
-
         BD_KEY,
-
         JSON.stringify(BD)
-
     );
 
-
 }
 
 
 
+// Agrega registro al historial del sistema
 
+function registrarHistorial(registro){
 
-
-
-
-function generarNumeroAfiliado(){
-
-
-
-    let ultimo = 0;
-
-
-
-    BD.afiliados.forEach(a=>{
-
-
-        let numero =
-        Number(a.numero);
-
-
-
-        if(numero > ultimo){
-
-            ultimo = numero;
-
-        }
-
-
-
-    });
-
-
-
-
-
-    ultimo++;
-
-
-
-
-
-    return String(ultimo)
-    .padStart(8,"0");
-
-
-
-}
-
-
-
-
-
-
-
-
-function obtenerFecha(){
-
-
-    let f =
-    new Date();
-
-
-
-    return (
-
-        String(f.getDate())
-        .padStart(2,"0")
-
-        +
-
-        "/"
-
-        +
-
-        String(
-        f.getMonth()+1)
-        .padStart(2,"0")
-
-        +
-
-        "/"
-
-        +
-
-        f.getFullYear()
-
-    );
-
-
-
-}
-
-
-
-
-
-
-
-
-function obtenerHora(){
-
-
-
-    let f =
-    new Date();
-
-
-
-
-    return (
-
-        String(f.getHours())
-        .padStart(2,"0")
-
-        +
-
-        ":"
-
-        +
-
-        String(f.getMinutes())
-        .padStart(2,"0")
-
-    );
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function registrarHistorial(datos){
-
-
-
-    BD.historial.push({
-
-
-        usuario:
-        datos.usuario || "",
-
-
-        afiliado:
-        datos.afiliado || "",
-
-
-        dni:
-        datos.dni || "",
-
-
-        numero:
-        datos.numero || "",
-
-
-
-        fecha:
-        obtenerFecha(),
-
-
-        hora:
-        obtenerHora(),
-
-
-
-        accion:
-        datos.accion || "",
-
-
-        detalles:
-        datos.detalles || "SIN MOTIVOS"
-
-
-
-    });
-
-
-
-
+    BD.historial.push(registro);
 
     guardarBD();
 
-
-
 }
 
 
 
+// Busca afiliado por DNI o número
 
+function buscarAfiliado(valor){
 
+    valor=String(valor);
 
+    return BD.afiliados.filter(a=>
 
-
-function limpiarNumero(valor){
-
-
-    return String(valor)
-    .replace(/\D/g,"");
-
-
-}
-
-
-
-
-
-
-
-function formatoPesos(valor){
-
-
-
-    return Number(valor)
-    .toLocaleString(
-        "es-AR",
-        {
-
-        minimumFractionDigits:2,
-
-        maximumFractionDigits:2
-
-        }
+        a.dni===valor ||
+        a.numero===valor
 
     );
 
+}
 
+
+
+// Obtener configuración actual
+
+function obtenerConfiguracion(){
+
+    return BD.configuracion;
 
 }
 
 
 
+// Actualizar configuración
 
+function actualizarConfiguracion(nueva){
 
+    BD.configuracion=nueva;
 
+    guardarBD();
 
-iniciarBD();
+}
