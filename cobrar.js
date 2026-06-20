@@ -242,6 +242,19 @@ return meses;
 // Modal
 // ===============================
 
+function crearModalCobro(afiliado){
+
+
+const anterior =
+document.getElementById("modalCobro");
+
+
+if(anterior){
+
+anterior.remove();
+
+}
+
 
 function crearModalCobro(afiliado){
 
@@ -265,7 +278,8 @@ let meses=[
 
 
 
-let pagados = obtenerMesesPagadosActivos(afiliado.dni);
+let pagados =
+obtenerMesesPagadosActivos(afiliado.dni);
 
 
 
@@ -273,7 +287,7 @@ let html="";
 
 
 
-meses.forEach((m,i)=>{
+meses.forEach((m)=>{
 
 
 let existe =
@@ -301,7 +315,6 @@ ${m}
 
 <br>
 
-
 `;
 
 
@@ -314,15 +327,17 @@ ${m}
 
 const div=document.createElement("div");
 
+
 div.id="modalCobro";
+
+
+div.className="modal-fondo activo";
+
 
 
 div.innerHTML=`
 
-<div class="fondoModal">
-
-
-<div class="contenidoModal">
+<div class="modal">
 
 
 <h3>
@@ -330,6 +345,7 @@ div.innerHTML=`
 Cobrar afiliado
 
 </h3>
+
 
 
 <p>
@@ -340,10 +356,13 @@ ${afiliado.apellido}
 </p>
 
 
+
 ${html}
 
 
+
 <br>
+
 
 
 <button onclick="confirmarCobro('${afiliado.dni}')">
@@ -353,15 +372,13 @@ Aceptar
 </button>
 
 
+
 <button onclick="cerrarModalCobro()">
 
 Cancelar
 
 </button>
 
-
-
-</div>
 
 
 </div>
@@ -375,22 +392,6 @@ document.body.appendChild(div);
 
 
 }
-
-
-
-
-function cerrarModalCobro(){
-
-const m=
-document.getElementById("modalCobro");
-
-
-if(m)m.remove();
-
-}
-
-
-
 
 // ===============================
 // Confirmar pago
@@ -449,32 +450,6 @@ return;
 
 
 
-if(!afiliado.mesesPagados){
-
-afiliado.mesesPagados=[];
-
-}
-
-
-
-nuevos.forEach(m=>{
-
-
-if(!afiliado.mesesPagados.includes(m)){
-
-
-afiliado.mesesPagados.push(m);
-
-
-}
-
-
-});
-
-
-
-
-
 const monto=
 (BD_configuracion && BD_configuracion.monto)
 ?
@@ -508,6 +483,65 @@ usuarioActivo
 
 
 
+
+const cobroNuevo={
+
+
+usuario:usuarioRegistro,
+
+
+afiliado:
+afiliado.nombre+
+" "+
+afiliado.apellido,
+
+
+dni:
+afiliado.dni,
+
+
+numero:
+afiliado.numero,
+
+
+
+fecha:
+fecha.toLocaleDateString(),
+
+
+hora:
+fecha.toLocaleTimeString(),
+
+
+
+accion:
+"Cobro",
+
+
+
+detalle:
+"Meses: "+
+nuevos.join(", ")+
+" | Total: $"+
+total,
+
+
+
+meses:
+nuevos,
+
+
+
+total:
+total
+
+
+};
+
+
+
+
+
 registrarHistorial(
 
 "Cobro",
@@ -525,51 +559,39 @@ total
 
 
 
+BD_cobros.push(
+cobroNuevo
+);
 
 
-BD_cobros.push({
-
-usuario:usuarioRegistro,
-
-afiliado:
-afiliado.nombre+
-" "+
-afiliado.apellido,
-
-dni:
-afiliado.dni,
-
-numero:
-afiliado.numero,
 
 
-fecha:
-fecha.toLocaleDateString(),
-
-hora:
-fecha.toLocaleTimeString(),
 
 
-accion:
-"Cobro",
+// Mantener sincronizado afiliado
+
+if(!afiliado.mesesPagados){
+
+afiliado.mesesPagados=[];
+
+}
 
 
-detalle:
-"Meses: "+
-nuevos.join(", ")+
-" | Total: $"+
-total,
+
+nuevos.forEach(m=>{
 
 
-meses:
-nuevos,
+if(!afiliado.mesesPagados.includes(m)){
 
 
-total:
-total
+afiliado.mesesPagados.push(m);
+
+
+}
 
 
 });
+
 
 
 
@@ -604,8 +626,6 @@ total
 
 
 }
-
-
 
 // ===============================
 // Ticket
