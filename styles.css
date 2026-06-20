@@ -11,7 +11,7 @@ color:#222;
 
 
 .header{
-background:#F600FF;
+background:#A602AB;
 color:white;
 text-align:center;
 padding:20px;
@@ -42,13 +42,13 @@ padding:12px 20px;
 border:0;
 border-radius:6px;
 cursor:pointer;
-background:#F600FF;
+background:#A602AB;
 color:white;
 }
 
 
 .menu button:hover{
-background:#F882FF;
+background:#F600FF;
 }
 
 
@@ -84,27 +84,36 @@ cursor:pointer;
 
 
 table{
-width:100%;
-border-collapse:collapse;
-background:white;
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+    border:1px solid #e6d7e8;
 }
 
 
 th{
-background:#005baa;
-color:white;
-padding:10px;
+    background:#A602AB;
+    color:white;
+    padding:10px;
+    border:1px solid #e0bfe3;
+    font-weight:bold;
 }
 
 
 td{
-padding:10px;
-border-bottom:1px solid #000000;
+    padding:10px;
+    border:1px solid #eeeeee;
+    vertical-align:middle;
+}
+
+
+tr:nth-child(even){
+    background:#faf7fb;
 }
 
 
 tr:hover{
-background:#E8E3E3;
+    background:#FCEBFF;
 }
 
 
