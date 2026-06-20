@@ -58,8 +58,16 @@ ventana.document.write(`
 
 @page{
 
-size:8cm 6cm;
+size:8.5cm 5.5cm;
 margin:0;
+
+}
+
+
+
+*{
+
+box-sizing:border-box;
 
 }
 
@@ -69,6 +77,8 @@ body{
 
 margin:0;
 padding:0;
+width:8.5cm;
+height:5.5cm;
 font-family:Arial,Helvetica,sans-serif;
 background:white;
 
@@ -79,18 +89,20 @@ background:white;
 .carnet{
 
 
-width:8cm;
-height:6cm;
+width:8.5cm;
+height:5.5cm;
 
-border:3px solid ${colorEstado};
 
-box-sizing:border-box;
+border:2px solid ${colorEstado};
+
 
 display:flex;
 
-padding:8px;
+padding:6px;
+
 
 overflow:hidden;
+
 
 }
 
@@ -99,7 +111,8 @@ overflow:hidden;
 .izquierda{
 
 
-width:35%;
+width:28%;
+
 
 display:flex;
 
@@ -107,38 +120,48 @@ align-items:center;
 
 justify-content:center;
 
+
 }
 
 
 
 .logo{
 
-width:65px;
+
+width:50px;
 
 height:auto;
 
+
 }
+
 
 
 
 .derecha{
 
 
-width:65%;
+width:72%;
 
-padding-left:8px;
+
+padding-left:6px;
+
 
 display:flex;
 
 flex-direction:column;
 
+
 justify-content:center;
+
 
 }
 
 
 
+
 .titulo{
+
 
 font-size:18px;
 
@@ -146,17 +169,36 @@ font-weight:bold;
 
 color:#005baa;
 
-margin-bottom:8px;
+margin-bottom:5px;
+
 
 }
 
 
 
+
+.subtitulo{
+
+
+font-size:10px;
+
+font-weight:bold;
+
+margin-bottom:6px;
+
+
+}
+
+
+
+
 .dato{
 
-font-size:12px;
 
-margin:3px 0;
+font-size:10px;
+
+margin:2px 0;
+
 
 }
 
@@ -164,25 +206,47 @@ margin:3px 0;
 
 .valor{
 
+
 font-weight:bold;
 
+
 }
+
 
 
 
 .codigo{
 
-margin-top:8px;
+
+margin-top:5px;
+
 
 }
 
 
 
+
 #barra{
 
-width:140px;
 
-height:35px;
+width:120px;
+
+height:28px;
+
+
+}
+
+
+
+.pie{
+
+
+font-size:7px;
+
+margin-top:3px;
+
+color:#555;
+
 
 }
 
@@ -201,6 +265,7 @@ height:35px;
 <div class="carnet">
 
 
+
 <div class="izquierda">
 
 
@@ -215,6 +280,7 @@ class="logo"
 
 
 
+
 <div class="derecha">
 
 
@@ -222,6 +288,14 @@ class="logo"
 <div class="titulo">
 
 ACDP
+
+</div>
+
+
+
+<div class="subtitulo">
+
+Carnet de afiliado
 
 </div>
 
@@ -273,7 +347,7 @@ ${afiliado.dni||""}
 
 <div class="dato">
 
-N° Afiliado:
+Afiliado N°:
 
 <span class="valor">
 
@@ -285,11 +359,20 @@ ${afiliado.numero||""}
 
 
 
+
 <div class="codigo">
 
 
 <svg id="barra"></svg>
 
+
+</div>
+
+
+
+<div class="pie">
+
+ACDP - Documento interno
 
 </div>
 
@@ -319,7 +402,9 @@ format:"CODE128",
 
 displayValue:false,
 
-height:35,
+height:28,
+
+width:1.5,
 
 margin:0
 
@@ -330,6 +415,7 @@ margin:0
 
 
 window.onload=function(){
+
 
 window.print();
 
