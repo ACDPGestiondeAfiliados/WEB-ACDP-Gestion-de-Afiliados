@@ -173,6 +173,14 @@ return;
 
 }
 
+
+crearModalCobro(afiliado);
+
+
+}
+
+
+
 // ===============================
 // Obtener meses realmente pagados
 // Ignora cobros anulados
@@ -228,6 +236,7 @@ return meses;
 
 
 }
+
 
 
 // ===============================
@@ -337,7 +346,6 @@ Cobrar afiliado
 </h3>
 
 
-
 <p>
 
 ${afiliado.nombre}
@@ -346,13 +354,10 @@ ${afiliado.apellido}
 </p>
 
 
-
 ${html}
 
 
-
 <br>
-
 
 
 <button onclick="confirmarCobro('${afiliado.dni}')">
@@ -360,7 +365,6 @@ ${html}
 Aceptar
 
 </button>
-
 
 
 <button onclick="cerrarModalCobro()">
@@ -380,9 +384,29 @@ Cancelar
 document.body.appendChild(div);
 
 
+}
+
+// ===============================
+// Cerrar modal
+// ===============================
+
+function cerrarModalCobro(){
+
+const m=
+document.getElementById("modalCobro");
+
+
+if(m){
+
+m.remove();
 
 }
-    
+
+
+}
+
+
+
 // ===============================
 // Confirmar pago
 // ===============================
@@ -473,7 +497,6 @@ usuarioActivo
 
 
 
-
 const cobroNuevo={
 
 
@@ -494,7 +517,6 @@ numero:
 afiliado.numero,
 
 
-
 fecha:
 fecha.toLocaleDateString(),
 
@@ -503,10 +525,8 @@ hora:
 fecha.toLocaleTimeString(),
 
 
-
 accion:
 "Cobro",
-
 
 
 detalle:
@@ -516,10 +536,8 @@ nuevos.join(", ")+
 total,
 
 
-
 meses:
 nuevos,
-
 
 
 total:
@@ -556,9 +574,6 @@ cobroNuevo
 
 
 
-
-
-// Mantener sincronizado afiliado
 
 if(!afiliado.mesesPagados){
 
@@ -616,6 +631,9 @@ total
 
 
 }
+
+
+
 
 // ===============================
 // Ticket
