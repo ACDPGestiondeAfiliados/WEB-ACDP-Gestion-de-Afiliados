@@ -405,13 +405,13 @@ placeholder="Apellido">
 
 <input id="editarCelular"
 value="${a.celular||""}"
-maxlength="15"
+maxlength="10"
 placeholder="Celular">
 
 
 <input id="editarCorreo"
 value="${a.correo||""}"
-maxlength="20"
+maxlength="30"
 placeholder="Correo">
 
 
