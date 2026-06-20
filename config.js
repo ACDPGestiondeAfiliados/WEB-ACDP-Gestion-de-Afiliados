@@ -1,49 +1,36 @@
-// =====================================
-// ACDP - CONFIGURACIÓN
-// =====================================
+/* =====================================
+   ACDP - CONFIGURACIÓN
+===================================== */
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+iniciarConfiguracion();
+
+
+});
 
 
 
-function cargarConfiguracion(){
-
-
-let contenedor =
-document.getElementById(
-"contenidoConfig"
-);
 
 
 
 
-if(
-usuarioActivo!=="Admin"
-){
 
-
-contenedor.innerHTML = `
-
-
-<h2>
-
-Configuración y Monto
-
-</h2>
-
-
-<p>
-
-Acceso restringido.
-
-Solo el administrador puede ingresar.
-
-</p>
-
-
-`;
+function iniciarConfiguracion(){
 
 
 
-return;
+document
+.getElementById(
+"guardarConfiguracion")
+.onclick =
+guardarConfiguracion;
+
+
 
 }
 
@@ -52,88 +39,59 @@ return;
 
 
 
-let cuota =
-BD.configuracion.cuota;
 
 
 
-contenedor.innerHTML = `
+function cargarConfiguracion(){
 
 
 
-<h2>
-
-Configuración y Monto
-
-</h2>
+if(
+usuarioActivo!=="Admin"
+){
 
 
 
-
-<p>
-
-Valor actual de cuota:
-
-<b>
-
-$${formatearPesos(cuota)}
-
-</b>
-
-</p>
+document
+.getElementById(
+"montoConfiguracion")
+.value =
+"";
 
 
 
+document
+.getElementById(
+"consolaSistema")
+.textContent =
+"Acceso restringido";
 
 
 
-<input
-
-id="nuevoMonto"
-
-placeholder="Monto"
-
-oninput="formatearInputMonto(this)"
-
->
+return;
 
 
-
-
-<br><br>
-
-
-
-<button onclick="guardarConfiguracion()">
-
-Guardar
-
-</button>
+}
 
 
 
 
 
-<h3>
 
-Registro del sistema
-
-</h3>
-
-
-
-<div id="logSistema" class="log">
-
-
-${obtenerLog()}
-
-
-</div>
+document
+.getElementById(
+"montoConfiguracion")
+.value =
+formatearNumero(
+BD.configuracion.cuota
+);
 
 
 
-`;
 
+
+
+mostrarLogs();
 
 
 
@@ -151,17 +109,43 @@ function guardarConfiguracion(){
 
 
 
+if(
+usuarioActivo!=="Admin"
+){
+
+
+alert(
+"Acceso restringido"
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+
 let valor =
-document.getElementById(
-"nuevoMonto"
-).value;
+document
+.getElementById(
+"montoConfiguracion")
+.value;
+
 
 
 
 
 
 valor =
-valor.replace(/\D/g,"");
+limpiarNumero(
+valor
+);
+
 
 
 
@@ -172,16 +156,18 @@ Number(valor);
 
 
 
+
+
+
 if(
-valor < 10000 ||
+valor < 10000
+||
 valor > 999999
 ){
 
 
 alert(
-
 "El monto debe estar entre $10.000 y $999.999"
-
 );
 
 
@@ -204,17 +190,22 @@ valor;
 
 
 
+
 registrarHistorial({
 
+usuario:
+usuarioActivo,
 
-usuario:usuarioActivo,
 
 accion:
 "Configuración modificada",
 
+
 detalles:
-"Nuevo valor cuota: $"+
-formatearPesos(valor)
+"Nuevo monto: $"
++
+formatearNumero(valor)
+
 
 
 });
@@ -224,11 +215,11 @@ formatearPesos(valor)
 
 
 
-
 agregarLog(
 
-"Cuota actualizada a $"+
-formatearPesos(valor)
+"Cuota modificada: $"
++
+formatearNumero(valor)
 
 );
 
@@ -240,9 +231,14 @@ guardarBD();
 
 
 
+
+
+
 alert(
 "Configuración guardada"
 );
+
+
 
 
 
@@ -260,74 +256,34 @@ cargarConfiguracion();
 
 
 
-function formatearInputMonto(input){
-
-
-
-let valor =
-input.value.replace(
-/\D/g,
-""
-);
-
-
-
-if(valor){
-
-
-input.value =
-Number(valor)
-.toLocaleString(
-"es-AR"
-);
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-
-
-// =====================================
-// SISTEMA DE LOG
-// =====================================
-
-
-
 function agregarLog(texto){
 
 
 
-let logs =
-JSON.parse(
-localStorage.getItem(
-"ACDP_LOG"
-)
-)
-||
-[];
+if(!BD.logs)
+BD.logs=[];
 
 
 
 
-logs.push({
+
+BD.logs.push({
+
+
 
 fecha:
-fechaActual(),
+obtenerFecha(),
+
+
 
 hora:
-horaActual(),
+obtenerHora(),
+
+
 
 texto
+
+
 
 });
 
@@ -335,45 +291,55 @@ texto
 
 
 
-localStorage.setItem(
 
-"ACDP_LOG",
+guardarBD();
 
-JSON.stringify(logs)
 
+
+}
+
+
+
+
+
+
+
+
+
+function mostrarLogs(){
+
+
+
+let consola =
+document
+.getElementById(
+"consolaSistema"
 );
 
 
 
-}
+
+
+consola.innerHTML="";
 
 
 
 
 
-
-
-function obtenerLog(){
-
-
-
-let logs =
-JSON.parse(
-localStorage.getItem(
-"ACDP_LOG"
-)
-)
+if(
+!BD.logs
 ||
-[];
+BD.logs.length===0
+){
 
 
 
+consola.textContent =
+"Sin registros";
 
 
-if(logs.length===0){
 
-
-return "Sin registros";
+return;
 
 
 }
@@ -382,25 +348,61 @@ return "Sin registros";
 
 
 
-return logs
+
+
+BD.logs
+.slice()
 .reverse()
-.map(l=>{
+.forEach(log=>{
 
 
-return `
 
-<div>
+let linea =
+document.createElement(
+"div"
+);
 
-[${l.fecha} ${l.hora}]
-${l.texto}
 
-</div>
+
+linea.textContent =
+`
+
+[${log.fecha} ${log.hora}]
+${log.texto}
 
 `;
 
 
-})
-.join("");
+
+consola.appendChild(
+linea
+);
+
+
+
+});
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function formatearNumero(valor){
+
+
+
+return Number(valor)
+.toLocaleString(
+"es-AR"
+);
 
 
 
