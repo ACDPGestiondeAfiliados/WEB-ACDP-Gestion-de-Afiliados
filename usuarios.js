@@ -1,811 +1,231 @@
-/* =====================================
-   ACDP - USUARIOS
-===================================== */
+// ===============================
+// USUARIOS ACDP
+// Gestión de cuentas y permisos
+// ===============================
 
 
-let usuarioEditando = null;
+document.addEventListener("DOMContentLoaded",()=>{
 
-
-
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-
-iniciarUsuarios();
-
+    iniciarUsuarios();
 
 });
 
 
-
-
-
-
-
+// Inicializa módulo
 
 function iniciarUsuarios(){
 
+    cargarUsuarios();
 
-
-document
-.getElementById(
-"btnNuevoUsuario")
-.onclick =
-abrirNuevoUsuario;
-
-
+    eventosUsuarios();
 
 }
 
 
 
+// Eventos principales
+
+function eventosUsuarios(){
+
+    const nuevo=document.getElementById("btnNuevoUsuario");
+
+
+    if(nuevo){
+
+        nuevo.addEventListener("click",()=>{
+
+            abrirNuevoUsuario();
+
+        });
+
+    }
+
+}
 
 
 
-
-
+// Carga tabla usuarios
 
 function cargarUsuarios(){
 
+    const cuerpo=document
+    .getElementById("tablaUsuarios")
+    .querySelector("tbody");
 
 
-let tabla =
-document
-.querySelector(
-"#tablaUsuarios tbody"
-);
+    cuerpo.innerHTML="";
 
 
-
-tabla.innerHTML="";
-
+    BD.usuarios.forEach((u,index)=>{
 
 
+        cuerpo.innerHTML+=`
 
+        <tr>
 
+            <td>${u.usuario}</td>
 
-BD.usuarios.forEach(u=>{
+            <td>${u.tipo}</td>
 
+            <td>
 
+                <button onclick="eliminarUsuario(${index})">
+                Eliminar
+                </button>
 
-let fila =
-document.createElement(
-"tr"
-);
+            </td>
 
+        </tr>
 
+        `;
 
-fila.innerHTML =
-`
-
-<td>${u.usuario}</td>
-
-<td>${u.tipo}</td>
-
-<td></td>
-
-`;
-
-
-
-
-
-let acciones =
-fila.children[2];
-
-
-
-
-
-acciones.appendChild(
-crearBoton(
-"Editar",
-()=>editarUsuario(u.usuario)
-)
-);
-
-
-
-
-if(
-u.usuario!=="Admin"
-){
-
-
-
-acciones.appendChild(
-crearBoton(
-"Eliminar",
-()=>eliminarUsuario(u.usuario)
-)
-);
-
+    });
 
 }
 
 
 
-
-
-
-tabla.appendChild(
-fila
-);
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-
+// Modal nuevo usuario
 
 function abrirNuevoUsuario(){
 
+    const fondo=document.getElementById("modalFondo");
+    const contenido=document.getElementById("modalContenido");
 
 
-abrirModal();
+    contenido.innerHTML=`
+
+    <h3>Nuevo usuario</h3>
+
+    <input id="usuarioNuevo" placeholder="Usuario">
+
+    <input id="pinNuevo" 
+    placeholder="PIN"
+    maxlength="4">
+
+    <select id="tipoNuevo">
+
+        <option value="Operador">
+        Operador
+        </option>
+
+        <option value="Administrador">
+        Administrador
+        </option>
+
+    </select>
 
 
+    <button onclick="guardarUsuario()">
 
-let caja =
-document.getElementById(
-"modalContenido"
-);
+        Guardar
 
+    </button>
 
-
-caja.innerHTML="";
+    `;
 
 
-
-
-
-crearInputModal(
-caja,
-"Nombre",
-"nuevoUsuario"
-);
-
-
-
-crearInputModal(
-caja,
-"PIN",
-"nuevoPin",
-true
-);
-
-
-
-crearInputModal(
-caja,
-"Reingrese PIN",
-"nuevoPin2",
-true
-);
-
-
-
-
-
-let select =
-document.createElement(
-"select"
-);
-
-
-
-select.id =
-"nuevoTipo";
-
-
-
-select.innerHTML =
-`
-
-<option>
-Normal
-</option>
-
-
-<option>
-Administrador
-</option>
-
-
-`;
-
-
-
-
-caja.appendChild(
-select
-);
-
-
-
-
-
-caja.appendChild(
-crearBoton(
-"Aceptar",
-guardarNuevoUsuario
-)
-);
-
-
-
-
+    fondo.classList.add("activo");
 
 }
 
 
 
+// Guarda usuario
+
+function guardarUsuario(){
+
+    const usuario=
+    document.getElementById("usuarioNuevo").value.trim();
+
+
+    const pin=
+    document.getElementById("pinNuevo").value.trim();
+
+
+    const tipo=
+    document.getElementById("tipoNuevo").value;
 
 
 
+    if(!usuario || !pin){
+
+        return;
+
+    }
 
 
 
-function guardarNuevoUsuario(){
+    BD.usuarios.push({
+
+        usuario,
+        pin,
+        tipo
+
+    });
 
 
 
-let nombre =
-document
-.getElementById(
-"nuevoUsuario")
-.value;
+    guardarBD();
 
 
-
-let pin =
-document
-.getElementById(
-"nuevoPin")
-.value;
+    cerrarModal();
 
 
-
-let pin2 =
-document
-.getElementById(
-"nuevoPin2")
-.value;
+    cargarUsuarios();
 
 
-
-let tipo =
-document
-.getElementById(
-"nuevoTipo")
-.value;
-
-
-
-
-
-
-
-
-if(
-!nombre ||
-!pin ||
-!pin2
-){
-
-
-alert(
-"Complete todos los datos"
-);
-
-
-return;
+    escribirConsola(
+        "Usuario creado: "+usuario
+    );
 
 }
 
 
 
-if(
-!/^\d{4}$/.test(pin)
-){
+// Elimina usuario
+
+function eliminarUsuario(index){
+
+    const usuario=BD.usuarios[index];
 
 
-alert(
-"PIN inválido"
-);
+    // El administrador principal no puede eliminarse
+
+    if(usuario.usuario==="Admin"){
+
+        alert(
+            "El usuario Admin no puede eliminarse"
+        );
+
+        return;
+
+    }
 
 
-
-return;
-
-}
+    BD.usuarios.splice(index,1);
 
 
+    guardarBD();
 
 
-
-if(pin!==pin2){
-
-
-alert(
-"Los PIN no coinciden"
-);
+    cargarUsuarios();
 
 
-
-return;
-
-
-}
-
-
-
-
-
-
-BD.usuarios.push({
-
-usuario:nombre,
-
-tipo,
-
-pin
-
-
-
-});
-
-
-
-
-
-
-registrarHistorial({
-
-usuario:
-usuarioActivo,
-
-
-accion:
-"Usuario creado",
-
-
-detalles:
-nombre
-
-
-});
-
-
-
-
-
-
-guardarBD();
-
-
-cerrarModal();
-
-
-cargarUsuarios();
-
-
+    escribirConsola(
+        "Usuario eliminado"
+    );
 
 }
 
 
 
+// Cierre modal compartido
 
+function cerrarModal(){
 
-
-
-
-
-function editarUsuario(nombre){
-
-
-
-autorizarAdmin(()=>{
-
-
-
-usuarioEditando =
-BD.usuarios.find(u=>
-
-u.usuario===nombre
-
-);
-
-
-
-
-
-
-abrirModal();
-
-
-
-let caja =
-document.getElementById(
-"modalContenido"
-);
-
-
-
-caja.innerHTML="";
-
-
-
-
-
-
-crearInputModal(
-caja,
-"Nombre",
-"editarUsuario"
-);
-
-
-
-document
-.getElementById(
-"editarUsuario")
-.value =
-usuarioEditando.usuario;
-
-
-
-
-
-
-
-let select =
-document.createElement(
-"select"
-);
-
-
-
-select.id =
-"editarTipo";
-
-
-
-select.innerHTML =
-`
-
-<option>
-Normal
-</option>
-
-<option>
-Administrador
-</option>
-
-`;
-
-
-
-select.value =
-usuarioEditando.tipo;
-
-
-
-caja.appendChild(
-select
-);
-
-
-
-
-
-crearInputModal(
-caja,
-"Nuevo PIN",
-"editarPin",
-true
-);
-
-
-
-
-
-
-
-caja.appendChild(
-crearBoton(
-"Guardar",
-guardarEdicionUsuario
-)
-);
-
-
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function guardarEdicionUsuario(){
-
-
-
-usuarioEditando.usuario =
-document
-.getElementById(
-"editarUsuario")
-.value;
-
-
-
-usuarioEditando.tipo =
-document
-.getElementById(
-"editarTipo")
-.value;
-
-
-
-let pin =
-document
-.getElementById(
-"editarPin")
-.value;
-
-
-
-
-
-
-if(pin){
-
-
-
-if(
-!/^\d{4}$/.test(pin)
-){
-
-
-alert(
-"PIN inválido"
-);
-
-
-return;
-
-
-}
-
-
-usuarioEditando.pin =
-pin;
-
-
-
-}
-
-
-
-
-
-
-registrarHistorial({
-
-usuario:
-usuarioActivo,
-
-accion:
-"Usuario editado",
-
-detalles:
-usuarioEditando.usuario
-
-});
-
-
-
-
-
-guardarBD();
-
-
-cerrarModal();
-
-
-cargarUsuarios();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function eliminarUsuario(nombre){
-
-
-
-autorizarAdmin(()=>{
-
-
-
-if(
-nombre==="Admin"
-)
-return;
-
-
-
-
-
-BD.usuarios =
-BD.usuarios.filter(u=>
-
-u.usuario!==nombre
-
-);
-
-
-
-
-
-
-registrarHistorial({
-
-usuario:
-usuarioActivo,
-
-
-accion:
-"Usuario eliminado",
-
-
-detalles:
-nombre
-
-
-});
-
-
-
-
-
-guardarBD();
-
-
-cargarUsuarios();
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function autorizarAdmin(funcion){
-
-
-
-let pin =
-prompt(
-"Ingrese PIN administrador"
-);
-
-
-
-
-
-if(
-pin==="9999"
-||
-BD.usuarios.some(u=>
-
-u.tipo==="Administrador"
-&&
-u.pin===pin
-
-)
-){
-
-
-
-funcion();
-
-
-
-}
-
-else{
-
-
-alert(
-"PIN incorrecto"
-);
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function crearInputModal(
-caja,
-texto,
-id,
-password=false
-){
-
-
-
-let input =
-document.createElement(
-"input"
-);
-
-
-
-input.id=id;
-
-input.placeholder=texto;
-
-
-
-if(password)
-input.type="password";
-
-
-
-caja.appendChild(
-input
-);
-
-
+    document
+    .getElementById("modalFondo")
+    .classList.remove("activo");
 
 }
