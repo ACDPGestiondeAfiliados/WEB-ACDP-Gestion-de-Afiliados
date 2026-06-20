@@ -149,16 +149,60 @@
 
 <!-- CONFIGURACIÓN -->
 <section id="configuracion" class="seccion">
-    <h2>Configuración y Monto</h2><br><p>Bienvenido a configuración, desde acá, podés ver un registro fiel de todas las acciones llevadas a cabo durante el día, y quienes las han realizado. También podés editar el monto de cuota actual. Solo los administradores tienen acceso a esta zona, recordá que cualquier cambio que realices podría provocar fallos o problemas en el sistema y será tu responsabilidad.</p>
 
+    <h2>Configuración y Monto</h2>
+
+    <br>
+
+    <p>
+        Bienvenido a configuración, desde acá podés ver un registro fiel de todas las acciones realizadas en el sistema.
+        También podés editar el monto de cuota actual.
+        Solo administradores tienen acceso.
+        Cualquier cambio será registrado en el sistema.
+    </p>
+
+    <!-- =============================== -->
+    <!-- BLOQUE CONFIGURACIÓN -->
+    <!-- =============================== -->
     <div class="bloque">
         <label>Monto cuota:</label>
-        <input id="montoConfiguracion">
+        <input id="montoConfiguracion" class="inputNumero">
         <button id="guardarConfiguracion">Guardar</button>
     </div>
 
+    <!-- =============================== -->
+    <!-- CONSOLA SISTEMA -->
+    <!-- =============================== -->
     <h3>Registro del sistema</h3>
-    <div id="consolaSistema"></div>
+
+    <div id="contenedorLogs">
+
+        <!-- CONSOLA VISUAL -->
+        <div id="consolaSistema"></div>
+
+        <!-- INPUT COMANDOS -->
+        <input
+            id="inputLogs"
+            type="text"
+            placeholder="> escribir comando (ej: >todo, >filtrarusuarioDANTE)"
+            autocomplete="off"
+        >
+
+        <!-- AYUDA DE COMANDOS -->
+        <div class="ayudaLogs">
+
+            <b>COMANDOS DISPONIBLES</b><br><br>
+
+            >todo → muestra todos los logs<br>
+            >filtrarusuarioNOMBRE → filtra por usuario<br>
+            >buscardni12345678 → busca DNI en acciones<br>
+            >buscarfecha12-02 → filtra por fecha (dd-mm)<br>
+            >buscaraccionTIPO → filtra por tipo de acción<br>
+
+        </div>
+
+    </div>
+
 </section>
 
 </main>
