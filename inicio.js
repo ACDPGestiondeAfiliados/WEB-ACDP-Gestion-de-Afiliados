@@ -7,15 +7,13 @@ let usuarioActivo = "Admin";
 
 
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+window.onload = function(){
 
 
 iniciarApp();
 
 
-});
+};
 
 
 
@@ -25,76 +23,41 @@ iniciarApp();
 function iniciarApp(){
 
 
-
 document
-.getElementById(
-"usuarioActivo"
-)
+.getElementById("usuarioActivo")
 .textContent =
 "Usuario: "+usuarioActivo;
 
 
 
 
-
-activarNavegacion();
-
-
-
-activarCerrarModal();
-
-
-
-mostrarSeccion("cobrar");
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function activarNavegacion(){
-
-
-
 document
-.querySelectorAll(
-".menu button"
-)
+.querySelectorAll(".menu button")
 .forEach(boton=>{
 
 
-boton.onclick =
-()=>{
-
-
-let destino =
-boton.dataset.seccion;
-
+boton.addEventListener(
+"click",
+function(){
 
 
 mostrarSeccion(
-destino
+this.dataset.seccion
 );
 
 
-
-};
-
+});
 
 
 });
 
 
 
-}
 
+mostrarSeccion("cobrar");
+
+
+};
 
 
 
@@ -108,13 +71,11 @@ function mostrarSeccion(id){
 
 
 document
-.querySelectorAll(
-".seccion"
-)
-.forEach(seccion=>{
+.querySelectorAll(".seccion")
+.forEach(s=>{
 
 
-seccion.classList.remove(
+s.classList.remove(
 "activa"
 );
 
@@ -125,171 +86,65 @@ seccion.classList.remove(
 
 
 
-let seccion =
+let objetivo =
 document.getElementById(id);
 
 
 
 
-
-if(!seccion)
-return;
+if(objetivo){
 
 
-
-
-
-seccion.classList.add(
+objetivo.classList.add(
 "activa"
 );
 
 
-
-
-
-
-switch(id){
-
-
-case "afiliados":
-
-if(typeof cargarAfiliados==="function")
-cargarAfiliados();
-
-break;
-
-
-
-
-case "cobrar":
-
-if(typeof cargarCobrar==="function")
-cargarCobrar();
-
-break;
-
-
-
-
-case "historial":
-
-if(typeof cargarHistorial==="function")
-cargarHistorial();
-
-break;
-
-
-
-
-case "usuarios":
-
-if(typeof cargarUsuarios==="function")
-cargarUsuarios();
-
-break;
-
-
-
-
-case "configuracion":
-
-if(typeof cargarConfiguracion==="function")
-cargarConfiguracion();
-
-break;
-
-
-
 }
 
 
 
 }
-
-
-
-
-
-
 
 
 
 function abrirModal(){
 
 
-
 document
-.getElementById(
-"modalFondo"
-)
-.classList.add(
-"visible"
-);
-
+.getElementById("modalFondo")
+.classList.add("visible");
 
 
 }
-
-
-
-
-
-
 
 
 
 function cerrarModal(){
 
 
-
 document
-.getElementById(
-"modalFondo"
-)
-.classList.remove(
-"visible"
-);
+.getElementById("modalFondo")
+.classList.remove("visible");
+
+
+}
 
 
 
 document
-.getElementById(
-"modalContenido"
-)
-.innerHTML="";
+.addEventListener(
+"click",
+function(e){
 
 
+if(
+e.target.id==="cerrarModal"
+){
 
-}
-
-
-
-
-
-
-
-
-function activarCerrarModal(){
-
-
-
-let boton =
-document.getElementById(
-"cerrarModal"
-);
-
-
-
-
-if(boton){
-
-
-boton.onclick =
-cerrarModal;
-
+cerrarModal();
 
 }
 
 
-
-}
+});
