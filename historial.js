@@ -1,330 +1,167 @@
-// =====================================
-// ACDP - HISTORIAL
-// =====================================
+/* =====================================
+   ACDP - HISTORIAL
+===================================== */
 
 
-let fechaHistorial = new Date();
+let fechaHistorialActual = new Date();
+
+let filtroHistorialActual = "";
+
+
+
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+iniciarHistorial();
+
+
+});
+
+
+
+
+
+
+
+
+
+function iniciarHistorial(){
+
+
+
+document
+.getElementById(
+"historialAnterior")
+.onclick =
+()=>{
+
+
+cambiarDiaHistorial(-1);
+
+
+};
+
+
+
+
+
+
+document
+.getElementById(
+"historialSiguiente")
+.onclick =
+()=>{
+
+
+cambiarDiaHistorial(1);
+
+
+};
+
+
+
+
+
+
+document
+.getElementById(
+"filtroHistorial")
+.addEventListener(
+"input",
+()=>{
+
+
+filtroHistorialActual =
+limpiarNumero(
+document.getElementById(
+"filtroHistorial"
+).value
+);
+
+
+
+cargarHistorial();
+
+
+
+});
+
+
+
+
+
+
+document
+.getElementById(
+"btnImprimirHistorial")
+.onclick =
+()=>{
+
+
+imprimirTabla(
+"tablaHistorial"
+);
+
+
+
+};
+
+
+
+}
+
+
+
+
+
+
 
 
 
 function cargarHistorial(){
 
 
-    let contenedor =
-    document.getElementById(
-        "contenidoHistorial"
-    );
 
+actualizarFechaHistorial();
 
 
-    let fechaTexto =
-    formatoFechaHistorial(
-        fechaHistorial
-    );
 
 
 
-    let registros =
-    obtenerHistorialDia(
-        fechaTexto
-    );
+let tabla =
+document
+.querySelector(
+"#tablaHistorial tbody"
+);
 
 
 
+tabla.innerHTML="";
 
 
-    let html = `
 
 
-    <h2>
-    HISTORIAL
-    </h2>
 
 
 
-    <p class="centrado">
+let fecha =
+formatoFecha(
+fechaHistorialActual
+);
 
-    Bienvenido ${usuarioActivo || ""}
 
-    desde el HISTORIAL, podés ver todos los movimientos realizados el día de hoy
 
-    </p>
 
 
 
-    <div class="navegacionFecha">
 
-
-    <button onclick="diaAnteriorHistorial()">
-    <
-    </button>
-
-
-
-    <b>
-    ${fechaTexto}
-    </b>
-
-
-
-    <button onclick="diaSiguienteHistorial()">
-    >
-    </button>
-
-
-
-    </div>
-
-
-
-
-
-    <br>
-
-
-
-    <input
-
-    id="buscarHistorial"
-
-    maxlength="8"
-
-    placeholder="DNI o Nro Afiliado"
-
-    oninput="filtrarHistorial()"
-
-    >
-
-
-
-    <button onclick="imprimirHistorial()">
-
-    Imprimir
-
-    </button>
-
-
-
-
-    <br><br>
-
-
-
-
-
-    <table>
-
-
-    <thead>
-
-    <tr>
-
-    <th>
-    Usuario
-    </th>
-
-    <th>
-    Afiliado
-    </th>
-
-    <th>
-    DNI
-    </th>
-
-    <th>
-    Nro Afiliado
-    </th>
-
-    <th>
-    Fecha
-    </th>
-
-    <th>
-    Hora
-    </th>
-
-    <th>
-    Acción
-    </th>
-
-    <th>
-    Detalles
-    </th>
-
-
-    </tr>
-
-
-    </thead>
-
-
-
-    <tbody id="tablaHistorial">
-
-
-    `;
-
-
-
-
-    registros.forEach(r=>{
-
-
-        html += crearFilaHistorial(r);
-
-
-
-    });
-
-
-
-
-    html += `
-
-
-    </tbody>
-
-
-    </table>
-
-
-
-    <h3>
-
-    Monto:
-    $
-    <span id="montoDia">
-
-    ${calcularMontoDia(registros)}
-
-    </span>
-
-
-    </h3>
-
-
-    `;
-
-
-
-
-    contenedor.innerHTML =
-    html;
-
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function crearFilaHistorial(r){
-
-
-
-return `
-
-
-<tr>
-
-
-<td>
-
-${r.usuario}
-
-</td>
-
-
-<td>
-
-${r.afiliado}
-
-</td>
-
-
-
-<td>
-
-${r.dni}
-
-</td>
-
-
-
-<td>
-
-${r.numero}
-
-</td>
-
-
-
-<td>
-
-${r.fecha}
-
-</td>
-
-
-
-<td>
-
-${r.hora}
-
-</td>
-
-
-
-
-<td>
-
-${r.accion}
-
-
-</td>
-
-
-
-
-
-<td>
-
-${r.detalles || "SIN DETALLES"}
-
-
-</td>
-
-
-
-</tr>
-
-
-
-`;
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function obtenerHistorialDia(fecha){
-
-
-
-return BD.historial.filter(h=>
+let lista =
+BD.historial.filter(h=>
 
 h.fecha===fecha
 
@@ -332,6 +169,26 @@ h.fecha===fecha
 
 
 
+
+
+
+if(
+filtroHistorialActual.length===8
+){
+
+
+
+lista =
+lista.filter(h=>
+
+h.dni===filtroHistorialActual
+||
+h.numero===filtroHistorialActual
+
+);
+
+
+
 }
 
 
@@ -343,15 +200,150 @@ h.fecha===fecha
 
 
 
-function diaAnteriorHistorial(){
+lista.forEach(h=>{
 
 
 
-fechaHistorial.setDate(
+let fila =
+document.createElement(
+"tr"
+);
 
-fechaHistorial.getDate()-1
+
+
+
+
+fila.innerHTML =
+`
+
+<td>${h.usuario}</td>
+
+<td>${h.afiliado}</td>
+
+<td>${h.dni}</td>
+
+<td>${h.numero}</td>
+
+<td>${h.fecha}</td>
+
+<td>${h.hora}</td>
+
+<td></td>
+
+<td>${h.detalles}</td>
+
+`;
+
+
+
+
+
+
+let acciones =
+fila.children[6];
+
+
+
+
+
+
+if(
+h.accion==="Pago registrado"
+&&
+!h.cancelado
+){
+
+
+
+
+
+acciones.appendChild(
+crearBoton(
+"Reimprimir",
+()=>reimprimirDesdeHistorial(h)
+)
+);
+
+
+
+
+
+
+acciones.appendChild(
+crearBoton(
+"Eliminar",
+()=>cancelarPagoHistorial(h)
+)
+);
+
+
+
+
+}
+
+else
+if(h.cancelado)
+{
+
+
+fila.classList.add(
+"fila-bloqueada"
+);
+
+
+
+acciones.textContent =
+"Cancelado";
+
+
+
+}
+
+
+
+
+
+tabla.appendChild(
+fila
+);
+
+
+
+});
+
+
+
+
+
+
+actualizarMontoHistorial(
+lista
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+function cambiarDiaHistorial(dias){
+
+
+
+fechaHistorialActual.setDate(
+
+fechaHistorialActual.getDate()
++
+dias
 
 );
+
 
 
 
@@ -367,19 +359,20 @@ cargarHistorial();
 
 
 
-function diaSiguienteHistorial(){
+
+
+function actualizarFechaHistorial(){
 
 
 
-fechaHistorial.setDate(
-
-fechaHistorial.getDate()+1
-
+document
+.getElementById(
+"fechaHistorial")
+.textContent =
+formatoFecha(
+fechaHistorialActual
 );
 
-
-
-cargarHistorial();
 
 
 }
@@ -392,22 +385,14 @@ cargarHistorial();
 
 
 
-function formatoFechaHistorial(fecha){
+function formatoFecha(f){
+
 
 
 return (
 
-String(fecha.getDate())
-.padStart(2,"0")
-
-+
-
-"/"
-
-+
-
 String(
-fecha.getMonth()+1
+f.getDate()
 )
 .padStart(2,"0")
 
@@ -417,7 +402,19 @@ fecha.getMonth()+1
 
 +
 
-fecha.getFullYear()
+String(
+f.getMonth()+1
+)
+.padStart(2,"0")
+
++
+
+"/"
+
++
+
+f.getFullYear()
+
 
 );
 
@@ -433,176 +430,231 @@ fecha.getFullYear()
 
 
 
-function filtrarHistorial(){
+function actualizarMontoHistorial(lista){
 
 
 
-let valor =
-document.getElementById(
-"buscarHistorial"
-).value;
-
-
-
-valor =
-valor.replace(/\D/g,"");
-
-
-
-
-if(valor.length!==8){
-
-
-cargarHistorial();
-
-return;
-
-
-}
-
-
-
-
-
-let filas =
-BD.historial.filter(h=>
-
-(h.dni===valor ||
-h.numero===valor)
-
-&&
-
-h.fecha===formatoFechaHistorial(fechaHistorial)
-
-);
-
-
-
-
-let cuerpo =
-document.getElementById(
-"tablaHistorial"
-);
-
-
-
-cuerpo.innerHTML="";
-
-
-
-filas.forEach(r=>{
-
-
-cuerpo.innerHTML +=
-crearFilaHistorial(r);
-
-
-
-});
-
-
-
-
-
-}
+let total = 0;
 
 
 
 
 
 
+lista.forEach(h=>{
 
-
-
-function calcularMontoDia(lista){
-
-
-
-let total=0;
-
-
-
-lista.forEach(r=>{
 
 
 if(
-r.accion==="Pago registrado"
+h.accion==="Pago registrado"
+&&
+!h.cancelado
 ){
+
 
 
 let pago =
 BD.pagos.find(p=>
 
-p.fecha===r.fecha
+p.fecha===h.fecha
 &&
-p.hora===r.hora
+p.hora===h.hora
 &&
-p.numero===r.numero
+p.numero===h.numero
 
 );
 
 
 
+
 if(pago){
 
-total+=pago.monto;
+total += pago.monto;
 
 }
 
 
+
 }
+
 
 
 });
 
 
 
-if(total<0){
 
-total=0;
+
+
+
+document
+.getElementById(
+"montoHistorial")
+.textContent =
+"$"+
+formatoPesos(total);
+
+
 
 }
 
 
 
-return formatearPesos(total);
-
-
-
-}
 
 
 
 
 
 
-
-
-function imprimirHistorial(){
+function reimprimirDesdeHistorial(h){
 
 
 
-if(typeof generarPDF==="function"){
+let pago =
+BD.pagos.find(p=>
 
-
-generarPDF(
-
-"historial"
+p.numero===h.numero
+&&
+p.fecha===h.fecha
+&&
+p.hora===h.hora
 
 );
 
 
-}
 
-else{
 
+if(!pago){
 
 alert(
-"Impresión preparada próximamente"
+"Pago no encontrado"
+);
+
+return;
+
+}
+
+
+
+
+imprimirComprobante(
+pago
 );
 
 
+
 }
+
+
+
+
+
+
+
+
+
+function cancelarPagoHistorial(h){
+
+
+
+let confirmar =
+confirm(
+"¿Desea cancelar este pago?"
+);
+
+
+
+if(!confirmar)
+return;
+
+
+
+
+
+
+
+h.cancelado = true;
+
+
+
+
+
+
+let pago =
+BD.pagos.find(p=>
+
+p.numero===h.numero
+&&
+p.fecha===h.fecha
+&&
+p.hora===h.hora
+
+);
+
+
+
+
+
+
+if(pago){
+
+
+pago.activo=false;
+
+
+}
+
+
+
+
+
+
+
+
+registrarHistorial({
+
+usuario:
+usuarioActivo,
+
+
+afiliado:
+h.afiliado,
+
+
+dni:
+h.dni,
+
+
+numero:
+h.numero,
+
+
+
+accion:
+"Pago cancelado",
+
+
+detalles:
+"Pago eliminado"
+
+
+
+});
+
+
+
+
+
+
+
+guardarBD();
+
+
+
+
+
+cargarHistorial();
+
 
 
 }
