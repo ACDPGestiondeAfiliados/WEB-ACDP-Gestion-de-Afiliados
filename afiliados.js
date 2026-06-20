@@ -107,7 +107,8 @@ function eventosAfiliados(){
 
 function cargarAfiliados(){
 
-    listaAfiliados=BD_afiliados;
+    listaAfiliados=
+    [...BD_afiliados].reverse();
 
     mostrarTabla();
 
