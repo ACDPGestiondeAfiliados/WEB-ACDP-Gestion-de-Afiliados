@@ -1,104 +1,126 @@
 // ===============================
 // IMPRESIÓN ACDP
-// Vista previa y generación temporal
-// de comprobantes
+// Ficha individual de afiliado
+// Generación temporal para imprimir
 // ===============================
 
 
-function generarPDF(datos){
+function generarPDF(afiliado){
 
-    abrirVistaImpresion(datos);
+    abrirVistaImpresion(afiliado);
 
 }
 
 
 
-// Abre vista previa en modal
+// ===============================
+// Vista previa impresión
+// ===============================
 
-function abrirVistaImpresion(datos){
-
-    const fondo=document.getElementById("modalFondo");
-    const contenido=document.getElementById("modalContenido");
-
-
-    if(!fondo || !contenido){
-
-        return;
-
-    }
+function abrirVistaImpresion(afiliado){
 
 
-
-    let filas="";
-
-
-    datos.forEach(d=>{
+const fondo=document.getElementById("modalFondo");
+const contenido=document.getElementById("modalContenido");
 
 
-        filas+=`
+if(!fondo || !contenido){
 
-        <tr>
+    return;
 
-            <td>${d.afiliado||""}</td>
-            <td>${d.dni||""}</td>
-            <td>${d.fecha||""}</td>
-            <td>${d.detalle||""}</td>
-
-        </tr>
-
-        `;
-
-
-    });
+}
 
 
 
-    contenido.innerHTML=`
+contenido.innerHTML=`
 
-    <h2>ACDP</h2>
-
-    <h3>Comprobante</h3>
+<div class="fichaImpresion">
 
 
-    <table>
+<h2>ACDP</h2>
 
-        <thead>
-
-            <tr>
-
-                <th>Afiliado</th>
-                <th>DNI</th>
-                <th>Fecha</th>
-                <th>Detalle</th>
-
-            </tr>
-
-        </thead>
-
-
-        <tbody>
-
-            ${filas}
-
-        </tbody>
-
-
-    </table>
-
-
-    <br>
-
-
-    <button onclick="window.print()">
-
-        Imprimir
-
-    </button>
-
-    `;
+<h3>Ficha de afiliado</h3>
 
 
 
-    fondo.classList.add("activo");
+<hr>
+
+
+
+<div class="datosFicha">
+
+
+<p>
+<strong>Número afiliado:</strong>
+${afiliado.numero}
+</p>
+
+
+<p>
+<strong>DNI:</strong>
+${afiliado.dni}
+</p>
+
+
+<p>
+<strong>Nombre:</strong>
+${afiliado.nombre}
+</p>
+
+
+<p>
+<strong>Apellido:</strong>
+${afiliado.apellido}
+</p>
+
+
+<p>
+<strong>Celular:</strong>
+${afiliado.celular}
+</p>
+
+
+<p>
+<strong>Correo:</strong>
+${afiliado.correo}
+</p>
+
+
+<p>
+<strong>Estado:</strong>
+${afiliado.estado}
+</p>
+
+
+<p>
+<strong>Fecha alta:</strong>
+${afiliado.fecha}
+</p>
+
+
+</div>
+
+
+
+<br>
+
+
+
+<button onclick="window.print()">
+
+Imprimir ficha
+
+</button>
+
+
+
+</div>
+
+`;
+
+
+
+fondo.classList.add("activo");
+
 
 }
