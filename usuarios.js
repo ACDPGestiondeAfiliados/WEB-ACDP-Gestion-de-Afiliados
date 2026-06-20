@@ -7,13 +7,17 @@ document.addEventListener("DOMContentLoaded", () => {
     iniciarUsuarios();
 });
 
-// Inicializa módulo
+// ===============================
+// INICIALIZACIÓN
+// ===============================
 function iniciarUsuarios() {
     cargarUsuarios();
     eventosUsuarios();
 }
 
-// Eventos principales
+// ===============================
+// EVENTOS GENERALES
+// ===============================
 function eventosUsuarios() {
     const nuevo = document.getElementById("btnNuevoUsuario");
 
@@ -23,9 +27,10 @@ function eventosUsuarios() {
 }
 
 // ===============================
-// CARGA TABLA USUARIOS
+// RENDER TABLA
 // ===============================
 function cargarUsuarios() {
+
     const cuerpo = document
         .getElementById("tablaUsuarios")
         .querySelector("tbody");
@@ -76,7 +81,7 @@ function abrirNuevoUsuario() {
             inputmode="numeric"
         >
 
-        <div id="msgPin" style="font-size:12px;color:#c00;margin-top:5px;"></div>
+        <div id="msgPin" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
         <select id="tipoNuevo">
             <option value="Normal">Normal</option>
@@ -104,13 +109,18 @@ function aplicarValidacionesUsuario() {
     const boton = document.getElementById("btnGuardarUsuario");
     const msg = document.getElementById("msgPin");
 
+    // ⚠️ evitar duplicar eventos si se abre varias veces el modal
+    usuarioInput.oninput = null;
+    pinInput.oninput = null;
+    confirmInput.oninput = null;
+    boton.onclick = null;
+
     function validar() {
 
         const usuario = usuarioInput.value.trim();
         const pin = pinInput.value.trim();
         const pin2 = confirmInput.value.trim();
 
-        // usuario duplicado
         const existe = BD_usuarios.some(
             u => u.usuario.toLowerCase() === usuario.toLowerCase()
         );
@@ -119,43 +129,60 @@ function aplicarValidacionesUsuario() {
         const pinOk = pin.length === 4;
         const pinCoincide = pin === pin2;
 
-        // mensaje en vivo
-        if (pin.length > 0 && pin2.length > 0 && !pinCoincide) {
-            msg.textContent = "PIN no coincide";
-        } else if (existe) {
+        // mensajes en vivo
+        if (usuario.length >= 4 && existe) {
             msg.textContent = "Usuario ya existe";
-        } else {
+        }
+        else if (pin.length > 0 && pin2.length > 0 && !pinCoincide) {
+            msg.textContent = "PIN no coincide";
+        }
+        else {
             msg.textContent = "";
         }
 
         boton.disabled = !(usuarioOk && pinOk && pinCoincide);
     }
 
-    // usuario: solo letras + acentos + espacios
-    usuarioInput.addEventListener("input", () => {
+    // ===============================
+    // INPUT USUARIO
+    // ===============================
+    usuarioInput.oninput = () => {
+
         usuarioInput.value = usuarioInput.value
             .replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "")
             .slice(0, 20);
 
         validar();
-    });
+    };
 
-    // PIN solo números
-    pinInput.addEventListener("input", () => {
+    // ===============================
+    // INPUT PIN
+    // ===============================
+    pinInput.oninput = () => {
+
         pinInput.value = pinInput.value
             .replace(/\D/g, "")
             .slice(0, 4);
 
         validar();
-    });
+    };
 
-    confirmInput.addEventListener("input", () => {
+    // ===============================
+    // CONFIRMAR PIN
+    // ===============================
+    confirmInput.oninput = () => {
+
         confirmInput.value = confirmInput.value
             .replace(/\D/g, "")
             .slice(0, 4);
 
         validar();
-    });
+    };
+
+    // ===============================
+    // BOTÓN GUARDAR (ÚNICO EVENTO)
+    // ===============================
+    boton.onclick = guardarUsuario;
 
     validar();
 }
