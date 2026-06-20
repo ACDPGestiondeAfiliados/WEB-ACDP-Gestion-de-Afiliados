@@ -1,6 +1,6 @@
 // ===============================
 // INICIO ACDP
-// Control general de interfaz + accesos
+// Control general de interfaz + accesos + sesión
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,11 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// SESIÓN SIMPLE
+// SESIÓN ACTIVA
 // ===============================
-let sesion = {
-    tipo: null // "Normal" | "Administrador"
-};
+let usuarioActivo = null;
 
 // ===============================
 // CONTROL DE ACCESO GLOBAL
@@ -26,7 +24,6 @@ let sesion = {
 function iniciarAccesoGlobal() {
 
     const botones = document.querySelectorAll(".menu button");
-    const secciones = document.querySelectorAll(".seccion");
 
     botones.forEach(boton => {
 
@@ -35,10 +32,9 @@ function iniciarAccesoGlobal() {
             const destino = boton.getAttribute("data-seccion");
 
             if (destino === "usuarios" || destino === "configuracion") {
-                pedirPinAdmin(() => abrirSeccion(destino));
-            }
-            else {
-                pedirPinUsuario(() => abrirSeccion(destino));
+                pedirPinAdmin(() => loginYabrir(destino));
+            } else {
+                pedirPinUsuario(() => loginYabrir(destino));
             }
 
         });
@@ -48,13 +44,21 @@ function iniciarAccesoGlobal() {
 }
 
 // ===============================
+// LOGIN + CAMBIO DE SECCIÓN
+// ===============================
+function loginYabrir(destino) {
+
+    abrirSeccion(destino);
+    actualizarUsuarioActivo();
+}
+
+// ===============================
 // ABRIR SECCIÓN
 // ===============================
 function abrirSeccion(destino) {
 
-    const secciones = document.querySelectorAll(".seccion");
-
-    secciones.forEach(s => s.classList.remove("activa"));
+    document.querySelectorAll(".seccion")
+        .forEach(s => s.classList.remove("activa"));
 
     const nueva = document.getElementById(destino);
 
@@ -62,7 +66,7 @@ function abrirSeccion(destino) {
 }
 
 // ===============================
-// PIN USUARIO (NORMAL O ADMIN)
+// LOGIN USUARIO (NORMAL O ADMIN)
 // ===============================
 function pedirPinUsuario(callback) {
 
@@ -74,12 +78,7 @@ function pedirPinUsuario(callback) {
 
         <p>Ingrese PIN de usuario o administrador</p>
 
-        <input id="pinAcceso"
-            type="password"
-            placeholder="PIN"
-            maxlength="4"
-            inputmode="numeric"
-        >
+        <input id="pinAcceso" type="password" maxlength="4" inputmode="numeric">
 
         <div id="msgAcceso" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
@@ -92,9 +91,9 @@ function pedirPinUsuario(callback) {
 
         const pin = document.getElementById("pinAcceso").value;
 
-        const esValido =
-            pin === "9999" ||
-            BD_usuarios.some(u => u.pin === pin);
+        const usuario = BD_usuarios.find(u => u.pin === pin);
+
+        const esValido = pin === "9999" || usuario;
 
         if (!esValido) {
             document.getElementById("msgAcceso").textContent =
@@ -102,13 +101,15 @@ function pedirPinUsuario(callback) {
             return;
         }
 
+        usuarioActivo = usuario ? usuario.usuario : "Admin";
+
         cerrarModal();
         callback();
     };
 }
 
 // ===============================
-// PIN SOLO ADMIN
+// LOGIN SOLO ADMIN
 // ===============================
 function pedirPinAdmin(callback) {
 
@@ -120,12 +121,7 @@ function pedirPinAdmin(callback) {
 
         <p>Ingrese PIN de administrador</p>
 
-        <input id="pinAdminAcceso"
-            type="password"
-            placeholder="PIN admin"
-            maxlength="4"
-            inputmode="numeric"
-        >
+        <input id="pinAdminAcceso" type="password" maxlength="4" inputmode="numeric">
 
         <div id="msgAdminAcceso" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
@@ -138,9 +134,11 @@ function pedirPinAdmin(callback) {
 
         const pin = document.getElementById("pinAdminAcceso").value;
 
-        const esAdmin =
-            pin === "9999" ||
-            BD_usuarios.some(u => u.tipo === "Administrador" && u.pin === pin);
+        const usuario = BD_usuarios.find(
+            u => u.pin === pin && u.tipo === "Administrador"
+        );
+
+        const esAdmin = pin === "9999" || usuario;
 
         if (!esAdmin) {
             document.getElementById("msgAdminAcceso").textContent =
@@ -148,17 +146,35 @@ function pedirPinAdmin(callback) {
             return;
         }
 
+        usuarioActivo = usuario ? usuario.usuario : "Admin";
+
         cerrarModal();
         callback();
     };
 }
 
 // ===============================
-// MENÚ BASE (sin seguridad)
+// ACTUALIZAR UI USUARIO ACTIVO
+// ===============================
+function actualizarUsuarioActivo() {
+
+    const cont = document.getElementById("usuarioActivo");
+
+    if (!cont) return;
+
+    if (!usuarioActivo) {
+        cont.innerHTML = "No hay sesión activa";
+        return;
+    }
+
+    cont.innerHTML = `Hola <b>${usuarioActivo}</b>`;
+}
+
+// ===============================
+// MENÚ BASE
 // ===============================
 function iniciarMenu() {
-    // se deja vacío a propósito
-    // ahora el control lo maneja iniciarAccesoGlobal
+    // control manejado por acceso global
 }
 
 // ===============================
@@ -183,17 +199,18 @@ function iniciarModal() {
 }
 
 // ===============================
-// INPUTS NUMÉRICOS
+// NUMÉRICOS
 // ===============================
 function limitarNumeros() {
 
-    const inputs = document.querySelectorAll(".inputNumero");
+    document.querySelectorAll(".inputNumero")
+        .forEach(input => {
 
-    inputs.forEach(input => {
-        input.addEventListener("input", () => {
-            input.value = input.value.replace(/[^0-9]/g, "");
+            input.addEventListener("input", () => {
+                input.value = input.value.replace(/[^0-9]/g, "");
+            });
+
         });
-    });
 }
 
 // ===============================
@@ -202,15 +219,12 @@ function limitarNumeros() {
 function iniciarSistema() {
 
     const consola = document.getElementById("consolaSistema");
-    const usuario = document.getElementById("usuarioActivo");
 
     if (consola) {
         consola.innerHTML = "Sistema ACDP iniciado correctamente.";
     }
 
-    if (usuario) {
-        usuario.innerHTML = "Sesión: Sistema protegido por PIN";
-    }
+    actualizarUsuarioActivo();
 }
 
 // ===============================
