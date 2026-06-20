@@ -151,21 +151,22 @@ function mostrarTabla(){
         <td>${a.estado||"Activo"}</td>
         <td>${a.fecha||""}</td>
 
-        <td>
+<td>
 
-        <button onclick="editarAfiliado('${a.dni}')">
-        Editar
-        </button>
 
-        <button onclick="eliminarAfiliado('${a.dni}')">
-        Eliminar
-        </button>
+<img src="edit.png" width="25%" height="25%" class="iconoHistorial" onclick="editarAfiliado('${a.dni}')" >
 
-        <button onclick="imprimirAfiliado('${a.dni}')">
-        Imprimir
-        </button>
 
-        </td>
+
+<img src="delete.png" width="25%" height="25%" class="iconoHistorial" onclick="eliminarAfiliado('${a.dni}')" >
+
+
+
+<img src="print.png" width="25%" height="25%" class="iconoHistorial" onclick="imprimirAfiliado('${a.dni}')" >
+
+
+
+</td>
 
         </tr>
 
