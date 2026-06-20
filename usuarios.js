@@ -64,11 +64,25 @@ function abrirNuevoUsuario() {
     contenido.innerHTML = `
         <h3>Nuevo usuario</h3>
 
-        <input id="usuarioNuevo" placeholder="Usuario" maxlength="20">
+        <input id="usuarioNuevo"
+            placeholder="Usuario"
+            maxlength="20"
+            autocomplete="off"
+        >
 
-        <input id="pinNuevo" type="password" placeholder="PIN" maxlength="4" inputmode="numeric">
+        <input id="pinNuevo"
+            type="password"
+            placeholder="PIN"
+            maxlength="4"
+            inputmode="numeric"
+        >
 
-        <input id="pinConfirmar" type="password" placeholder="Confirmar PIN" maxlength="4" inputmode="numeric">
+        <input id="pinConfirmar"
+            type="password"
+            placeholder="Confirmar PIN"
+            maxlength="4"
+            inputmode="numeric"
+        >
 
         <div id="msgPin" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
@@ -77,18 +91,19 @@ function abrirNuevoUsuario() {
             <option value="Administrador">Administrador</option>
         </select>
 
-        <button id="btnGuardarUsuario" disabled>Guardar</button>
+        <button id="btnGuardarUsuario" disabled>
+            Guardar
+        </button>
     `;
 
     fondo.classList.add("activo");
+
     aplicarValidacionesUsuario();
 }
 
-//
-// ======================================================
+// ===============================
 // VALIDACIÓN CREAR
-// ======================================================
-//
+// ===============================
 function aplicarValidacionesUsuario() {
 
     const usuarioInput = document.getElementById("usuarioNuevo");
@@ -107,7 +122,7 @@ function aplicarValidacionesUsuario() {
             u => u.usuario.toLowerCase() === usuario.toLowerCase()
         );
 
-        const ok = usuario.length >= 4 && !existe;
+        const usuarioOk = usuario.length >= 4 && !existe;
         const pinOk = pin.length === 4;
         const pinMatch = pin === pin2;
 
@@ -115,7 +130,7 @@ function aplicarValidacionesUsuario() {
         else if (pin && pin2 && !pinMatch) msg.textContent = "PIN no coincide";
         else msg.textContent = "";
 
-        boton.disabled = !(ok && pinOk && pinMatch);
+        boton.disabled = !(usuarioOk && pinOk && pinMatch);
     }
 
     usuarioInput.oninput = () => {
@@ -140,11 +155,9 @@ function aplicarValidacionesUsuario() {
     validar();
 }
 
-//
-// ======================================================
+// ===============================
 // GUARDAR USUARIO
-// ======================================================
-//
+// ===============================
 function guardarUsuario() {
 
     const usuario = document.getElementById("usuarioNuevo").value.trim();
@@ -161,7 +174,11 @@ function guardarUsuario() {
     if (pin !== pin2) return;
     if (existe) return;
 
-    BD_usuarios.push({ usuario, pin, tipo });
+    BD_usuarios.push({
+        usuario,
+        pin,
+        tipo
+    });
 
     guardarBD();
     cerrarModal();
@@ -170,11 +187,9 @@ function guardarUsuario() {
     escribirConsola("Usuario creado: " + usuario);
 }
 
-//
-// ======================================================
+// ===============================
 // ELIMINAR USUARIO
-// ======================================================
-//
+// ===============================
 function eliminarUsuario(index) {
 
     const u = BD_usuarios[index];
@@ -184,58 +199,17 @@ function eliminarUsuario(index) {
         return;
     }
 
-    const fondo = document.getElementById("modalFondo");
-    const contenido = document.getElementById("modalContenido");
+    BD_usuarios.splice(index, 1);
 
-    contenido.innerHTML = `
-        <h3>Confirmar eliminación</h3>
+    guardarBD();
+    cargarUsuarios();
 
-        <p>Ingrese PIN de administrador para continuar</p>
-
-        <input id="adminPinEliminar"
-            type="password"
-            placeholder="PIN administrador"
-            maxlength="4"
-            inputmode="numeric"
-        >
-
-        <div id="msgEliminar" style="font-size:12px;color:#c00;margin-top:6px;"></div>
-
-        <button id="btnConfirmarEliminar">Eliminar usuario</button>
-    `;
-
-    fondo.classList.add("activo");
-
-    document.getElementById("btnConfirmarEliminar").onclick = () => {
-
-        const pin = document.getElementById("adminPinEliminar").value;
-
-        const esAdmin =
-            pin === "9999" ||
-            BD_usuarios.some(x => x.tipo === "Administrador" && x.pin === pin);
-
-        if (!esAdmin) {
-            document.getElementById("msgEliminar").textContent =
-                "Necesita un PIN de administrador";
-            return;
-        }
-
-        BD_usuarios.splice(index, 1);
-
-        guardarBD();
-        cargarUsuarios();
-
-        cerrarModal();
-
-        escribirConsola("Usuario eliminado: " + u.usuario);
-    };
+    escribirConsola("Usuario eliminado: " + u.usuario);
 }
 
-//
-// ======================================================
-// EDITAR USUARIO (NUEVO)
-// ======================================================
-//
+// ===============================
+// EDITAR USUARIO
+// ===============================
 function abrirEditarUsuario(index) {
 
     const u = BD_usuarios[index];
@@ -255,8 +229,6 @@ function abrirEditarUsuario(index) {
             <option value="Administrador" ${u.tipo === "Administrador" ? "selected" : ""}>Administrador</option>
         </select>
 
-        <input id="adminPin" type="password" placeholder="Ingrese PIN de administrador" maxlength="4">
-
         <div id="msgEdit" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
         <button id="btnGuardarEdit">Guardar cambios</button>
@@ -265,18 +237,6 @@ function abrirEditarUsuario(index) {
     fondo.classList.add("activo");
 
     document.getElementById("btnGuardarEdit").onclick = () => {
-
-        const adminPin = document.getElementById("adminPin").value;
-
-        const esAdmin =
-            adminPin === "9999" ||
-            BD_usuarios.some(x => x.tipo === "Administrador" && x.pin === adminPin);
-
-        if (!esAdmin) {
-            document.getElementById("msgEdit").textContent =
-                "Necesita un PIN de administrador";
-            return;
-        }
 
         const nuevoUsuario = document.getElementById("editUsuario").value.trim();
         const nuevoPin = document.getElementById("editPin").value.trim();
@@ -308,11 +268,9 @@ function abrirEditarUsuario(index) {
     };
 }
 
-//
-// ======================================================
+// ===============================
 // CIERRE MODAL
-// ======================================================
-//
+// ===============================
 function cerrarModal() {
     document.getElementById("modalFondo").classList.remove("activo");
 }
