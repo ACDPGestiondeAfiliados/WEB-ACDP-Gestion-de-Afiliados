@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     limitarNumeros();
     iniciarSistema();
     iniciarAccesoGlobal();
-
+    iniciarSesionInicial();
 });
 
 // ===============================
@@ -239,4 +239,36 @@ function iniciarSistema() {
 // ===============================
 function cerrarModal() {
     document.getElementById("modalFondo").classList.remove("activo");
+}
+
+// ===============================
+// ACCESO AL ABRIR / RECARGAR PÁGINA
+// ===============================
+
+function iniciarSesionInicial(){
+
+    // Siempre exigir ingreso al iniciar
+    usuarioActivo = null;
+    window.usuarioActivo = null;
+
+
+    // Ocultar secciones hasta autenticarse
+    document.querySelectorAll(".seccion")
+        .forEach(s=>{
+            s.classList.remove("activa");
+        });
+
+
+    // Abrir modal usando el sistema existente
+    setTimeout(()=>{
+
+        pedirPinUsuario(()=>{
+
+            abrirSeccion("cobrar");
+            actualizarUsuarioActivo();
+
+        });
+
+    },300);
+
 }
