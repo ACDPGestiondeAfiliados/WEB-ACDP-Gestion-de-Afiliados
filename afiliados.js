@@ -120,7 +120,7 @@ function filtrarAfiliados(valor){
 
     if(!valor){
 
-        listaAfiliados=BD.afiliados;
+        listaAfiliados=BD_afiliados;
 
     }else{
 
@@ -286,7 +286,7 @@ function aplicarValidacionesAfiliado(){
 
 function guardarNuevoAfiliado(){
 
-    const ultimoNumero=BD.afiliados.reduce(
+    const ultimoNumero=BD_afiliados.reduce(
 
         (max,a)=>{
 
