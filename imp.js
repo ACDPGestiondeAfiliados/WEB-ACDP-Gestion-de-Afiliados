@@ -109,8 +109,6 @@ box-sizing:border-box;
 
 .izquierda{
 
-width:30%;
-
 display:flex;
 
 align-items:center;
@@ -145,7 +143,7 @@ font-size:20px;
 
 font-weight:bold;
 
-color:#005baa;
+color:#F600FF;
 
 }
 
