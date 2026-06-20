@@ -1,150 +1,114 @@
-/* =====================================
-   ACDP - INICIO
-===================================== */
+// ===============================
+// INICIO DEL SISTEMA ACDP
+// Control general de interfaz
+// ===============================
 
+document.addEventListener("DOMContentLoaded",()=>{
 
-let usuarioActivo = "Admin";
-
-
-
-window.onload = function(){
-
-
-iniciarApp();
-
-
-};
-
-
-
-
-
-
-function iniciarApp(){
-
-
-document
-.getElementById("usuarioActivo")
-.textContent =
-"Usuario: "+usuarioActivo;
-
-
-
-
-document
-.querySelectorAll(".menu button")
-.forEach(boton=>{
-
-
-boton.addEventListener(
-"click",
-function(){
-
-
-mostrarSeccion(
-this.dataset.seccion
-);
-
+    iniciarMenu();
+    iniciarModal();
+    limitarNumeros();
+    iniciarSistema();
 
 });
 
 
-});
+// Cambia las secciones principales
 
+function iniciarMenu(){
 
+    const botones=document.querySelectorAll(".menu button");
+    const secciones=document.querySelectorAll(".seccion");
 
+    botones.forEach(boton=>{
 
-mostrarSeccion("cobrar");
+        boton.addEventListener("click",()=>{
 
+            const destino=boton.dataset.seccion;
 
-};
+            secciones.forEach(seccion=>{
+                seccion.classList.remove("activa");
+            });
 
+            const nueva=document.getElementById(destino);
 
+            if(nueva){
+                nueva.classList.add("activa");
+            }
 
+        });
 
-
-
-
-
-function mostrarSeccion(id){
-
-
-
-document
-.querySelectorAll(".seccion")
-.forEach(s=>{
-
-
-s.classList.remove(
-"activa"
-);
-
-
-});
-
-
-
-
-
-let objetivo =
-document.getElementById(id);
-
-
-
-
-if(objetivo){
-
-
-objetivo.classList.add(
-"activa"
-);
-
+    });
 
 }
 
 
 
-}
+// Control del modal general
+
+function iniciarModal(){
+
+    const fondo=document.getElementById("modalFondo");
+    const cerrar=document.getElementById("cerrarModal");
+
+    cerrar.addEventListener("click",()=>{
+
+        fondo.classList.remove("activo");
+
+    });
 
 
+    fondo.addEventListener("click",(e)=>{
 
-function abrirModal(){
+        if(e.target===fondo){
+            fondo.classList.remove("activo");
+        }
 
-
-document
-.getElementById("modalFondo")
-.classList.add("visible");
-
-
-}
-
-
-
-function cerrarModal(){
-
-
-document
-.getElementById("modalFondo")
-.classList.remove("visible");
-
+    });
 
 }
 
 
 
-document
-.addEventListener(
-"click",
-function(e){
+// Permite solo números en filtros
 
+function limitarNumeros(){
 
-if(
-e.target.id==="cerrarModal"
-){
+    const inputs=document.querySelectorAll(".inputNumero");
 
-cerrarModal();
+    inputs.forEach(input=>{
+
+        input.addEventListener("input",()=>{
+
+            input.value=input.value.replace(/\D/g,"");
+
+        });
+
+    });
 
 }
 
 
-});
+
+// Inicio general
+
+function iniciarSistema(){
+
+    const consola=document.getElementById("consolaSistema");
+
+    if(consola){
+
+        consola.innerHTML="Sistema ACDP iniciado correctamente.";
+
+    }
+
+
+    const usuario=document.getElementById("usuarioActivo");
+
+    if(usuario){
+
+        usuario.innerHTML="Sesión: Administrador";
+
+    }
+
+}
