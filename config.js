@@ -1,100 +1,64 @@
 // ===============================
 // CONFIGURACIÓN DEL SISTEMA ACDP
-// Control de monto de cuota y consola
+// Control de monto de cuota (MEMORIA GLOBAL)
 // ===============================
 
-document.addEventListener("DOMContentLoaded",()=>{
-
-    cargarConfiguracion();
+document.addEventListener("DOMContentLoaded", () => {
 
     iniciarConfiguracion();
+    cargarConfiguracion();
 
 });
 
+// ===============================
+// INICIALIZAR EVENTOS
+// ===============================
+function iniciarConfiguracion() {
 
-// Inicializa eventos de configuración
+    const boton = document.getElementById("guardarConfiguracion");
 
-function iniciarConfiguracion(){
+    if (!boton) return;
 
-    const boton=document.getElementById("guardarConfiguracion");
-
-    if(!boton) return;
-
-
-    boton.addEventListener("click",()=>{
-
-        guardarMonto();
-
-    });
+    boton.addEventListener("click", guardarMonto);
 
 }
 
+// ===============================
+// CARGAR CONFIG EN INPUT
+// ===============================
+function cargarConfiguracion() {
 
+    const input = document.getElementById("montoConfiguracion");
 
-// Carga el monto actual guardado
+    if (!input) return;
 
-function cargarConfiguracion(){
-
-    const input=document.getElementById("montoConfiguracion");
-
-    if(!input) return;
-
-
-    const config=obtenerConfiguracion();
-
-    input.value=config.monto || 0;
+    input.value = BD_configuracion.monto ?? 0;
 
 }
 
+// ===============================
+// GUARDAR MONTO EN MEMORIA GLOBAL
+// ===============================
+function guardarMonto() {
 
+    const input = document.getElementById("montoConfiguracion");
 
-// Guarda nuevo monto de cuota
+    if (!input) return;
 
-function guardarMonto(){
+    const valor = Number(input.value);
 
-    const input=document.getElementById("montoConfiguracion");
-
-    const valor=Number(input.value);
-
-
-    if(valor<0){
-
+    if (isNaN(valor) || valor < 0) {
         escribirConsola("Monto inválido.");
-
         return;
-
     }
 
-
-    actualizarConfiguracion({
-
-        monto:valor
-
-    });
-
+    BD_configuracion.monto = valor;
 
     escribirConsola(
         "Monto actualizado: $" + valor.toFixed(2)
     );
 
-}
-
-
-
-// Escribe mensajes del sistema
-
-function escribirConsola(texto){
-
-    const consola=document.getElementById("consolaSistema");
-
-    if(!consola) return;
-
-
-    const fecha=new Date()
-    .toLocaleString();
-
-
-    consola.innerHTML +=
-    `[${fecha}] ${texto}<br>`;
+    // refrescar UI si está abierta
+    cargarConfiguracion();
 
 }
