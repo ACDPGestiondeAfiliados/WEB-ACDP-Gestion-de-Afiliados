@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 });
 
+
 // ===============================
 // UTIL: normalizar texto (FIX [object Object])
 // ===============================
@@ -28,6 +29,7 @@ function normalizarTexto(valor){
     return String(valor);
 }
 
+
 // ===============================
 // Inicialización del módulo
 // ===============================
@@ -38,6 +40,7 @@ function iniciarHistorial(){
 
 }
 
+
 // ===============================
 // Eventos del historial
 // ===============================
@@ -47,6 +50,8 @@ function eventosHistorial(){
     const anterior=document.getElementById("historialAnterior");
     const siguiente=document.getElementById("historialSiguiente");
     const imprimir=document.getElementById("btnImprimirHistorial");
+    const selector=document.getElementById("fechaHistorialInput");
+
 
     if(filtro){
 
@@ -60,6 +65,7 @@ function eventosHistorial(){
 
     }
 
+
     if(anterior){
 
         anterior.addEventListener("click",()=>{
@@ -70,6 +76,7 @@ function eventosHistorial(){
 
     }
 
+
     if(siguiente){
 
         siguiente.addEventListener("click",()=>{
@@ -79,6 +86,26 @@ function eventosHistorial(){
         });
 
     }
+
+
+    if(selector){
+
+        selector.addEventListener("change",()=>{
+
+            if(selector.value){
+
+                fechaActual=new Date(
+                    selector.value+"T00:00:00"
+                );
+
+                cargarHistorialFecha();
+
+            }
+
+        });
+
+    }
+
 
     if(imprimir){
 
@@ -98,7 +125,48 @@ function eventosHistorial(){
 // ===============================
 function cargarHistorial(){
 
-    historialVista=[...BD_historial].reverse();
+    cargarHistorialFecha();
+
+}
+
+
+// ===============================
+// CARGAR HISTORIAL POR FECHA
+// ===============================
+function cargarHistorialFecha(){
+
+    const fechaBuscada =
+    fechaActual.toLocaleDateString();
+
+
+    historialVista =
+    BD_historial.filter(h=>{
+
+
+        const partes =
+        h.fecha.split("/");
+
+
+        if(partes.length!==3){
+            return false;
+        }
+
+
+        const fechaRegistro =
+        new Date(
+            partes[2],
+            partes[1]-1,
+            partes[0]
+        );
+
+
+        return fechaRegistro.toLocaleDateString()
+        === fechaBuscada;
+
+
+    }).reverse();
+
+
     mostrarHistorial();
 
 }
@@ -111,21 +179,24 @@ function filtrarHistorial(valor){
 
     valor=valor.trim();
 
+
     if(!valor){
 
-        historialVista=[...BD_historial].reverse();
+        cargarHistorialFecha();
 
-    }else{
-
-        historialVista=
-        BD_historial.filter(h=>
-
-            h.dni===valor ||
-            h.numero===valor
-
-        ).reverse();
+        return;
 
     }
+
+
+    historialVista =
+    BD_historial.filter(h=>
+
+        h.dni===valor ||
+        h.numero===valor
+
+    ).reverse();
+
 
     mostrarHistorial();
 
@@ -195,6 +266,7 @@ function mostrarHistorial(){
 
         `;
 
+
     });
 
 
@@ -213,73 +285,12 @@ function mostrarHistorial(){
 // ===============================
 function cambiarFecha(valor){
 
-
-    const hoy=new Date();
-
-
-    if(valor===1){
-
-        if(
-            fechaActual.toDateString() === hoy.toDateString()
-        ){
-
-            const siguiente=
-            document.getElementById("historialSiguiente");
-
-            if(siguiente){
-
-                siguiente.disabled=true;
-
-            }
-
-            return;
-
-        }
-
-    }
-
-
     fechaActual.setDate(
         fechaActual.getDate()+valor
     );
 
 
-    actualizarFecha();
-
-
-    const registrosDia =
-    BD_historial.filter(h=>{
-
-
-        const fechaRegistro=
-        new Date(h.fecha);
-
-
-        return fechaRegistro.toLocaleDateString()
-        === fechaActual.toLocaleDateString();
-
-
-    });
-
-
-    historialVista=
-    registrosDia.reverse();
-
-
-    mostrarHistorial();
-
-
-    const siguiente=
-    document.getElementById("historialSiguiente");
-
-
-    if(siguiente){
-
-        siguiente.disabled =
-        fechaActual.toDateString() === hoy.toDateString();
-
-    }
-
+    cargarHistorialFecha();
 
 }
 
@@ -300,7 +311,33 @@ function actualizarFecha(){
     }
 
 
-    const siguiente=
+    const input =
+    document.getElementById("fechaHistorialInput");
+
+
+    if(input){
+
+        const año =
+        fechaActual.getFullYear();
+
+
+        const mes =
+        String(fechaActual.getMonth()+1)
+        .padStart(2,"0");
+
+
+        const dia =
+        String(fechaActual.getDate())
+        .padStart(2,"0");
+
+
+        input.value =
+        año+"-"+mes+"-"+dia;
+
+    }
+
+
+    const siguiente =
     document.getElementById("historialSiguiente");
 
 
@@ -308,8 +345,10 @@ function actualizarFecha(){
 
         const hoy=new Date();
 
+
         siguiente.disabled =
-        fechaActual.toDateString() === hoy.toDateString();
+        fechaActual.toDateString()
+        === hoy.toDateString();
 
     }
 
