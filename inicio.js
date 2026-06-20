@@ -3,13 +3,7 @@
 ===================================== */
 
 
-
-
-
-let usuarioActivo = null;
-
-
-
+let usuarioActivo = "Admin";
 
 
 
@@ -18,17 +12,44 @@ document.addEventListener(
 ()=>{
 
 
-    activarNavegacion();
-
-    activarCerrarModal();
+iniciarApp();
 
 
-    mostrarSeccion("cobrar");
+});
+
+
+
+
+
+
+function iniciarApp(){
+
+
+
+document
+.getElementById(
+"usuarioActivo"
+)
+.textContent =
+"Usuario: "+usuarioActivo;
+
+
+
+
+
+activarNavegacion();
+
+
+
+activarCerrarModal();
+
+
+
+mostrarSeccion("cobrar");
+
 
 
 }
-
-);
 
 
 
@@ -42,232 +63,33 @@ function activarNavegacion(){
 
 
 
-    let botones =
-    document.querySelectorAll(
-    ".menu button"
-    );
-
-
-
-
-    botones.forEach(btn=>{
-
-
-
-        btn.addEventListener(
-        "click",
-        ()=>{
-
-
-            solicitarAcceso(
-                btn.dataset.seccion
-            );
-
-
-        });
-
-
-
-    });
-
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function solicitarAcceso(seccion){
-
-
-
-    abrirModal();
-
-
-
-    document
-    .getElementById(
-    "modalContenido")
-    .innerHTML =
-    "";
-
-
-
-
-    let titulo =
-    document.createElement("h2");
-
-
-
-    titulo.textContent =
-    "Acceso requerido";
-
-
-
-
-    let usuario =
-    document.createElement("input");
-
-
-    usuario.id =
-    "loginUsuario";
-
-
-    usuario.placeholder =
-    "Usuario";
-
-
-
-
-
-    let pin =
-    document.createElement("input");
-
-
-    pin.id =
-    "loginPin";
-
-
-    pin.type =
-    "password";
-
-
-    pin.placeholder =
-    "PIN";
-
-
-
-
-
-    let aceptar =
-    document.createElement("button");
-
-
-
-    aceptar.textContent =
-    "Aceptar";
-
-
-
-    aceptar.onclick =
-    ()=>validarAcceso(
-        seccion
-    );
-
-
-
-
-
-    let caja =
-    document.getElementById(
-    "modalContenido"
-    );
-
-
-
-    caja.appendChild(titulo);
-
-    caja.appendChild(usuario);
-
-    caja.appendChild(pin);
-
-    caja.appendChild(aceptar);
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function validarAcceso(seccion){
-
-
-
-let usuario =
-document.getElementById(
-"loginUsuario"
-).value;
-
-
-
-let pin =
-document.getElementById(
-"loginPin"
-).value;
-
-
-
-
-
-let encontrado =
-BD.usuarios.find(u=>
-
-u.usuario===usuario
-&&
-u.pin===pin
-
-);
-
-
-
-
-
-
-if(
-(encontrado)
-||
-(usuario==="Admin" && pin==="9999")
-
-){
-
-
-usuarioActivo =
-usuario;
-
-
-
 document
-.getElementById(
-"usuarioActivo")
-.textContent =
-"Usuario: "+usuario;
+.querySelectorAll(
+".menu button"
+)
+.forEach(boton=>{
 
 
+boton.onclick =
+()=>{
 
-cerrarModal();
+
+let destino =
+boton.dataset.seccion;
 
 
 
 mostrarSeccion(
-seccion
+destino
 );
 
 
 
-}
-
-else{
-
-
-alert(
-"Usuario o PIN incorrecto"
-);
+};
 
 
 
-}
+});
 
 
 
@@ -287,10 +109,12 @@ function mostrarSeccion(id){
 
 document
 .querySelectorAll(
-".seccion")
-.forEach(s=>{
+".seccion"
+)
+.forEach(seccion=>{
 
-s.classList.remove(
+
+seccion.classList.remove(
 "activa"
 );
 
@@ -300,11 +124,26 @@ s.classList.remove(
 
 
 
-document
-.getElementById(id)
-.classList.add(
+
+let seccion =
+document.getElementById(id);
+
+
+
+
+
+if(!seccion)
+return;
+
+
+
+
+
+seccion.classList.add(
 "activa"
 );
+
+
 
 
 
@@ -312,14 +151,10 @@ document
 switch(id){
 
 
-
 case "afiliados":
 
-
 if(typeof cargarAfiliados==="function")
-
 cargarAfiliados();
-
 
 break;
 
@@ -328,25 +163,18 @@ break;
 
 case "cobrar":
 
-
 if(typeof cargarCobrar==="function")
-
 cargarCobrar();
-
 
 break;
 
 
 
 
-
 case "historial":
 
-
 if(typeof cargarHistorial==="function")
-
 cargarHistorial();
-
 
 break;
 
@@ -355,11 +183,8 @@ break;
 
 case "usuarios":
 
-
 if(typeof cargarUsuarios==="function")
-
 cargarUsuarios();
-
 
 break;
 
@@ -368,11 +193,8 @@ break;
 
 case "configuracion":
 
-
 if(typeof cargarConfiguracion==="function")
-
 cargarConfiguracion();
-
 
 break;
 
@@ -398,7 +220,8 @@ function abrirModal(){
 
 document
 .getElementById(
-"modalFondo")
+"modalFondo"
+)
 .classList.add(
 "visible"
 );
@@ -421,7 +244,8 @@ function cerrarModal(){
 
 document
 .getElementById(
-"modalFondo")
+"modalFondo"
+)
 .classList.remove(
 "visible"
 );
@@ -430,9 +254,9 @@ document
 
 document
 .getElementById(
-"modalContenido")
-.innerHTML =
-"";
+"modalContenido"
+)
+.innerHTML="";
 
 
 
@@ -445,16 +269,26 @@ document
 
 
 
-
 function activarCerrarModal(){
 
 
 
-document
-.getElementById(
-"cerrarModal")
-.onclick =
+let boton =
+document.getElementById(
+"cerrarModal"
+);
+
+
+
+
+if(boton){
+
+
+boton.onclick =
 cerrarModal;
+
+
+}
 
 
 
