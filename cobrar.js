@@ -189,8 +189,7 @@ function cobrarAfiliado(dni){
 
 
 
-    const monto=
-    BD_configuracion.monto || 0;
+const monto = (BD_configuracion && BD_configuracion.monto) ? BD_configuracion.monto : 0;
 
 
 
