@@ -165,232 +165,69 @@ function cerrarModal() {
 }
 
 // ===============================
-// CREAR AFILIADO
-// ===============================
-
-function abrirCrearAfiliado() {
-    abrirModal(`
-        <h3>Nuevo Afiliado</h3>
-
-        <input id="aNombre" placeholder="Nombre"><br><br>
-        <input id="aApellido" placeholder="Apellido"><br><br>
-        <input id="aDni" placeholder="DNI" maxlength="8"><br><br>
-        <input id="aCelular" placeholder="Celular (opcional)" maxlength="10"><br><br>
-        <input id="aCorreo" placeholder="Correo" maxlength="30"><br><br>
-
-        <select id="aEstado">
-            <option value="ADHERENTE" selected>ADHERENTE</option>
-            <option value="ACTIVO">ACTIVO</option>
-        </select>
-
-        <br><br>
-        <button id="btnGuardarAfiliado" disabled>Guardar</button>
-    `);
-
-    setTimeout(() => {
-        const n = document.getElementById("aNombre");
-        const a = document.getElementById("aApellido");
-        const d = document.getElementById("aDni");
-        const c = document.getElementById("aCelular");
-        const e = document.getElementById("aCorreo");
-        const btn = document.getElementById("btnGuardarAfiliado");
-
-        const validar = () => {
-            const okNombre = soloTexto(n.value.trim());
-            const okApellido = soloTexto(a.value.trim());
-            const okDni = soloNumeros(d.value) && d.value.length === 8;
-            const okCel = c.value === "" || (soloNumeros(c.value) && c.value.length <= 10);
-            const okEmail = e.value.length <= 30;
-
-            btn.disabled = !(okNombre && okApellido && okDni && okCel && okEmail);
-        };
-
-        n.oninput = () => { n.value = n.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); validar(); };
-        a.oninput = () => { a.value = a.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); validar(); };
-        d.oninput = () => { d.value = d.value.replace(/[^0-9]/g, ""); validar(); };
-        c.oninput = () => { c.value = c.value.replace(/[^0-9]/g, ""); validar(); };
-        e.oninput = validar;
-
-        btn.onclick = guardarAfiliado;
-    }, 100);
-}
-
-// ===============================
 // GUARDAR
 // ===============================
 
 async function guardarAfiliado() {
-    await addDoc(collection(db, "afiliados"), {
+
+    const nuevo = {
+
         numeroAfiliado: generarNumeroAfiliado(),
-        nombre: document.getElementById("aNombre").value.trim(),
-        apellido: document.getElementById("aApellido").value.trim(),
-        dni: document.getElementById("aDni").value,
-        celular: document.getElementById("aCelular").value,
-        correo: document.getElementById("aCorreo").value.trim(),
-        estado: document.getElementById("aEstado").value,
-        fechaAlta: new Date().toISOString()
-    });
 
-    cerrarModal();
-    cargarAfiliados(true);
-}
+        nombre:
+        document.getElementById("aNombre").value.trim(),
 
-// ===============================
-// RENDER TABLA
-// ===============================
+        apellido:
+        document.getElementById("aApellido").value.trim(),
 
-function renderAfiliados() {
-    const tbody = document.querySelector("#tablaAfiliados tbody");
-    if (!tbody) return;
+        dni:
+        document.getElementById("aDni").value,
 
-    tbody.innerHTML = "";
+        celular:
+        document.getElementById("aCelular").value,
 
-    const filtro = document.getElementById("filtroAfiliados")?.value.trim() || "";
+        correo:
+        document.getElementById("aCorreo").value.trim(),
 
-    let data = [...CACHE_AFILIADOS];
+        estado:
+        document.getElementById("aEstado").value,
 
-    if (filtro.length === 8 && soloNumeros(filtro)) {
-        const exists = data.some(a =>
-            a.dni === filtro || a.numeroAfiliado === filtro
-        );
+        fechaAlta:
+        new Date().toISOString()
 
-        if (!exists) {
-            alert("Afiliado no existe");
-            return;
-        }
+    };
 
-        data = data.filter(a =>
-            a.dni === filtro || a.numeroAfiliado === filtro
-        );
-    }
 
-    const start = PAGINA_ACTUAL * PAGE_SIZE;
-    const pageData = data.slice(start, start + PAGE_SIZE);
+    await addDoc(
+        collection(db,"afiliados"),
+        nuevo
+    );
 
-    pageData.forEach(a => {
-        const f = formatearFechaHora(a.fechaAlta);
 
-        const tr = document.createElement("tr");
+    if(window.registrarHistorial){
 
-        tr.innerHTML = `
-            <td>${a.numeroAfiliado}</td>
-            <td>${a.dni}</td>
-            <td>${a.nombre}</td>
-            <td>${a.apellido}</td>
-            <td>${a.celular || ""}</td>
-            <td>${a.correo}</td>
-            <td>${a.estado}</td>
-            <td>${f.fecha} ${f.hora}</td>
-            <td>
-                <button onclick="AFILIADOS.editarAfiliado('${a.id}')">Editar</button>
-                <button onclick="AFILIADOS.imprimir('${a.id}')">Imprimir</button>
-                <button onclick="AFILIADOS.eliminarAfiliado('${a.id}')">Eliminar</button>
-            </td>
-        `;
+        window.registrarHistorial({
 
-        tbody.appendChild(tr);
-    });
-}
+            afiliado:
+            nuevo.nombre+" "+nuevo.apellido,
 
-// ===============================
-// EDITAR
-// ===============================
+            dni:
+            nuevo.dni,
 
-async function editarAfiliado(id) {
-    const snap = await getDocs(collection(db, "afiliados"));
+            numeroAfiliado:
+            nuevo.numeroAfiliado,
 
-    let af = null;
-    snap.forEach(d => {
-        if (d.id === id) af = { id: d.id, ...d.data() };
-    });
+            detalleHistorial:
+            "Afiliado dado de alta"
 
-    if (!af) return;
-
-    abrirModal(`
-        <h3>Editar Afiliado</h3>
-
-        <input id="eNombre" value="${af.nombre}"><br><br>
-        <input id="eApellido" value="${af.apellido}"><br><br>
-        <input id="eDni" value="${af.dni}" maxlength="8"><br><br>
-        <input id="eCelular" value="${af.celular || ""}" maxlength="10"><br><br>
-        <input id="eCorreo" value="${af.correo}" maxlength="30"><br><br>
-
-        <select id="eEstado">
-            <option value="ADHERENTE" ${af.estado === "ADHERENTE" ? "selected" : ""}>ADHERENTE</option>
-            <option value="ACTIVO" ${af.estado === "ACTIVO" ? "selected" : ""}>ACTIVO</option>
-        </select>
-
-        <br><br>
-        <button id="btnEditarAfiliado">Guardar</button>
-    `);
-
-    document.getElementById("btnEditarAfiliado").onclick = async () => {
-        await updateDoc(doc(db, "afiliados", id), {
-            nombre: document.getElementById("eNombre").value.trim(),
-            apellido: document.getElementById("eApellido").value.trim(),
-            dni: document.getElementById("eDni").value,
-            celular: document.getElementById("eCelular").value,
-            correo: document.getElementById("eCorreo").value.trim(),
-            estado: document.getElementById("eEstado").value
         });
 
-        cerrarModal();
-        cargarAfiliados(true);
-    };
-}
+    }
 
-// ===============================
-// ELIMINAR CON MOTIVO
-// ===============================
 
-async function eliminarAfiliado(id) {
-    const snap = await getDocs(collection(db, "afiliados"));
+    cerrarModal();
 
-    let af = null;
-    snap.forEach(d => {
-        if (d.id === id) af = { id: d.id, ...d.data() };
-    });
-
-    if (!af) return;
-
-    abrirModal(`
-        <h3>Eliminar Afiliado</h3>
-
-        <p>Indique el motivo (máx 40 caracteres)</p>
-
-        <textarea id="motivo" maxlength="40"
-        style="width:100%;height:120px;resize:none;"></textarea>
-
-        <br><br>
-
-        <button id="btnConfirmar" disabled style="background:#c00;color:#fff;">
-            Confirmar eliminación
-        </button>
-    `);
-
-    setTimeout(() => {
-        const input = document.getElementById("motivo");
-        const btn = document.getElementById("btnConfirmar");
-
-        input.oninput = () => {
-            input.value = input.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, "");
-            btn.disabled = input.value.trim().length === 0;
-        };
-
-        btn.onclick = async () => {
-
-            const log = crearLogEliminacion(af, input.value.trim());
-
-            await deleteDoc(doc(db, "afiliados", id));
-
-            // FUTURO HISTORIAL
-            // await addDoc(collection(db, "historial"), log);
-
-            cerrarModal();
-            cargarAfiliados(true);
-        };
-    }, 50);
-}
+    cargarAfiliados(true);
 
 // ===============================
 // IMPRESIÓN
