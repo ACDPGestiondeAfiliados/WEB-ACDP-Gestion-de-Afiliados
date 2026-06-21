@@ -1,6 +1,6 @@
 // ===============================
 // ACDP - AFILIADOS CONTROLLER
-// Firebase CRUD + UI + impresión + paginación real
+// Firebase CRUD + UI + impresión + paginación real + eliminación con motivo (HISTORIAL READY)
 // ===============================
 
 import {
@@ -18,7 +18,6 @@ import {
 // ===============================
 
 let CACHE_AFILIADOS = [];
-let ULTIMO_DOC = null;
 let PAGE_SIZE = 20;
 let PAGINA_ACTUAL = 0;
 
@@ -56,6 +55,26 @@ function formatearFechaHora(date) {
 }
 
 // ===============================
+// LOG (LISTO PARA HISTORIAL.JS)
+// ===============================
+
+function crearLogEliminacion(af, motivo) {
+    return {
+        tipo: "ELIMINACION_AFILIADO",
+        fecha: new Date().toISOString(),
+        usuario: window.ACDP?.usuario || "SIN_USUARIO",
+        rol: window.ACDP?.rol || "SIN_ROL",
+        detalle: {
+            numeroAfiliado: af.numeroAfiliado,
+            dni: af.dni,
+            nombre: af.nombre,
+            apellido: af.apellido,
+            motivo
+        }
+    };
+}
+
+// ===============================
 // UI BIND
 // ===============================
 
@@ -69,10 +88,7 @@ function bindAfiliadosUI() {
         filtro.addEventListener("input", () => {
             const val = filtro.value.trim();
 
-            // SOLO FILTRA SI ES DNI COMPLETO O NRO AFILIADO COMPLETO
-            if (val.length === 8) {
-                renderAfiliados();
-            } else if (val.length === 0) {
+            if (val.length === 8 || val.length === 0) {
                 renderAfiliados();
             }
         });
@@ -86,7 +102,7 @@ function bindAfiliadosUI() {
 }
 
 // ===============================
-// CARGA FIRESTORE (OPTIMIZADA)
+// CARGA FIRESTORE
 // ===============================
 
 async function cargarAfiliados(reset = false) {
@@ -220,7 +236,7 @@ async function guardarAfiliado() {
 }
 
 // ===============================
-// RENDER TABLA (20 filas)
+// RENDER TABLA
 // ===============================
 
 function renderAfiliados() {
@@ -233,7 +249,6 @@ function renderAfiliados() {
 
     let data = [...CACHE_AFILIADOS];
 
-    // FILTRO SOLO SI ES 8 DIGITOS (DNI o NRO AFILIADO)
     if (filtro.length === 8 && soloNumeros(filtro)) {
         const exists = data.some(a =>
             a.dni === filtro || a.numeroAfiliado === filtro
@@ -325,16 +340,60 @@ async function editarAfiliado(id) {
 }
 
 // ===============================
-// ELIMINAR
+// ELIMINAR CON MOTIVO
 // ===============================
 
 async function eliminarAfiliado(id) {
-    await deleteDoc(doc(db, "afiliados", id));
-    cargarAfiliados(true);
+    const snap = await getDocs(collection(db, "afiliados"));
+
+    let af = null;
+    snap.forEach(d => {
+        if (d.id === id) af = { id: d.id, ...d.data() };
+    });
+
+    if (!af) return;
+
+    abrirModal(`
+        <h3>Eliminar Afiliado</h3>
+
+        <p>Indique el motivo (máx 40 caracteres)</p>
+
+        <textarea id="motivo" maxlength="40"
+        style="width:100%;height:120px;resize:none;"></textarea>
+
+        <br><br>
+
+        <button id="btnConfirmar" disabled style="background:#c00;color:#fff;">
+            Confirmar eliminación
+        </button>
+    `);
+
+    setTimeout(() => {
+        const input = document.getElementById("motivo");
+        const btn = document.getElementById("btnConfirmar");
+
+        input.oninput = () => {
+            input.value = input.value.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]/g, "");
+            btn.disabled = input.value.trim().length === 0;
+        };
+
+        btn.onclick = async () => {
+
+            const log = crearLogEliminacion(af, input.value.trim());
+
+            await deleteDoc(doc(db, "afiliados", id));
+
+            // FUTURO HISTORIAL
+            // await addDoc(collection(db, "historial"), log);
+
+            cerrarModal();
+            cargarAfiliados(true);
+        };
+    }, 50);
 }
 
 // ===============================
-// IMPRESIÓN (PNG + BARCODE OK)
+// IMPRESIÓN
 // ===============================
 
 async function imprimir(id) {
@@ -352,8 +411,7 @@ async function imprimir(id) {
     win.document.write(`
 <html>
 <body>
-<div id="ficha" style="
-width:8cm;height:6cm;border:3px solid ${color};
+<div style="width:8cm;height:6cm;border:3px solid ${color};
 display:flex;padding:10px;font-family:Arial;">
     <div style="width:40%;display:flex;align-items:center;justify-content:center;">
         <img src="./iconos/logo.jpg" style="width:35%;">
@@ -380,7 +438,6 @@ JsBarcode("#barcode","${af.numeroAfiliado}",{
     width:1.5,
     height:40
 });
-
 window.onload = () => window.print();
 </script>
 </body>
