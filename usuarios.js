@@ -475,38 +475,11 @@ validar();
 async function guardarUsuario(){
 
 
-const usuario =
-document
-.getElementById("usuarioNuevo")
-.value.trim();
+const boton =
+document.getElementById("btnGuardarUsuario");
 
 
-const pin =
-document
-.getElementById("pinNuevo")
-.value.trim();
-
-
-const pin2 =
-document
-.getElementById("pinConfirmar")
-.value.trim();
-
-
-const tipo =
-document
-.getElementById("tipoNuevo")
-.value;
-
-
-
-
-
-if(
-usuario.length<4 ||
-pin.length!==4 ||
-pin!==pin2
-){
+if(boton.disabled)
 
 return;
 
