@@ -35,14 +35,13 @@ document.getElementById("btnIngresarAsociado");
 
 if(boton){
 
-
 boton.addEventListener(
 "click",
 ingresarAsociado
 );
 
-
 }
+
 
 
 
@@ -53,18 +52,120 @@ document.getElementById("btnCerrarSesionAsociado");
 
 if(cerrar){
 
-
 cerrar.addEventListener(
 "click",
 cerrarSesionAsociado
+);
+
+}
+
+
+
+
+
+const guardar =
+document.getElementById("btnGuardarDatos");
+
+
+
+if(guardar){
+
+guardar.addEventListener(
+"click",
+guardarDatosPerfil
+);
+
+}
+
+
+
+
+const cambiar =
+document.getElementById("btnCambiarPin");
+
+
+
+if(cambiar){
+
+cambiar.addEventListener(
+"click",
+cambiarPin
+);
+
+}
+
+
+
+
+activarNumericos();
+
+
+
+}
+
+
+
+
+
+
+
+
+// ===============================
+// Solo números
+// ===============================
+
+
+function activarNumericos(){
+
+
+const campos=[
+
+"numeroAsociado",
+"pinAsociado",
+"editarCelular",
+"pinActual",
+"nuevoPin",
+"confirmarPin"
+
+];
+
+
+
+campos.forEach(id=>{
+
+
+const input=
+document.getElementById(id);
+
+
+
+if(input){
+
+
+input.addEventListener(
+"input",
+()=>{
+
+
+input.value =
+input.value.replace(/\D/g,"");
+
+
+}
+
 );
 
 
 }
 
 
+});
+
 
 }
+
+
+
 
 
 
@@ -80,12 +181,14 @@ function ingresarAsociado(){
 
 
 const numero =
-document.getElementById("numeroAsociado").value.trim();
+document.getElementById("numeroAsociado")
+.value.trim();
 
 
 
 const pin =
-document.getElementById("pinAsociado").value.trim();
+document.getElementById("pinAsociado")
+.value.trim();
 
 
 
@@ -96,7 +199,7 @@ document.getElementById("mensajeAsociado");
 
 
 
-if(numero.length!==8 || isNaN(numero)){
+if(numero.length!==8){
 
 
 mensaje.textContent=
@@ -122,8 +225,11 @@ a.numero===numero
 
 
 
-if(!afiliado ||
-afiliado.estado==="Eliminado"){
+if(
+!afiliado ||
+afiliado.estado==="Eliminado"
+
+){
 
 
 mensaje.textContent=
@@ -161,10 +267,31 @@ pinCorrecto=afiliado.pinAsociado;
 
 
 
-if(
-pin!==pinCorrecto &&
-pin!==PIN_GLOBAL
-){
+if(pin===PIN_GLOBAL){
+
+
+alert(
+"Acceso administrador. Puede recuperar el PIN del asociado."
+);
+
+
+asociadoActual=afiliado;
+
+
+mostrarPerfil(afiliado);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+if(pin!==pinCorrecto){
 
 
 mensaje.textContent=
@@ -180,6 +307,7 @@ return;
 
 
 
+
 asociadoActual=afiliado;
 
 
@@ -189,6 +317,9 @@ mostrarPerfil(afiliado);
 
 
 }
+
+
+
 
 
 
@@ -244,6 +375,12 @@ document
 
 
 document
+.getElementById("datoCelular")
+.textContent=a.celular||"";
+
+
+
+document
 .getElementById("datoCorreo")
 .textContent=a.correo||"";
 
@@ -258,6 +395,25 @@ document
 document
 .getElementById("datoEstado")
 .textContent=a.estado||"";
+
+
+
+
+
+document
+.getElementById("editarCelular")
+.value=
+a.celular||"";
+
+
+
+
+
+document
+.getElementById("editarCorreo")
+.value=
+a.correo||"";
+
 
 
 
@@ -279,6 +435,213 @@ mostrarCuotas(a);
 
 
 }
+
+
+
+
+
+
+
+
+
+// ===============================
+// Editar datos
+// ===============================
+
+
+function guardarDatosPerfil(){
+
+
+if(!asociadoActual)return;
+
+
+
+
+const celular =
+document.getElementById("editarCelular")
+.value.trim();
+
+
+
+
+const correo =
+document.getElementById("editarCorreo")
+.value.trim();
+
+
+
+
+
+asociadoActual.celular=celular;
+
+asociadoActual.correo=correo;
+
+
+
+
+
+guardarBD();
+
+
+
+
+
+mostrarPerfil(
+asociadoActual
+);
+
+
+
+
+alert(
+"Datos actualizados correctamente"
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ===============================
+// Cambiar PIN
+// ===============================
+
+
+function cambiarPin(){
+
+
+
+if(!asociadoActual)return;
+
+
+
+
+const actual =
+document.getElementById("pinActual")
+.value.trim();
+
+
+
+const nuevo =
+document.getElementById("nuevoPin")
+.value.trim();
+
+
+
+const confirmar =
+document.getElementById("confirmarPin")
+.value.trim();
+
+
+
+
+
+
+let pinReal;
+
+
+
+if(!asociadoActual.pinAsociado){
+
+
+pinReal="1111";
+
+
+}else{
+
+
+pinReal=
+asociadoActual.pinAsociado;
+
+
+}
+
+
+
+
+
+
+
+if(
+actual!==pinReal &&
+actual!==PIN_GLOBAL
+){
+
+
+alert(
+"PIN actual incorrecto"
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+if(
+nuevo.length<4 ||
+nuevo!==confirmar
+
+){
+
+
+alert(
+"El nuevo PIN no coincide o es inválido"
+);
+
+
+return;
+
+
+}
+
+
+
+
+
+
+asociadoActual.pinAsociado=
+nuevo;
+
+
+
+
+
+guardarBD();
+
+
+
+
+
+document.getElementById("pinActual").value="";
+
+document.getElementById("nuevoPin").value="";
+
+document.getElementById("confirmarPin").value="";
+
+
+
+
+alert(
+"PIN actualizado correctamente"
+);
+
+
+
+}
+
 
 
 
@@ -335,13 +698,18 @@ let pagados=[];
 
 
 
+
 BD_cobros.forEach(c=>{
 
 
 if(
+
 c.dni===a.dni &&
+
 c.estado!=="Anulado" &&
+
 c.anio===año
+
 ){
 
 
@@ -350,7 +718,9 @@ c.meses.forEach(m=>{
 
 if(!pagados.includes(m)){
 
+
 pagados.push(m);
+
 
 }
 
@@ -413,12 +783,15 @@ ${pagado?"PAGADO":"PENDIENTE"}
 
 
 
+
+
 // ===============================
 // Cerrar sesión
 // ===============================
 
 
 function cerrarSesionAsociado(){
+
 
 
 asociadoActual=null;
@@ -437,9 +810,17 @@ document
 
 
 
+
+document
+.getElementById("numeroAsociado")
+.value="";
+
+
+
 document
 .getElementById("pinAsociado")
 .value="";
+
 
 
 }
