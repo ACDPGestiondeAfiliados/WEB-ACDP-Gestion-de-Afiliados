@@ -418,7 +418,7 @@ ${h.hora||""}
 <td>
 
 ${
-h.accion==="Cobro"
+h.accion==="Cobro" && h.estado!=="Anulado"
 ?
 
 `
