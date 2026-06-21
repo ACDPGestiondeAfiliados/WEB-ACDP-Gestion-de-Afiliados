@@ -7,9 +7,13 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>ACDP - Consulta de Asociados</title>
+<title>ACDP - Portal Asociados</title>
+
 
 <link rel="stylesheet" href="styles.css">
+
+<link rel="stylesheet" href="asociados.css">
+
 
 </head>
 
@@ -17,60 +21,71 @@
 <body>
 
 
-<header class="header">
 
-    <img 
-    src="logo.jpg" 
-    alt="ACDP"
-    width="100"
-    height="100"
-    >
+<header class="header asociados-header">
 
-    <p>
-    Sistema de Gestión de Afiliados
-    </p>
+
+<img
+
+src="logo.jpg"
+
+alt="ACDP"
+
+width="100"
+
+height="100"
+
+
+>
+
+
+<p>
+
+Portal de Asociados ACDP
+
+</p>
+
 
 </header>
 
 
 
-<main id="consultaAsociado">
+
+
+<main class="asociados-main">
 
 
 
-<section class="seccion activa">
+
+
+<section id="loginAsociado" class="asociados-card">
 
 
 
 <h2>
 
-CONSULTA DE ASOCIADO
+Acceso de asociado
 
 </h2>
 
 
-<br>
-
 
 <p>
 
-Ingresá tu DNI o Número de Afiliado para consultar tu situación.
+Ingrese su número de afiliado y PIN personal.
 
 </p>
 
 
 
-<br>
 
+<div class="asociados-form">
 
-
-
-<div class="bloque">
 
 
 <input
 
-id="buscadorAsociado"
+id="numeroAsociado"
 
 class="inputNumero"
 
@@ -80,44 +95,257 @@ minlength="8"
 
 inputmode="numeric"
 
-placeholder="DNI o Nro Afiliado"
+placeholder="Número de afiliado"
+
 
 
 >
 
 
+
+
+<input
+
+id="pinAsociado"
+
+type="password"
+
+maxlength="8"
+
+inputmode="numeric"
+
+placeholder="PIN"
+
+
+
+>
+
+
+
+
+<button id="btnIngresarAsociado">
+
+Ingresar
+
+</button>
+
+
+
 </div>
 
 
 
 
+<p
 
-<div id="resultadoAsociado">
+id="mensajeAsociado"
 
+class="mensajeAsociado"
 
+>
 
-<div class="tarjetaConsulta">
-
-
-<h3>
-
-Esperando búsqueda...
-
-</h3>
-
-
-<p>
-
-Ingresá tu número para consultar información.
 
 </p>
 
 
+
+</section>
+
+
+
+
+
+
+
+
+<section
+
+id="perfilAsociado"
+
+class="asociados-card oculto"
+
+
+
+>
+
+
+
+
+<h2>
+
+Mi perfil
+
+</h2>
+
+
+
+
+
+
+<div class="datosAsociado">
+
+
+
+<div>
+
+<label>
+
+Número afiliado
+
+</label>
+
+<span id="datoNumero"></span>
+
 </div>
 
 
 
+<div>
+
+<label>
+
+DNI
+
+</label>
+
+<span id="datoDni"></span>
+
 </div>
+
+
+
+
+<div>
+
+<label>
+
+Nombre
+
+</label>
+
+<span id="datoNombre"></span>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+
+Apellido
+
+</label>
+
+<span id="datoApellido"></span>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+
+Correo
+
+</label>
+
+<span id="datoCorreo"></span>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+
+Fecha de alta
+
+</label>
+
+<span id="datoFecha"></span>
+
+</div>
+
+
+
+<div>
+
+<label>
+
+Estado
+
+</label>
+
+<span id="datoEstado"></span>
+
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+<h3>
+
+Estado de cuotas
+
+</h3>
+
+
+
+
+
+<div id="cuotasAsociado">
+
+
+</div>
+
+
+
+
+
+
+
+<div class="cuotaActual">
+
+
+Cuota actual:
+
+<strong id="datoCuota">
+
+$0
+
+</strong>
+
+
+</div>
+
+
+
+
+
+
+<button
+
+id="btnCerrarSesionAsociado"
+
+>
+
+Cerrar sesión
+
+</button>
 
 
 
@@ -127,7 +355,12 @@ Ingresá tu número para consultar información.
 
 
 
+
+
+
 </main>
+
+
 
 
 
@@ -138,6 +371,7 @@ Ingresá tu número para consultar información.
 <script src="config.js"></script>
 
 <script src="asociados.js"></script>
+
 
 
 
