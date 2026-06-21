@@ -522,13 +522,6 @@ if(!asociadoActual)return;
 
 
 
-
-const actual =
-document.getElementById("pinActual")
-.value.trim();
-
-
-
 const nuevo =
 document.getElementById("nuevoPin")
 .value.trim();
@@ -542,72 +535,30 @@ document.getElementById("confirmarPin")
 
 
 
-
-
-let pinReal;
-
-
-
-if(!asociadoActual.pinAsociado){
-
-
-pinReal="1111";
-
-
-}else{
-
-
-pinReal=
-asociadoActual.pinAsociado;
-
-
-}
-
-
-
-
-
-
-
-if(
-actual!==pinReal &&
-actual!==PIN_GLOBAL
-){
-
-
-alert(
-"PIN actual incorrecto"
-);
-
-
-return;
-
-
-}
-
-
-
-
-
-
 if(
 nuevo.length<4 ||
 nuevo!==confirmar
-
 ){
-
 
 alert(
 "El nuevo PIN no coincide o es inválido"
 );
 
-
 return;
-
 
 }
 
 
+
+if(nuevo===PIN_GLOBAL){
+
+alert(
+"El PIN 2015 está reservado."
+);
+
+return;
+
+}
 
 
 
@@ -618,19 +569,14 @@ nuevo;
 
 
 
-
 guardarBD();
 
 
 
 
-
-document.getElementById("pinActual").value="";
-
 document.getElementById("nuevoPin").value="";
 
 document.getElementById("confirmarPin").value="";
-
 
 
 
@@ -641,14 +587,6 @@ alert(
 
 
 }
-
-
-
-
-
-
-
-
 
 // ===============================
 // Cuotas
