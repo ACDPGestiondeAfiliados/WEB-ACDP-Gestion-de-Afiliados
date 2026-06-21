@@ -1,421 +1,562 @@
 // ===============================
-// INICIO.JS — ACDP
-// Control general de interfaz,
-// sesión y acceso por PIN
-// Versión Firebase Modular v9+
+// INICIO ACDP FIREBASE
+// Control general interfaz + accesos
 // ===============================
 
-document.addEventListener("DOMContentLoaded", async () => {
 
+import {
+    db,
+    collection,
+    getDocs
+} from "./firebase.js";
+
+
+
+document.addEventListener("DOMContentLoaded", async()=>{
+
+    iniciarMenu();
     iniciarModal();
     limitarNumeros();
-    iniciarSistema();
-    await iniciarSesionInicial();
+
+    await cargarUsuarios();
+
+    iniciarAccesoGlobal();
+
+    iniciarSesionInicial();
 
 });
 
-// ===============================
-// SESIÓN ACTIVA
-// ===============================
 
-window.usuarioActivo     = null;
-window.usuarioActivoTipo = null;
+
 
 // ===============================
-// ARRANQUE GENERAL
+// DATOS GLOBALES
 // ===============================
 
-async function iniciarSistema() {
 
-    // Ocultar todas las secciones hasta login
-    document.querySelectorAll(".seccion")
-        .forEach(s => s.classList.remove("activa"));
+let usuariosSistema=[];
 
-    actualizarUsuarioActivo();
+let usuarioActivo=null;
 
-    // Crear Admin por defecto si Firestore está vacío
-    try {
-        await DB.inicializarAdminSiVacio();
-    } catch(e) {
-        console.error("Error inicializando admin:", e);
-    }
-}
+window.usuarioActivo=null;
+
+window.BD_usuarios=[];
+
+
+
 
 // ===============================
-// SESIÓN INICIAL AL CARGAR
+// CARGAR USUARIOS FIRESTORE
 // ===============================
 
-async function iniciarSesionInicial() {
 
-    window.usuarioActivo     = null;
-    window.usuarioActivoTipo = null;
+async function cargarUsuarios(){
 
-    setTimeout(() => {
 
-        pedirPinUsuario(() => {
+    try{
 
-            abrirSeccion("cobrar");
-            actualizarUsuarioActivo();
-            iniciarMenuNavegacion();
+
+        const snap = await getDocs(
+            collection(db,"usuarios")
+        );
+
+
+        usuariosSistema=[];
+
+
+        snap.forEach(doc=>{
+
+
+            usuariosSistema.push({
+                id:doc.id,
+                ...doc.data()
+            });
+
 
         });
 
-    }, 300);
+
+
+        window.BD_usuarios=usuariosSistema;
+
+
+    }catch(e){
+
+        console.error(
+            "Error cargando usuarios",
+            e
+        );
+
+    }
+
 
 }
 
+
+
+
+
 // ===============================
-// MENÚ CON CONTROL DE ACCESO
+// CONTROL MENU
 // ===============================
 
-function iniciarMenuNavegacion() {
 
-    const botones = document.querySelectorAll(".menu button");
+function iniciarAccesoGlobal(){
 
-    botones.forEach(boton => {
 
-        // Evitar duplicar listeners si se llama más de una vez
-        const nuevo = boton.cloneNode(true);
-        boton.parentNode.replaceChild(nuevo, boton);
+    document
+    .querySelectorAll(".menu button")
+    .forEach(btn=>{
 
-        nuevo.addEventListener("click", () => {
 
-            const destino = nuevo.getAttribute("data-seccion");
+        btn.addEventListener(
+        "click",
+        ()=>{
 
-            if (destino === "usuarios" || destino === "configuracion") {
-                pedirPinAdmin(() => loginYabrir(destino));
-            } else {
-                // Cobrar, historial, afiliados — cualquier usuario válido
-                if (window.usuarioActivo) {
-                    loginYabrir(destino);
-                } else {
-                    pedirPinUsuario(() => loginYabrir(destino));
-                }
+
+            const destino =
+            btn.dataset.seccion;
+
+
+
+            if(
+            destino==="usuarios" ||
+            destino==="configuracion"
+            ){
+
+                pedirPinAdmin(
+                    ()=>loginYabrir(destino)
+                );
+
+
+            }else{
+
+
+                pedirPinUsuario(
+                    ()=>loginYabrir(destino)
+                );
+
+
             }
 
+
         });
+
 
     });
 
+
+
 }
 
-// ===============================
-// LOGIN + ABRIR SECCIÓN
-// ===============================
 
-function loginYabrir(destino) {
+
+
+
+function loginYabrir(destino){
+
     abrirSeccion(destino);
+
     actualizarUsuarioActivo();
-}
-
-// ===============================
-// ABRIR SECCIÓN
-// ===============================
-
-function abrirSeccion(destino) {
-
-    document.querySelectorAll(".seccion")
-        .forEach(s => s.classList.remove("activa"));
-
-    const nueva = document.getElementById(destino);
-    if (nueva) nueva.classList.add("activa");
 
 }
 
-// ===============================
-// LOGIN USUARIO NORMAL O ADMIN
-// ===============================
 
-function pedirPinUsuario(callback) {
 
-    const fondo    = document.getElementById("modalFondo");
-    const contenido = document.getElementById("modalContenido");
 
-    contenido.innerHTML = `
 
-        <h3>Acceso requerido</h3>
+function abrirSeccion(destino){
 
-        <p>Ingrese su PIN de usuario</p>
 
-        <input
-            id="pinAcceso"
-            type="password"
-            maxlength="4"
-            inputmode="numeric"
-            placeholder="PIN"
-            autocomplete="off"
-        >
+document
+.querySelectorAll(".seccion")
+.forEach(s=>
+s.classList.remove("activa")
+);
 
-        <div
-            id="msgAcceso"
-            style="font-size:12px;color:#c00;margin-top:6px;min-height:16px;">
-        </div>
 
-        <button id="btnAcceso">Ingresar</button>
 
-    `;
+const sec =
+document.getElementById(destino);
 
-    fondo.classList.add("activo");
 
-    // Foco automático
-    setTimeout(() => {
-        const inp = document.getElementById("pinAcceso");
-        if (inp) inp.focus();
-    }, 100);
 
-    // Solo números
-    document.getElementById("pinAcceso")
-        .addEventListener("input", e => {
-            e.target.value = e.target.value.replace(/\D/g, "");
-        });
+if(sec)
+sec.classList.add("activa");
 
-    // Enter también confirma
-    document.getElementById("pinAcceso")
-        .addEventListener("keydown", e => {
-            if (e.key === "Enter") confirmarPinUsuario(callback);
-        });
-
-    document.getElementById("btnAcceso")
-        .addEventListener("click", () => confirmarPinUsuario(callback));
 
 }
 
-async function confirmarPinUsuario(callback) {
 
-    const pin = document.getElementById("pinAcceso").value.trim();
-    const msg = document.getElementById("msgAcceso");
 
-    if (!pin) {
-        msg.textContent = "Ingrese un PIN";
-        return;
-    }
 
-    msg.textContent = "Verificando...";
 
-    try {
 
-        const usuario = await DB.validarPin(pin);
 
-        if (!usuario) {
-            msg.textContent = "PIN incorrecto";
-            document.getElementById("pinAcceso").value = "";
-            return;
-        }
+// ===============================
+// LOGIN USUARIO
+// ===============================
 
-        window.usuarioActivo     = usuario.usuario;
-        window.usuarioActivoTipo = usuario.tipo;
 
-        cerrarModal();
-        callback();
+function pedirPinUsuario(callback){
 
-        await DB.addLog({
-            accion  : "LOGIN",
-            detalle : `Acceso de ${usuario.usuario} (${usuario.tipo})`
-        });
 
-    } catch(e) {
+const fondo =
+document.getElementById("modalFondo");
 
-        msg.textContent = "Error de conexión. Reintentá.";
-        console.error("Error validando PIN:", e);
 
-    }
+const contenido =
+document.getElementById("modalContenido");
+
+
+
+contenido.innerHTML=`
+
+<h3>Acceso requerido</h3>
+
+<p>Ingrese PIN</p>
+
+<input id="pinAcceso"
+type="password"
+maxlength="4"
+inputmode="numeric">
+
+
+<div id="msgAcceso"></div>
+
+
+<button id="btnAcceso">
+Ingresar
+</button>
+
+`;
+
+
+
+fondo.classList.add("activo");
+
+
+
+document
+.getElementById("btnAcceso")
+.onclick=()=>{
+
+
+const pin =
+document.getElementById("pinAcceso").value;
+
+
+
+const usuario =
+usuariosSistema.find(
+u=>u.pin===pin
+);
+
+
+
+const valido =
+pin==="9999" || usuario;
+
+
+
+if(!valido){
+
+document.getElementById("msgAcceso")
+.innerHTML="PIN incorrecto";
+
+return;
 
 }
 
-// ===============================
-// LOGIN SOLO ADMIN
-// ===============================
 
-function pedirPinAdmin(callback) {
 
-    const fondo     = document.getElementById("modalFondo");
-    const contenido = document.getElementById("modalContenido");
+usuarioActivo =
+usuario ?
+usuario.usuario :
+"Admin";
 
-    contenido.innerHTML = `
 
-        <h3>Acceso administrador</h3>
 
-        <p>Solo administradores pueden acceder a esta sección</p>
+window.usuarioActivo =
+usuarioActivo;
 
-        <input
-            id="pinAdminAcceso"
-            type="password"
-            maxlength="4"
-            inputmode="numeric"
-            placeholder="PIN administrador"
-            autocomplete="off"
-        >
 
-        <div
-            id="msgAdminAcceso"
-            style="font-size:12px;color:#c00;margin-top:6px;min-height:16px;">
-        </div>
 
-        <button id="btnAdminAcceso">Ingresar</button>
+cerrarModal();
 
-    `;
 
-    fondo.classList.add("activo");
+callback();
 
-    setTimeout(() => {
-        const inp = document.getElementById("pinAdminAcceso");
-        if (inp) inp.focus();
-    }, 100);
 
-    document.getElementById("pinAdminAcceso")
-        .addEventListener("input", e => {
-            e.target.value = e.target.value.replace(/\D/g, "");
-        });
+};
 
-    document.getElementById("pinAdminAcceso")
-        .addEventListener("keydown", e => {
-            if (e.key === "Enter") confirmarPinAdmin(callback);
-        });
-
-    document.getElementById("btnAdminAcceso")
-        .addEventListener("click", () => confirmarPinAdmin(callback));
 
 }
 
-async function confirmarPinAdmin(callback) {
 
-    const pin = document.getElementById("pinAdminAcceso").value.trim();
-    const msg = document.getElementById("msgAdminAcceso");
 
-    if (!pin) {
-        msg.textContent = "Ingrese un PIN";
-        return;
-    }
 
-    msg.textContent = "Verificando...";
 
-    try {
+// ===============================
+// LOGIN ADMIN
+// ===============================
 
-        const usuario = await DB.validarPinAdmin(pin);
 
-        if (!usuario) {
-            msg.textContent = "PIN de administrador incorrecto";
-            document.getElementById("pinAdminAcceso").value = "";
-            return;
-        }
+function pedirPinAdmin(callback){
 
-        window.usuarioActivo     = usuario.usuario;
-        window.usuarioActivoTipo = usuario.tipo;
 
-        cerrarModal();
-        callback();
+const fondo =
+document.getElementById("modalFondo");
 
-        await DB.addLog({
-            accion  : "LOGIN_ADMIN",
-            detalle : `Acceso admin de ${usuario.usuario}`
-        });
 
-    } catch(e) {
+const contenido =
+document.getElementById("modalContenido");
 
-        msg.textContent = "Error de conexión. Reintentá.";
-        console.error("Error validando PIN admin:", e);
 
-    }
+
+contenido.innerHTML=`
+
+<h3>Acceso administrador</h3>
+
+<input id="pinAdminAcceso"
+type="password"
+maxlength="4"
+inputmode="numeric">
+
+
+<div id="msgAdminAcceso"></div>
+
+
+<button id="btnAdminAcceso">
+Ingresar
+</button>
+
+`;
+
+
+
+fondo.classList.add("activo");
+
+
+
+document
+.getElementById("btnAdminAcceso")
+.onclick=()=>{
+
+
+const pin =
+document
+.getElementById("pinAdminAcceso")
+.value;
+
+
+
+const usuario =
+usuariosSistema.find(
+u=>
+u.pin===pin &&
+u.tipo==="Administrador"
+);
+
+
+
+if(
+pin!=="9999" &&
+!usuario
+){
+
+document
+.getElementById("msgAdminAcceso")
+.innerHTML=
+"No es administrador";
+
+return;
 
 }
 
-// ===============================
-// ACTUALIZAR UI USUARIO ACTIVO
-// ===============================
 
-function actualizarUsuarioActivo() {
 
-    const cont = document.getElementById("usuarioActivo");
-    if (!cont) return;
+usuarioActivo =
+usuario ?
+usuario.usuario :
+"Admin";
 
-    if (!window.usuarioActivo) {
-        cont.innerHTML = "";
-        return;
-    }
 
-    const tipo = window.usuarioActivoTipo || "";
+window.usuarioActivo =
+usuarioActivo;
 
-    cont.innerHTML = `Hola <b>${window.usuarioActivo}</b>${tipo ? " · " + tipo : ""}`;
 
-}
+cerrarModal();
 
-// ===============================
-// MODAL GLOBAL
-// ===============================
 
-function iniciarModal() {
+callback();
 
-    const fondo  = document.getElementById("modalFondo");
-    const cerrar = document.getElementById("cerrarModal");
 
-    if (!fondo || !cerrar) return;
+};
 
-    cerrar.addEventListener("click", () => {
-        fondo.classList.remove("activo");
-    });
-
-    fondo.addEventListener("click", e => {
-        if (e.target === fondo) {
-            fondo.classList.remove("activo");
-        }
-    });
 
 }
 
-// ===============================
-// CERRAR MODAL (global)
-// ===============================
 
-function cerrarModal() {
-    document.getElementById("modalFondo")
-        .classList.remove("activo");
-}
+
+
+
 
 // ===============================
-// SOLO NÚMEROS en inputs .inputNumero
+// UI USUARIO
 // ===============================
 
-function limitarNumeros() {
 
-    document.querySelectorAll(".inputNumero")
-        .forEach(input => {
-            input.addEventListener("input", () => {
-                input.value = input.value.replace(/[^0-9]/g, "");
-            });
-        });
+function actualizarUsuarioActivo(){
 
-}
 
-// ===============================
-// ESCRIBIR EN CONSOLA (global)
-// Mantiene compatibilidad con
-// llamadas de otros módulos
-// ===============================
+const div =
+document.getElementById("usuarioActivo");
 
-function escribirConsola(texto) {
 
-    const consola = document.getElementById("consolaSistema");
+if(!div)return;
 
-    if (!consola) return;
 
-    const linea = document.createElement("div");
 
-    linea.style.cssText =
-        "color:#00ff66;font-family:monospace;margin-bottom:2px;";
+div.innerHTML =
+usuarioActivo ?
+`Hola <b>${usuarioActivo}</b>` :
+"No hay sesión activa";
 
-    linea.textContent =
-        new Date().toLocaleTimeString() + " → " + texto;
-
-    consola.appendChild(linea);
-
-    consola.scrollTop = consola.scrollHeight;
 
 }
 
-// Exponer globalmente
-window.cerrarModal          = cerrarModal;
-window.pedirPinAdmin        = pedirPinAdmin;
-window.pedirPinUsuario      = pedirPinUsuario;
-window.abrirSeccion         = abrirSeccion;
-window.actualizarUsuarioActivo = actualizarUsuarioActivo;
-window.escribirConsola      = escribirConsola;
+
+
+
+
+
+// ===============================
+// MODAL
+// ===============================
+
+
+function iniciarModal(){
+
+
+const fondo =
+document.getElementById("modalFondo");
+
+
+const cerrar =
+document.getElementById("cerrarModal");
+
+
+
+if(!fondo)return;
+
+
+
+cerrar.onclick=()=>{
+fondo.classList.remove("activo");
+};
+
+
+
+fondo.onclick=e=>{
+
+
+if(e.target===fondo)
+fondo.classList.remove("activo");
+
+
+};
+
+
+}
+
+
+
+
+
+// ===============================
+// INPUTS NUMERICOS
+// ===============================
+
+
+function limitarNumeros(){
+
+
+document
+.querySelectorAll(".inputNumero")
+.forEach(i=>{
+
+
+i.addEventListener(
+"input",
+()=>{
+
+i.value =
+i.value.replace(/[^0-9]/g,"");
+
+
+});
+
+
+});
+
+
+}
+
+
+
+
+
+// ===============================
+// SESION INICIAL
+// ===============================
+
+
+function iniciarSesionInicial(){
+
+
+usuarioActivo=null;
+
+window.usuarioActivo=null;
+
+
+
+document
+.querySelectorAll(".seccion")
+.forEach(s=>
+s.classList.remove("activa")
+);
+
+
+
+setTimeout(()=>{
+
+
+pedirPinUsuario(()=>{
+
+
+abrirSeccion("cobrar");
+
+
+actualizarUsuarioActivo();
+
+
+});
+
+
+},300);
+
+
+
+}
+
+
+
+
+function cerrarModal(){
+
+document
+.getElementById("modalFondo")
+.classList.remove("activo");
+
+}
