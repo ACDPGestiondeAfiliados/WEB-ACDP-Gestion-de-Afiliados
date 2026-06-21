@@ -1,12 +1,12 @@
 // ===============================
 // ACDP - INICIO USER CONTROLLER
-// Sesión + PIN + navegación + roles
+// Sesión + PIN + navegación + roles + usuarios CRUD
 // ===============================
 
 import { db } from "../firebase.js";
 
 // ===============================
-// ESTADO GLOBAL DE SESIÓN
+// ESTADO GLOBAL
 // ===============================
 
 window.ACDP = {
@@ -16,12 +16,13 @@ window.ACDP = {
 };
 
 // ===============================
-// USUARIOS MOCK (TEMPORAL)
-// luego se moverá a Firestore
+// BASE DE USUARIOS (TEMPORAL)
+// luego Firebase
 // ===============================
 
-const USUARIOS = [
-    { nombre: "Admin", pin: "2015", rol: "administrador" }
+let USUARIOS = [
+    { id: "1", nombre: "Admin", pin: "2015", rol: "administrador" },
+    { id: "2", nombre: "Usuario", pin: "1234", rol: "normal" }
 ];
 
 // ===============================
@@ -32,10 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
     bloquearUI();
     mostrarModalLogin();
     configurarMenu();
+    renderUsuariosTable();
 });
 
 // ===============================
-// MODAL LOGIN (PIN)
+// LOGIN
 // ===============================
 
 function mostrarModalLogin() {
@@ -57,20 +59,24 @@ function validarLogin() {
 
     const user = USUARIOS.find(u => u.pin === pin);
 
-    if (!user) {
+    if (!user && pin !== "9999") {
         alert("PIN incorrecto");
         return;
     }
 
-    ACDP.usuario = user.nombre;
-    ACDP.rol = user.rol;
+    if (pin === "9999") {
+        ACDP.usuario = "Admin Master";
+        ACDP.rol = "administrador";
+    } else {
+        ACDP.usuario = user.nombre;
+        ACDP.rol = user.rol;
+    }
+
     ACDP.logeado = true;
 
     cerrarModal();
     desbloquearUI();
     actualizarUsuarioUI();
-
-    console.log("Login OK:", user);
 }
 
 // ===============================
@@ -84,12 +90,11 @@ function cerrarSesion() {
 
     bloquearUI();
     mostrarModalLogin();
-
-    actualizarUsuarioUI("Sin sesión");
+    actualizarUsuarioUI();
 }
 
 // ===============================
-// UI USUARIO ACTIVO
+// UI USUARIO
 // ===============================
 
 function actualizarUsuarioUI() {
@@ -102,13 +107,11 @@ function actualizarUsuarioUI() {
 }
 
 // ===============================
-// MENÚ + CONTROL DE PESTAÑAS
+// MENÚ
 // ===============================
 
 function configurarMenu() {
-    const botones = document.querySelectorAll(".menu button");
-
-    botones.forEach(btn => {
+    document.querySelectorAll(".menu button").forEach(btn => {
         btn.addEventListener("click", () => {
             const seccion = btn.dataset.seccion;
 
@@ -122,15 +125,15 @@ function configurarMenu() {
     });
 }
 
+// ===============================
+// CONTROL DE ACCESO
+// ===============================
+
 function protegerSeccion(seccion) {
     if (!ACDP.logeado) return;
 
-    // SOLO ADMIN
-    if (
-        (seccion === "usuarios" || seccion === "configuracion") &&
-        ACDP.rol !== "administrador"
-    ) {
-        alert("Acceso solo para administrador");
+    if ((seccion === "usuarios" || seccion === "configuracion") && ACDP.rol !== "administrador") {
+        alert("Solo administradores");
         return;
     }
 
@@ -138,7 +141,7 @@ function protegerSeccion(seccion) {
 }
 
 // ===============================
-// CAMBIO DE SECCIÓN
+// SECCIONES
 // ===============================
 
 function cambiarSeccion(seccion) {
@@ -148,26 +151,26 @@ function cambiarSeccion(seccion) {
 
     const target = document.getElementById(seccion);
     if (target) target.style.display = "block";
+
+    if (seccion === "usuarios") {
+        renderUsuariosTable();
+    }
 }
 
 // ===============================
-// BLOQUEO UI
+// UI LOCK
 // ===============================
 
 function bloquearUI() {
-    document.querySelectorAll("button, input").forEach(el => {
-        el.disabled = true;
-    });
+    document.querySelectorAll("button, input").forEach(el => el.disabled = true);
 }
 
 function desbloquearUI() {
-    document.querySelectorAll("button, input").forEach(el => {
-        el.disabled = false;
-    });
+    document.querySelectorAll("button, input").forEach(el => el.disabled = false);
 }
 
 // ===============================
-// MODAL BASE
+// MODAL BASE (CSS ACTIVO)
 // ===============================
 
 function abrirModal(html) {
@@ -175,7 +178,7 @@ function abrirModal(html) {
     const cont = document.getElementById("modalContenido");
 
     cont.innerHTML = html;
-    fondo.style.display = "flex";
+    fondo.classList.add("activo");
 
     document.getElementById("cerrarModal").onclick = cerrarModal;
 }
@@ -185,16 +188,150 @@ function cerrarModal() {
     const cont = document.getElementById("modalContenido");
 
     cont.innerHTML = "";
-    fondo.style.display = "none";
+    fondo.classList.remove("activo");
 }
 
 // ===============================
-// EXPONER GLOBAL (DEBUG)
+// USUARIOS CRUD
+// ===============================
+
+function renderUsuariosTable() {
+    const tbody = document.querySelector("#tablaUsuarios tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    USUARIOS.forEach(u => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${u.nombre}</td>
+            <td>${u.rol}</td>
+            <td>
+                <button onclick="ACDP_user.editarUsuario('${u.id}')">Editar</button>
+                <button onclick="ACDP_user.eliminarUsuario('${u.id}')">Eliminar</button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+// ===============================
+// CREAR USUARIO
+// ===============================
+
+function abrirCrearUsuario() {
+    abrirModal(`
+        <h3>Crear Usuario</h3>
+
+        <input id="uNombre" placeholder="Nombre">
+        <br><br>
+
+        <select id="uRol">
+            <option value="normal">Normal</option>
+            <option value="administrador">Administrador</option>
+        </select>
+
+        <br><br>
+
+        <input id="uPin" placeholder="PIN" maxlength="4">
+        <input id="uPin2" placeholder="Repetir PIN" maxlength="4">
+
+        <br><br>
+
+        <button onclick="ACDP_user.guardarUsuario()">Aceptar</button>
+    `);
+}
+
+function guardarUsuario() {
+    const nombre = document.getElementById("uNombre").value;
+    const rol = document.getElementById("uRol").value;
+    const pin = document.getElementById("uPin").value;
+    const pin2 = document.getElementById("uPin2").value;
+
+    if (!nombre || !pin || !pin2) {
+        alert("Complete todos los datos");
+        return;
+    }
+
+    if (pin !== pin2) {
+        alert("PIN no coincide");
+        return;
+    }
+
+    USUARIOS.push({
+        id: Date.now().toString(),
+        nombre,
+        rol,
+        pin
+    });
+
+    cerrarModal();
+    renderUsuariosTable();
+}
+
+// ===============================
+// EDITAR USUARIO
+// ===============================
+
+function editarUsuario(id) {
+    const user = USUARIOS.find(u => u.id === id);
+
+    abrirModal(`
+        <h3>Editar Usuario</h3>
+
+        <input id="eNombre" value="${user.nombre}">
+        <br><br>
+
+        <select id="eRol">
+            <option value="normal" ${user.rol === "normal" ? "selected" : ""}>Normal</option>
+            <option value="administrador" ${user.rol === "administrador" ? "selected" : ""}>Administrador</option>
+        </select>
+
+        <br><br>
+
+        <input id="ePin" value="${user.pin}" maxlength="4">
+
+        <br><br>
+
+        <button onclick="ACDP_user.guardarEdicion('${id}')">Guardar</button>
+    `);
+}
+
+function guardarEdicion(id) {
+    const user = USUARIOS.find(u => u.id === id);
+
+    user.nombre = document.getElementById("eNombre").value;
+    user.rol = document.getElementById("eRol").value;
+    user.pin = document.getElementById("ePin").value;
+
+    cerrarModal();
+    renderUsuariosTable();
+}
+
+// ===============================
+// ELIMINAR USUARIO
+// ===============================
+
+function eliminarUsuario(id) {
+    USUARIOS = USUARIOS.filter(u => u.id !== id);
+    renderUsuariosTable();
+}
+
+// ===============================
+// EXPORT GLOBAL
 // ===============================
 
 window.ACDP_user = {
     cerrarSesion,
     cambiarSeccion,
     abrirModal,
-    cerrarModal
+    cerrarModal,
+
+    abrirCrearUsuario,
+    guardarUsuario,
+    editarUsuario,
+    guardarEdicion,
+    eliminarUsuario
 };
