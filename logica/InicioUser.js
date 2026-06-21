@@ -169,11 +169,22 @@ function configurarMenu() {
 function protegerSeccion(seccion) {
     if (!ACDP.logeado) return;
 
-    if (
-        (seccion === "usuarios" || seccion === "configuracion") &&
-        !ACDP.master
-    ) {
-        alert("Solo administrador master");
+    // ===============================
+    // SOLO ADMIN + MASTER pueden entrar aquí
+    // ===============================
+    if (seccion === "usuarios" || seccion === "configuracion") {
+
+        if (ACDP.master) {
+            cambiarSeccion(seccion);
+            return;
+        }
+
+        if (ACDP.rol === "administrador") {
+            cambiarSeccion(seccion);
+            return;
+        }
+
+        alert("Solo administradores o master");
         return;
     }
 
