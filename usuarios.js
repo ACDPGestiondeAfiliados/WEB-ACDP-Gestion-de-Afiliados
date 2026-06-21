@@ -18,7 +18,7 @@ window.initUsuarios = function () {
 };
 
 function esperarBD() {
-    if (!window.BD_usuarios) {
+    if (!Array.isArray(window.BD_usuarios)) {
         setTimeout(esperarBD, 150);
         return;
     }
