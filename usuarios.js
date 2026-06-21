@@ -198,7 +198,6 @@ function guardarUsuario() {
     cerrarModal();
     cargarUsuarios();
 
-    escribirConsola("Usuario creado: " + usuario);
 }
 
 // ===============================
