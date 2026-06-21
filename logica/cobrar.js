@@ -785,40 +785,66 @@ codigo
 
 
 
+
+
 await addDoc(
 collection(db,"cobros"),
 cobro
 );
 
-if(window.registrarHistorial){
 
-await window.registrarHistorial({
 
-usuario:
-window.ACDP?.usuario || "Sistema",
+
+// ===============================
+// HISTORIAL
+// ===============================
+
+if(window.HISTORIAL?.registrar){
+
+
+await window.HISTORIAL.registrar(
+
+"",
+
+{
+
 
 afiliado:
-afiliado.nombre+" "+afiliado.apellido,
+afiliado.nombre+
+" "+
+afiliado.apellido,
+
 
 dni:
 afiliado.dni,
 
-numeroAfiliado:
-afiliado.numeroAfiliado,
 
-detalleHistorial:
-"Pago realizado | Código: "+
-codigo+
-" | "+
+numeroAfiliado:
+afiliado.numeroAfiliado+
+"<br>"+
+codigo
+
+
+},
+
+
+"Pago realizado | "+
 meses.join(", ")+
 " | $"+
 total+
 " | "+
-medio
+medio+
+" | Codigo: "+
+codigo
 
-});
+
+);
+
 
 }
+
+
+
 
 CACHE_COBROS.push(cobro);
 
