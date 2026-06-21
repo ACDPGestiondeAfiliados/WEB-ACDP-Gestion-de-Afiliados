@@ -273,7 +273,7 @@ Administrador
 </select>
 
 
-<button id="btnGuardarUsuario" disabled>
+<button id="btnGuardarUsuario">
 
 Guardar
 
@@ -335,6 +335,7 @@ window.BD_usuarios || [];
 
 const existe =
 lista.some(
+
 u=>
 
 u.usuario.toLowerCase()
@@ -366,21 +367,6 @@ msg.textContent =
 msg.textContent="";
 
 }
-
-
-
-boton.disabled =
-!(
-
-usuario.value.length>=4 &&
-
-pin.value.length===4 &&
-
-pin.value===pin2.value &&
-
-!existe
-
-);
 
 
 
@@ -448,68 +434,36 @@ validar();
 
 
 
-boton.addEventListener(
-"click",
-guardarUsuario
-);
+boton.onclick =
+async()=>{
 
 
-
-validar();
-
-
-}
+const nombre =
+usuario.value.trim();
 
 
+const clave =
+pin.value.trim();
 
 
-
-
-
-
-
-// ===============================
-// GUARDAR USUARIO
-// ===============================
-
-
-async function guardarUsuario(){
-
-
-const usuario =
-document
-.getElementById("usuarioNuevo")
-.value.trim();
-
-
-const pin =
-document
-.getElementById("pinNuevo")
-.value.trim();
-
-
-const pin2 =
-document
-.getElementById("pinConfirmar")
-.value.trim();
+const confirmar =
+pin2.value.trim();
 
 
 const tipo =
-document
-.getElementById("tipoNuevo")
+document.getElementById("tipoNuevo")
 .value;
 
 
 
-
-
 if(
-
-usuario.length<4 ||
-pin.length!==4 ||
-pin!==pin2
-
+nombre.length < 4 ||
+clave.length !== 4 ||
+clave !== confirmar
 ){
+
+msg.textContent =
+"Datos inválidos";
 
 return;
 
@@ -519,21 +473,33 @@ return;
 
 
 const existe =
-BD_usuarios.some(
+(window.BD_usuarios || [])
+.some(
 
 u=>
+
 u.usuario.toLowerCase()
 ===
-usuario.toLowerCase()
+nombre.toLowerCase()
 
 );
 
 
 
-if(existe)return;
+if(existe){
+
+msg.textContent =
+"Usuario ya existe";
+
+return;
+
+}
 
 
 
+
+
+try{
 
 
 const ref =
@@ -543,11 +509,11 @@ collection(db,"usuarios"),
 
 {
 
-usuario,
+usuario:nombre,
 
-pin,
+pin:clave,
 
-tipo
+tipo:tipo
 
 }
 
@@ -556,22 +522,17 @@ tipo
 
 
 
-BD_usuarios.push({
+window.BD_usuarios.push({
 
 id:ref.id,
 
-usuario,
+usuario:nombre,
 
-pin,
+pin:clave,
 
-tipo
+tipo:tipo
 
 });
-
-
-
-window.BD_usuarios =
-BD_usuarios;
 
 
 
@@ -581,23 +542,40 @@ cerrarModal();
 cargarUsuarios();
 
 
+
 if(typeof escribirConsola==="function")
 
 escribirConsola(
-"Usuario creado: "+usuario
+"Usuario creado: "+nombre
 );
 
+
+
+}catch(error){
+
+
+console.error(
+"ERROR CREANDO USUARIO",
+error
+);
+
+
+alert(
+"Error guardando usuario"
+);
 
 
 }
 
 
+};
 
 
 
+validar();
 
 
-
+}
 
 // ===============================
 // ELIMINAR
