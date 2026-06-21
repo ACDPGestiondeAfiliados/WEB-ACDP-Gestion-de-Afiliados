@@ -1,19 +1,15 @@
 // ===============================
-// CONFIGURACION ACDP OFFLINE
-// MONTO + LOGS INTERNOS
+// CONFIGURACION ACDP
+// MONTO + LOG INTERNO
 // SIN CONSOLA
 // ===============================
 
 
-// ===============================
-// INICIO
-// ===============================
-
-document.addEventListener("DOMContentLoaded", () => {
-
-    cargarConfiguracion();
+document.addEventListener("DOMContentLoaded",()=>{
 
     iniciarConfiguracion();
+
+    cargarConfiguracion();
 
     iniciarResetSemanal();
 
@@ -27,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function iniciarConfiguracion(){
 
+
     const boton =
     document.getElementById("guardarConfiguracion");
 
@@ -34,20 +31,23 @@ function iniciarConfiguracion(){
     if(!boton) return;
 
 
+
     boton.addEventListener(
         "click",
         guardarMonto
     );
+
 
 }
 
 
 
 // ===============================
-// CARGAR CONFIGURACION
+// CARGAR CONFIG
 // ===============================
 
 function cargarConfiguracion(){
+
 
     const input =
     document.getElementById("montoConfiguracion");
@@ -57,61 +57,24 @@ function cargarConfiguracion(){
 
 
 
-    let datos =
-    localStorage.getItem("BD_configuracion");
+    if(!window.BD_configuracion){
 
 
-
-    if(datos){
-
-        try{
-
-            window.BD_configuracion =
-            JSON.parse(datos);
-
-        }catch(e){
-
-            window.BD_configuracion = {
-                monto:0
-            };
-
-        }
-
-
-    }else{
-
-
-        window.BD_configuracion = {
+        window.BD_configuracion={
             monto:0
         };
 
-
-        guardarConfiguracionLocal();
 
     }
 
 
 
     input.value =
-    window.BD_configuracion.monto ?? 0;
-
-}
-
-
-
-// ===============================
-// GUARDAR CONFIG LOCAL
-// ===============================
-
-function guardarConfiguracionLocal(){
-
-    localStorage.setItem(
-        "BD_configuracion",
-        JSON.stringify(window.BD_configuracion)
-    );
+    BD_configuracion.monto ?? 0;
 
 
 }
+
 
 
 
@@ -131,9 +94,7 @@ function guardarMonto(){
 
 
     const valor =
-    Number(
-        input.value.trim()
-    );
+    Number(input.value.trim());
 
 
 
@@ -147,32 +108,15 @@ function guardarMonto(){
 
 
 
-    if(!window.BD_configuracion){
 
-        window.BD_configuracion = {
-            monto:0
-        };
-
-    }
-
-
-
-    window.BD_configuracion.monto =
+    BD_configuracion.monto =
     valor;
 
 
 
-    // GUARDA EN LOCALSTORAGE
-    guardarConfiguracionLocal();
+    // GUARDA TODA LA BD
+    guardarBD();
 
-
-
-    // COMPATIBILIDAD CON BD GENERAL
-    if(typeof guardarBD === "function"){
-
-        guardarBD();
-
-    }
 
 
 
@@ -187,10 +131,14 @@ function guardarMonto(){
 
 
 
-    input.value = valor;
+
+    input.value =
+    BD_configuracion.monto;
 
 
 }
+
+
 
 
 
@@ -198,18 +146,19 @@ function guardarMonto(){
 // LOG INTERNO
 // ===============================
 
-function registrarLog(datos){
+function registrarLog(data){
 
 
     if(!Array.isArray(window.BD_logsSistema)){
 
-        window.BD_logsSistema = [];
+        window.BD_logsSistema=[];
 
     }
 
 
 
-    const ahora =
+
+    const fecha =
     new Date();
 
 
@@ -217,37 +166,36 @@ function registrarLog(datos){
     window.BD_logsSistema.push({
 
         fecha:
-        ahora.toLocaleDateString(),
+        fecha.toLocaleDateString(),
 
         hora:
-        ahora.toLocaleTimeString(),
+        fecha.toLocaleTimeString(),
 
         usuario:
         window.usuarioActivo || "Sistema",
 
         rol:
-        window.usuarioActivo === "Admin"
+        window.usuarioActivo==="Admin"
         ? "ADMIN"
         : "USER",
 
         accion:
-        datos.accion || "",
+        data.accion || "",
+
 
         detalle:
-        datos.detalle || ""
+        data.detalle || ""
 
     });
 
 
 
-    if(typeof guardarBD === "function"){
-
-        guardarBD();
-
-    }
+    // persiste BD completa
+    guardarBD();
 
 
 }
+
 
 
 
@@ -261,18 +209,17 @@ function iniciarResetSemanal(){
     setInterval(()=>{
 
 
-        const ahora =
-        new Date();
+        const ahora=new Date();
 
 
 
         if(
 
-            ahora.getDay() === 0 &&
+            ahora.getDay()===0 &&
 
-            ahora.getHours() === 0 &&
+            ahora.getHours()===0 &&
 
-            ahora.getMinutes() === 0
+            ahora.getMinutes()===0
 
         ){
 
@@ -288,6 +235,7 @@ function iniciarResetSemanal(){
 
 
 
+
 // ===============================
 // LIMPIAR LOGS
 // ===============================
@@ -295,19 +243,18 @@ function iniciarResetSemanal(){
 function resetLogs(){
 
 
-    if(Array.isArray(window.BD_logsSistema)){
+    if(Array.isArray(BD_logsSistema)){
 
-        window.BD_logsSistema.length = 0;
+
+        BD_logsSistema.length=0;
+
 
     }
 
 
 
-    if(typeof guardarBD === "function"){
+    guardarBD();
 
-        guardarBD();
-
-    }
 
 
     registrarLog({
