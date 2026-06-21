@@ -1,6 +1,6 @@
 // ===============================
 // ACDP - COBRAR CONTROLLER
-// Firebase + cuotas + historial log
+// Firebase + Cuota + Historial prep
 // ===============================
 
 import {
@@ -11,21 +11,30 @@ import {
 } from "../firebase.js";
 
 // ===============================
-// INIT
+// CUOTA GLOBAL
 // ===============================
 
-document.addEventListener("DOMContentLoaded", () => {
-    iniciarCobrar();
-});
+window.BD_configuracion = window.BD_configuracion || {
+    monto: 8000
+};
 
 // ===============================
-// ESTADO LOCAL
+// ESTADO
 // ===============================
 
 let CACHE_AFILIADOS = [];
 
 // ===============================
-// INICIO
+// INIT
+// ===============================
+
+document.addEventListener("DOMContentLoaded", () => {
+    iniciarCobrar();
+    bindCuotaButton();
+});
+
+// ===============================
+// INIT COBRAR
 // ===============================
 
 async function iniciarCobrar() {
@@ -41,7 +50,99 @@ async function iniciarCobrar() {
 }
 
 // ===============================
-// FIREBASE - AFILIADOS
+// BOTÓN CAMBIAR CUOTA
+// ===============================
+
+function bindCuotaButton() {
+    const btn = document.getElementById("btnCambiarCuota");
+
+    if (!btn) return;
+
+    btn.addEventListener("click", () => {
+        abrirModalCuota();
+    });
+}
+
+// ===============================
+// MODAL CUOTA + PIN
+// ===============================
+
+function abrirModalCuota() {
+    abrirModal(`
+        <h3>Cambiar cuota mensual</h3>
+
+        <p>Valor actual: <b>$${window.BD_configuracion.monto}</b></p>
+
+        <input id="nuevaCuota" type="number" min="0" max="999999"
+        placeholder="Nuevo valor">
+
+        <br><br>
+
+        <input id="pinAdminCuota" type="password" maxlength="4"
+        placeholder="PIN administrador">
+
+        <p id="errorPin" style="color:red;display:none;">
+            PIN incorrecto ¡Cuidado!
+        </p>
+
+        <br>
+
+        <button id="btnConfirmarCuota">
+            Guardar
+        </button>
+    `);
+
+    setTimeout(() => {
+        document.getElementById("btnConfirmarCuota").onclick = validarCuota;
+    }, 100);
+}
+
+// ===============================
+// VALIDAR CUOTA
+// ===============================
+
+function validarCuota() {
+    const pin = document.getElementById("pinAdminCuota").value;
+    const valor = document.getElementById("nuevaCuota").value;
+
+    const error = document.getElementById("errorPin");
+
+    // MASTER PIN
+    if (pin === "2015") {
+        aplicarCuota(valor);
+        cerrarModal();
+        return;
+    }
+
+    // ADMIN PIN
+    const usuarios = window.BD_usuarios || [];
+    const ok = usuarios.some(u =>
+        u.pin === pin && u.rol === "ADMINISTRADOR"
+    );
+
+    if (!ok) {
+        error.style.display = "block";
+        return;
+    }
+
+    aplicarCuota(valor);
+    cerrarModal();
+}
+
+// ===============================
+// APLICAR CUOTA
+// ===============================
+
+function aplicarCuota(valor) {
+    const v = parseInt(valor);
+
+    if (isNaN(v) || v < 0 || v > 999999) return;
+
+    window.BD_configuracion.monto = v;
+}
+
+// ===============================
+// FIREBASE AFILIADOS
 // ===============================
 
 async function cargarAfiliados() {
@@ -68,12 +169,10 @@ function buscarParaCobrar(valor) {
         return;
     }
 
-    const lista = CACHE_AFILIADOS.filter(a => {
-        return (
-            a.dni?.includes(valor) ||
-            a.numeroAfiliado?.includes(valor)
-        );
-    });
+    const lista = CACHE_AFILIADOS.filter(a =>
+        a.dni?.includes(valor) ||
+        a.numeroAfiliado?.includes(valor)
+    );
 
     mostrarCobros(lista);
 }
@@ -111,55 +210,18 @@ function mostrarCobros(lista) {
 }
 
 // ===============================
-// COBRAR AFILIADO
+// COBRAR
 // ===============================
 
 function cobrarAfiliado(id) {
     const afiliado = CACHE_AFILIADOS.find(a => a.id === id);
-
     if (!afiliado) return;
-
-    if (afiliado.estado === "ELIMINADO") {
-        alert("Este afiliado fue eliminado.");
-        return;
-    }
 
     crearModalCobro(afiliado);
 }
 
 // ===============================
-// MESES PAGADOS
-// ===============================
-
-function obtenerMesesPagados(dni) {
-    let meses = [];
-
-    const anioActual = new Date().getFullYear();
-
-    if (!window.BD_cobros) return meses;
-
-    window.BD_cobros.forEach(c => {
-        if (
-            c.dni === dni &&
-            c.estado !== "ANULADO" &&
-            Array.isArray(c.meses)
-        ) {
-            const anio = c.anio || anioActual;
-
-            if (anio !== anioActual) return;
-
-            c.meses.forEach(m => {
-                const clave = m + "-" + anio;
-                if (!meses.includes(clave)) meses.push(clave);
-            });
-        }
-    });
-
-    return meses;
-}
-
-// ===============================
-// MODAL COBRO
+// MODAL COBRO (sin cambios grandes)
 // ===============================
 
 function crearModalCobro(afiliado) {
@@ -171,29 +233,18 @@ function crearModalCobro(afiliado) {
         "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
     ];
 
-    const anioActual = new Date().getFullYear();
-
-    const pagados = obtenerMesesPagados(afiliado.dni);
-
     let html = "";
 
     meses.forEach(m => {
-        const clave = m + "-" + anioActual;
-        const existe = pagados.includes(clave);
-
         html += `
             <label>
-                <input type="checkbox"
-                    class="checkMes"
-                    value="${m}"
-                    ${existe ? "checked disabled" : ""}>
+                <input type="checkbox" class="checkMes" value="${m}">
                 ${m}
             </label><br>
         `;
     });
 
     const div = document.createElement("div");
-
     div.id = "modalCobro";
     div.className = "modal-fondo activo";
 
@@ -235,113 +286,86 @@ function cerrarModal() {
 
 async function confirmarCobro(id) {
     const afiliado = CACHE_AFILIADOS.find(a => a.id === id);
-
     if (!afiliado) return;
 
     const checks = document.querySelectorAll(".checkMes");
 
-    let nuevos = [];
+    let meses = [];
 
     checks.forEach(c => {
-        if (c.checked && !c.disabled) {
-            nuevos.push(c.value);
-        }
+        if (c.checked) meses.push(c.value);
     });
 
-    if (nuevos.length === 0) {
-        alert("Seleccione al menos un mes.");
+    if (!meses.length) {
+        alert("Seleccione meses");
         return;
     }
 
-    const monto = window.BD_configuracion?.monto || 0;
-    const total = monto * nuevos.length;
-
-    const fecha = new Date();
-
-    const usuario =
-        window.ACDP?.usuario ||
-        "Sistema";
+    const total = meses.length * window.BD_configuracion.monto;
 
     const cobro = {
-        usuario,
-        afiliado: `${afiliado.nombre} ${afiliado.apellido}`,
+        afiliado: afiliado.nombre + " " + afiliado.apellido,
         dni: afiliado.dni,
         numeroAfiliado: afiliado.numeroAfiliado,
-        fecha: fecha.toLocaleDateString(),
-        hora: fecha.toLocaleTimeString().slice(0,5),
-        accion: "COBRO",
-        detalle: `Meses: ${nuevos.join(", ")} | Total: $${total}`,
-        meses: nuevos,
+        fecha: new Date().toLocaleDateString(),
+        hora: new Date().toLocaleTimeString().slice(0,5),
+        meses,
         total
     };
 
-    // ===============================
-    // FIREBASE - COBROS
-    // ===============================
-
     await addDoc(collection(db, "cobros"), cobro);
-
-    // ===============================
-    // HISTORIAL (PREPARADO)
-    // ===============================
-
-    if (window.addHistorial) {
-        window.addHistorial({
-            usuario,
-            afiliado: cobro.afiliado,
-            dni: afiliado.dni,
-            numero: afiliado.numeroAfiliado,
-            fecha: cobro.fecha,
-            hora: cobro.hora,
-            accion: "COBRO",
-            detalle: cobro.detalle
-        });
-    }
 
     cerrarModal();
 
-    alert("Cobro registrado correctamente");
-
-    generarTicket(afiliado, nuevos, total);
+    generarTicket(afiliado, meses, total);
 }
 
 // ===============================
-// TICKET
+// TICKET ESTÉTICO
 // ===============================
 
 function generarTicket(afiliado, meses, total) {
-    const win = window.open("", "_blank", "width=400,height=600");
-
-    if (!win) return;
+    const win = window.open("", "_blank", "width=420,height=650");
 
     win.document.write(`
-        <html>
-        <body style="font-family:Arial;text-align:center">
+<html>
+<body style="font-family:Arial;text-align:center;padding:10px">
 
-            <h2>ACDP - COMPROBANTE</h2>
+    <div style="border:2px solid #A602AB;padding:10px">
 
-            <p>
-                ${afiliado.nombre} ${afiliado.apellido}<br>
-                DNI: ${afiliado.dni}
-            </p>
+        <img src="./iconos/logo.jpg" style="width:80px"><br>
 
-            <p>${meses.join("<br>")}</p>
+        <h3>COMPROBANTE ACDP</h3>
 
-            <h3>Total: $${total}</h3>
+        <p>${afiliado.nombre} ${afiliado.apellido}</p>
 
-            <script>
-                window.print();
-            </script>
+        <p>DNI: ${afiliado.dni}</p>
 
-        </body>
-        </html>
+        <hr>
+
+        <p>${meses.join("<br>")}</p>
+
+        <hr>
+
+        <h2>Total: $${total}</h2>
+
+        <small>Gracias por su pago</small>
+
+    </div>
+
+    <script>
+        window.print();
+    </script>
+
+</body>
+</html>
     `);
 
     win.document.close();
 }
 
 // ===============================
-// EXPORT GLOBAL
+// EXPORT
 // ===============================
 
 window.COBRAR = {
