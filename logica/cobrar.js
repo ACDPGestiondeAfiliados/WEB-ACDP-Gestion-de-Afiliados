@@ -7,8 +7,11 @@ import {
     db,
     collection,
     getDocs,
-    addDoc
+    addDoc,
+    setDoc,
+    doc
 } from "../firebase.js";
+
 
 // ===============================
 // CUOTA GLOBAL
@@ -18,358 +21,832 @@ window.BD_configuracion = window.BD_configuracion || {
     monto: 8000
 };
 
+
 // ===============================
 // ESTADO
 // ===============================
 
 let CACHE_AFILIADOS = [];
+let CACHE_COBROS = [];
+
 
 // ===============================
 // INIT
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
+
     iniciarCobrar();
     bindCuotaButton();
+
 });
+
 
 // ===============================
 // INIT COBRAR
 // ===============================
 
-async function iniciarCobrar() {
+async function iniciarCobrar(){
+
+    await cargarConfiguracion();
+    await cargarCobros();
     await cargarAfiliados();
 
-    const filtro = document.getElementById("filtroCobrar");
 
-    if (filtro) {
-        filtro.addEventListener("input", () => {
+    const filtro =
+    document.getElementById("filtroCobrar");
+
+
+    if(filtro){
+
+        filtro.addEventListener("input",()=>{
+
             buscarParaCobrar(filtro.value);
+
         });
+
     }
+
 }
 
+
 // ===============================
-// BOTÓN CAMBIAR CUOTA
+// CONFIG FIREBASE
 // ===============================
 
-function bindCuotaButton() {
-    const btn = document.getElementById("btnCambiarCuota");
+async function cargarConfiguracion(){
 
-    if (!btn) return;
+    const snap =
+    await getDocs(collection(db,"configuracion"));
 
-    btn.addEventListener("click", () => {
-        abrirModalCuota();
+
+    snap.forEach(d=>{
+
+        window.BD_configuracion =
+        d.data();
+
     });
+
+
+    if(!window.BD_configuracion.monto){
+
+        window.BD_configuracion.monto=8000;
+
+    }
+
 }
 
+
 // ===============================
-// MODAL CUOTA + PIN
+// COBROS CACHE
 // ===============================
 
-function abrirModalCuota() {
-    abrirModal(`
-        <h3>Cambiar cuota mensual</h3>
+async function cargarCobros(){
 
-        <p>Valor actual: <b>$${window.BD_configuracion.monto}</b></p>
+    CACHE_COBROS=[];
 
-        <input id="nuevaCuota" type="number" min="0" max="999999"
-        placeholder="Nuevo valor">
+    const snap =
+    await getDocs(collection(db,"cobros"));
 
-        <br><br>
 
-        <input id="pinAdminCuota" type="password" maxlength="4"
-        placeholder="PIN administrador">
+    snap.forEach(d=>{
 
-        <p id="errorPin" style="color:red;display:none;">
-            PIN incorrecto ¡Cuidado!
-        </p>
+        CACHE_COBROS.push({
+            id:d.id,
+            ...d.data()
+        });
 
-        <br>
+    });
 
-        <button id="btnConfirmarCuota">
-            Guardar
-        </button>
-    `);
-
-    setTimeout(() => {
-        document.getElementById("btnConfirmarCuota").onclick = validarCuota;
-    }, 100);
 }
+
+
+// ===============================
+// BOTON CUOTA
+// ===============================
+
+function bindCuotaButton(){
+
+    const btn =
+    document.getElementById("btnCambiarCuota");
+
+
+    if(!btn)return;
+
+
+    btn.onclick=abrirModalCuota;
+
+}
+
+
+// ===============================
+// MODAL CUOTA
+// ===============================
+
+function abrirModalCuota(){
+
+abrirModal(`
+
+<h3>Cambiar cuota mensual</h3>
+
+
+<p>
+Valor actual:
+<b>
+$${window.BD_configuracion.monto}
+</b>
+</p>
+
+
+<input
+id="nuevaCuota"
+type="number"
+min="0"
+max="999999"
+placeholder="Nuevo valor"
+>
+
+
+<br><br>
+
+
+<input
+id="pinAdminCuota"
+type="password"
+maxlength="4"
+placeholder="PIN administrador"
+>
+
+
+<p
+id="errorPin"
+style="color:red;display:none;"
+>
+PIN incorrecto ¡Cuidado!
+</p>
+
+
+<br>
+
+
+<button id="guardarCuota">
+Guardar
+</button>
+
+`);
+
+setTimeout(()=>{
+
+document
+.getElementById("guardarCuota")
+.onclick=validarCuota;
+
+},100);
+
+}
+
 
 // ===============================
 // VALIDAR CUOTA
 // ===============================
 
-function validarCuota() {
-    const pin = document.getElementById("pinAdminCuota").value;
-    const valor = document.getElementById("nuevaCuota").value;
+async function validarCuota(){
 
-    const error = document.getElementById("errorPin");
+const pin =
+document.getElementById("pinAdminCuota").value;
 
-    // MASTER PIN
-    if (pin === "2015") {
-        aplicarCuota(valor);
-        cerrarModal();
-        return;
-    }
 
-    // ADMIN PIN
-    const usuarios = window.BD_usuarios || [];
-    const ok = usuarios.some(u =>
-        u.pin === pin && u.rol === "ADMINISTRADOR"
-    );
+const valor =
+document.getElementById("nuevaCuota").value;
 
-    if (!ok) {
-        error.style.display = "block";
-        return;
-    }
 
-    aplicarCuota(valor);
-    cerrarModal();
+const error =
+document.getElementById("errorPin");
+
+
+
+let valido=false;
+
+
+
+if(pin==="2015"){
+
+valido=true;
+
 }
 
-// ===============================
-// APLICAR CUOTA
-// ===============================
 
-function aplicarCuota(valor) {
-    const v = parseInt(valor);
 
-    if (isNaN(v) || v < 0 || v > 999999) return;
+const usuarios =
+window.BD_usuarios || [];
 
-    window.BD_configuracion.monto = v;
+
+
+if(
+usuarios.some(u=>
+u.pin===pin &&
+u.rol==="ADMINISTRADOR"
+)
+){
+
+valido=true;
+
 }
 
-// ===============================
-// FIREBASE AFILIADOS
-// ===============================
 
-async function cargarAfiliados() {
-    const snap = await getDocs(collection(db, "afiliados"));
 
-    CACHE_AFILIADOS = [];
+if(!valido){
 
-    snap.forEach(d => {
-        CACHE_AFILIADOS.push({ id: d.id, ...d.data() });
-    });
+error.style.display="block";
+return;
 
-    mostrarCobros(CACHE_AFILIADOS);
 }
+
+
+
+const monto=parseInt(valor);
+
+
+
+if(
+isNaN(monto) ||
+monto<0 ||
+monto>999999
+)return;
+
+
+
+window.BD_configuracion.monto=monto;
+
+
+
+await setDoc(
+doc(db,"configuracion","general"),
+{
+monto
+}
+);
+
+
+
+cerrarModal();
+
+
+alert("Cuota actualizada");
+
+}
+
+
+// ===============================
+// MODAL BASE
+// ===============================
+
+function abrirModal(html){
+
+document
+.getElementById("modalContenido")
+.innerHTML=html;
+
+
+document
+.getElementById("modalFondo")
+.classList.add("activo");
+
+
+document
+.getElementById("cerrarModal")
+.onclick=cerrarModal;
+
+}
+
+
+
+function cerrarModal(){
+
+document
+.getElementById("modalContenido")
+.innerHTML="";
+
+
+document
+.getElementById("modalFondo")
+.classList.remove("activo");
+
+}
+
+
+
+// ===============================
+// AFILIADOS
+// ===============================
+
+async function cargarAfiliados(){
+
+const snap =
+await getDocs(collection(db,"afiliados"));
+
+
+CACHE_AFILIADOS=[];
+
+
+snap.forEach(d=>{
+
+CACHE_AFILIADOS.push({
+id:d.id,
+...d.data()
+});
+
+});
+
+
+mostrarCobros(CACHE_AFILIADOS);
+
+}
+
+
 
 // ===============================
 // BUSCAR
 // ===============================
 
-function buscarParaCobrar(valor) {
-    valor = valor.trim();
+function buscarParaCobrar(valor){
 
-    if (!valor) {
-        mostrarCobros(CACHE_AFILIADOS);
-        return;
-    }
+valor=valor.trim();
 
-    const lista = CACHE_AFILIADOS.filter(a =>
-        a.dni?.includes(valor) ||
-        a.numeroAfiliado?.includes(valor)
-    );
 
-    mostrarCobros(lista);
+if(!valor){
+
+mostrarCobros(CACHE_AFILIADOS);
+return;
+
 }
+
+
+mostrarCobros(
+
+CACHE_AFILIADOS.filter(a=>
+
+a.dni?.includes(valor) ||
+a.numeroAfiliado?.includes(valor)
+
+)
+
+);
+
+}
+
+
 
 // ===============================
 // TABLA
 // ===============================
 
-function mostrarCobros(lista) {
-    const cuerpo = document.querySelector("#tablaCobrar tbody");
+function mostrarCobros(lista){
 
-    if (!cuerpo) return;
+const cuerpo =
+document.querySelector("#tablaCobrar tbody");
 
-    cuerpo.innerHTML = "";
 
-    lista.forEach(a => {
-        const bloqueado = a.estado === "ELIMINADO";
+if(!cuerpo)return;
 
-        cuerpo.innerHTML += `
-            <tr>
-                <td>${a.numeroAfiliado || ""}</td>
-                <td>${a.dni || ""}</td>
-                <td>${a.nombre || ""}</td>
-                <td>${a.apellido || ""}</td>
-                <td>${a.estado || "ACTIVO"}</td>
-                <td>
-                    <button onclick="COBRAR.cobrarAfiliado('${a.id}')"
-                        ${bloqueado ? "disabled" : ""}>
-                        ${bloqueado ? "BLOQUEADO" : "COBRAR"}
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
+
+cuerpo.innerHTML="";
+
+
+
+lista.forEach(a=>{
+
+
+cuerpo.innerHTML+=`
+
+<tr>
+
+<td>${a.numeroAfiliado}</td>
+
+<td>${a.dni}</td>
+
+<td>${a.nombre}</td>
+
+<td>${a.apellido}</td>
+
+<td>${a.estado}</td>
+
+<td>
+
+<button onclick="COBRAR.cobrarAfiliado('${a.id}')">
+
+COBRAR
+
+</button>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
 }
+
+
 
 // ===============================
 // COBRAR
 // ===============================
 
-function cobrarAfiliado(id) {
-    const afiliado = CACHE_AFILIADOS.find(a => a.id === id);
-    if (!afiliado) return;
+function cobrarAfiliado(id){
 
-    crearModalCobro(afiliado);
+const afiliado =
+CACHE_AFILIADOS.find(a=>a.id===id);
+
+
+if(!afiliado)return;
+
+
+crearModalCobro(afiliado);
+
 }
 
+
+
 // ===============================
-// MODAL COBRO (sin cambios grandes)
+// MESES PAGADOS
 // ===============================
 
-function crearModalCobro(afiliado) {
-    const anterior = document.getElementById("modalCobro");
-    if (anterior) anterior.remove();
+function mesesPagados(dni){
 
-    const meses = [
-        "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-        "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
-    ];
+let usados=[];
 
-    let html = "";
 
-    meses.forEach(m => {
-        html += `
-            <label>
-                <input type="checkbox" class="checkMes" value="${m}">
-                ${m}
-            </label><br>
-        `;
-    });
+CACHE_COBROS.forEach(c=>{
 
-    const div = document.createElement("div");
-    div.id = "modalCobro";
-    div.className = "modal-fondo activo";
+if(c.dni===dni){
 
-    div.innerHTML = `
-        <div class="modal">
-            <h3>Cobrar afiliado</h3>
+(c.meses||[])
+.forEach(m=>{
 
-            <p>${afiliado.nombre} ${afiliado.apellido}</p>
+if(!usados.includes(m))
+usados.push(m);
 
-            ${html}
+});
 
-            <br>
-
-            <button onclick="COBRAR.confirmarCobro('${afiliado.id}')">
-                Aceptar
-            </button>
-
-            <button onclick="COBRAR.cerrarModal()">
-                Cancelar
-            </button>
-        </div>
-    `;
-
-    document.body.appendChild(div);
 }
 
-// ===============================
-// CERRAR MODAL
-// ===============================
+});
 
-function cerrarModal() {
-    const m = document.getElementById("modalCobro");
-    if (m) m.remove();
+
+return usados;
+
 }
 
+
+
 // ===============================
-// CONFIRMAR COBRO
+// MODAL COBRO
 // ===============================
 
-async function confirmarCobro(id) {
-    const afiliado = CACHE_AFILIADOS.find(a => a.id === id);
-    if (!afiliado) return;
+function crearModalCobro(afiliado){
 
-    const checks = document.querySelectorAll(".checkMes");
 
-    let meses = [];
+const meses=[
+"Enero","Febrero","Marzo","Abril",
+"Mayo","Junio","Julio","Agosto",
+"Septiembre","Octubre","Noviembre","Diciembre"
+];
 
-    checks.forEach(c => {
-        if (c.checked) meses.push(c.value);
-    });
 
-    if (!meses.length) {
-        alert("Seleccione meses");
-        return;
-    }
+const pagados =
+mesesPagados(afiliado.dni);
 
-    const total = meses.length * window.BD_configuracion.monto;
 
-    const cobro = {
-        afiliado: afiliado.nombre + " " + afiliado.apellido,
-        dni: afiliado.dni,
-        numeroAfiliado: afiliado.numeroAfiliado,
-        fecha: new Date().toLocaleDateString(),
-        hora: new Date().toLocaleTimeString().slice(0,5),
-        meses,
-        total
-    };
 
-    await addDoc(collection(db, "cobros"), cobro);
+let html="";
 
-    cerrarModal();
 
-    generarTicket(afiliado, meses, total);
+meses.forEach(m=>{
+
+
+const bloqueado =
+pagados.includes(m);
+
+
+html+=`
+
+<label>
+
+<input
+
+type="checkbox"
+
+class="checkMes"
+
+value="${m}"
+
+${bloqueado?"disabled":""}
+
+>
+
+${m}
+
+${bloqueado?" (Pagado)":""}
+
+</label>
+
+<br>
+
+`;
+
+});
+
+
+
+abrirModal(`
+
+<h3>Cobrar afiliado</h3>
+
+
+<h4>
+${afiliado.nombre}
+${afiliado.apellido}
+</h4>
+
+
+<div>
+
+${html}
+
+</div>
+
+
+<br>
+
+
+<select id="medioPago">
+
+<option>
+EFECTIVO
+</option>
+
+<option>
+TRANSFERENCIA
+</option>
+
+<option>
+OTRO
+</option>
+
+</select>
+
+
+<br><br>
+
+
+<button onclick="COBRAR.confirmarCobro('${afiliado.id}')">
+
+Aceptar
+
+</button>
+
+
+<button onclick="COBRAR.cerrarModal()">
+
+Cancelar
+
+</button>
+
+
+`);
+
 }
 
+
+
 // ===============================
-// TICKET ESTÉTICO
+// CONFIRMAR
 // ===============================
 
-function generarTicket(afiliado, meses, total) {
-    const win = window.open("", "_blank", "width=420,height=650");
+async function confirmarCobro(id){
 
-    win.document.write(`
+const afiliado =
+CACHE_AFILIADOS.find(a=>a.id===id);
+
+
+let meses=[];
+
+
+document
+.querySelectorAll(".checkMes")
+.forEach(c=>{
+
+if(c.checked)
+meses.push(c.value);
+
+});
+
+
+
+if(!meses.length){
+
+alert("Seleccione meses");
+
+return;
+
+}
+
+
+
+const medio =
+document.getElementById("medioPago").value;
+
+
+
+const total =
+meses.length *
+window.BD_configuracion.monto;
+
+
+
+const fecha=new Date();
+
+
+
+const cobro={
+
+
+usuario:
+window.ACDP?.usuario || "Sistema",
+
+
+dni:
+afiliado.dni,
+
+
+numeroAfiliado:
+afiliado.numeroAfiliado,
+
+
+afiliado:
+afiliado.nombre+" "+afiliado.apellido,
+
+
+meses,
+
+
+medioPago:medio,
+
+
+total,
+
+
+fecha:
+fecha.toLocaleDateString(),
+
+
+hora:
+fecha.toLocaleTimeString().slice(0,5)
+
+};
+
+
+
+await addDoc(
+collection(db,"cobros"),
+cobro
+);
+
+
+
+CACHE_COBROS.push(cobro);
+
+
+
+cerrarModal();
+
+
+generarTicket(
+afiliado,
+meses,
+total,
+medio
+);
+
+
+}
+
+
+
+// ===============================
+// TICKET
+// ===============================
+
+function generarTicket(
+afiliado,
+meses,
+total,
+medio
+){
+
+
+const win =
+window.open("","_blank","width=420,height=650");
+
+
+
+win.document.write(`
+
 <html>
-<body style="font-family:Arial;text-align:center;padding:10px">
 
-    <div style="border:2px solid #A602AB;padding:10px">
+<body style="
+font-family:Arial;
+text-align:center;
+padding:20px;
+">
 
-        <img src="./iconos/logo.jpg" style="width:80px"><br>
 
-        <h3>COMPROBANTE ACDP</h3>
+<div style="
+border:2px solid #A602AB;
+padding:15px;
+border-radius:10px;
+">
 
-        <p>${afiliado.nombre} ${afiliado.apellido}</p>
 
-        <p>DNI: ${afiliado.dni}</p>
+<img src="./iconos/logo.jpg"
+style="width:90px">
 
-        <hr>
 
-        <p>${meses.join("<br>")}</p>
+<h2>
+ACDP
+</h2>
 
-        <hr>
 
-        <h2>Total: $${total}</h2>
+<h3>
+COMPROBANTE DE PAGO
+</h3>
 
-        <small>Gracias por su pago</small>
 
-    </div>
+<p>
+${afiliado.nombre}
+${afiliado.apellido}
+</p>
 
-    <script>
-        window.print();
-    </script>
+
+<p>
+DNI: ${afiliado.dni}
+</p>
+
+
+<hr>
+
+
+<p>
+${meses.join("<br>")}
+</p>
+
+
+<h2>
+TOTAL $${total}
+</h2>
+
+
+<p>
+Medio:
+${medio}
+</p>
+
+
+<small>
+Gracias por su pago
+</small>
+
+
+</div>
+
+
+<script>
+window.print();
+</script>
+
 
 </body>
-</html>
-    `);
 
-    win.document.close();
+</html>
+
+`);
+
+
+win.document.close();
+
 }
 
-// ===============================
-// EXPORT
+
+
 // ===============================
 
-window.COBRAR = {
-    cobrarAfiliado,
-    confirmarCobro,
-    cerrarModal
+window.COBRAR={
+
+cobrarAfiliado,
+confirmarCobro,
+cerrarModal
+
 };
