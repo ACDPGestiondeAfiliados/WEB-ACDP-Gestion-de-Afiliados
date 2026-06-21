@@ -21,7 +21,7 @@ window.ACDP = {
 // ===============================
 
 const USUARIOS = [
-    { nombre: "Admin", pin: "9999", rol: "administrador" }
+    { nombre: "Admin", pin: "2015", rol: "administrador" }
 ];
 
 // ===============================
