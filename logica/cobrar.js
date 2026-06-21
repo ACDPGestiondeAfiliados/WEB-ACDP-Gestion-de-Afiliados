@@ -734,7 +734,27 @@ medio
 
 }
 
+// ===============================
+// CODIGO UNICO DE TICKET DE 9 LETRAS
+// ===============================
 
+function generarCodigoComprobante(){
+
+    const letras="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+    let codigo="";
+
+    for(let i=0;i<9;i++){
+
+        codigo += letras.charAt(
+            Math.floor(Math.random()*letras.length)
+        );
+
+    }
+
+    return codigo;
+
+}
 
 // ===============================
 // TICKET
@@ -744,12 +764,24 @@ function generarTicket(
 afiliado,
 meses,
 total,
-medio
+medio,
+codigo
 ){
+
+const fecha = new Date();
+
+
+const fechaTexto =
+fecha.toLocaleDateString();
+
+
+const horaTexto =
+fecha.toLocaleTimeString().slice(0,5);
+
 
 
 const win =
-window.open("","_blank","width=420,height=650");
+window.open("","_blank","width=250,height=350");
 
 
 
@@ -760,67 +792,91 @@ win.document.write(`
 <body style="
 font-family:Arial;
 text-align:center;
-padding:20px;
+padding:5px;
+font-size:10px;
 ">
 
 
 <div style="
+width:4cm;
+height:3cm;
 border:2px solid #A602AB;
-padding:15px;
-border-radius:10px;
+padding:8px;
+border-radius:6px;
 ">
 
 
 <img src="./iconos/logo.jpg"
-style="width:90px">
+style="width:45px;">
 
 
-<h2>
+
+<h3 style="font-size:13px;margin:3px;">
 ACDP
-</h2>
-
-
-<h3>
-COMPROBANTE DE PAGO
 </h3>
 
 
-<p>
+<b>
+COMPROBANTE
+</b>
+
+
+
+<p style="margin:3px;">
 ${afiliado.nombre}
 ${afiliado.apellido}
 </p>
 
 
-<p>
+
+<p style="margin:3px;">
 DNI: ${afiliado.dni}
 </p>
 
 
-<hr>
 
-
-<p>
-${meses.join("<br>")}
+<p style="margin:3px;">
+${meses.join(" - ")}
 </p>
 
 
-<h2>
-TOTAL $${total}
-</h2>
+
+<b>
+$${total}
+</b>
 
 
-<p>
-Medio:
+
+<p style="margin:3px;">
 ${medio}
 </p>
 
 
+
+<p style="margin:3px;">
+${fechaTexto}
+${horaTexto}
+</p>
+
+
+
 <small>
-Gracias por su pago
+Código:
+${codigo}
 </small>
 
 
 </div>
+
+
+<p style="
+font-size:9px;
+">
+
+Código válido ACDP
+
+</p>
+
 
 
 <script>
@@ -835,13 +891,10 @@ window.print();
 `);
 
 
+
 win.document.close();
 
 }
-
-
-
-// ===============================
 
 window.COBRAR={
 
