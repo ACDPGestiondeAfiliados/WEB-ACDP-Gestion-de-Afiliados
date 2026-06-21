@@ -90,7 +90,6 @@ id:d.id,
 
 });
 
-
 });
 
 
@@ -123,10 +122,12 @@ document.getElementById(
 
 
 
-if(nuevo)
+if(nuevo){
 
 nuevo.onclick =
 abrirNuevoUsuario;
+
+}
 
 
 }
@@ -255,7 +256,6 @@ placeholder="Confirmar PIN">
 
 <select id="tipoNuevo">
 
-
 <option value="Normal">
 Normal
 </option>
@@ -319,30 +319,38 @@ document.getElementById("msgPin");
 
 
 
+if(!usuario||!pin||!pin2||!boton)
+return;
+
+
 
 
 function validar(){
 
 
 const lista =
-window.BD_usuarios||[];
+window.BD_usuarios || [];
 
 
 
 const existe =
 lista.some(
 u=>
-u.usuario.toLowerCase()
+
+String(u.usuario)
+.toLowerCase()
 ===
-usuario.value.trim().toLowerCase()
+usuario.value.trim()
+.toLowerCase()
+
 );
 
 
 
 if(existe){
 
-msg.textContent=
-"Usuario ya existe";
+msg.textContent="Usuario ya existe";
+
 
 }else if(
 pin.value &&
@@ -350,8 +358,8 @@ pin2.value &&
 pin.value!==pin2.value
 ){
 
-msg.textContent=
-"PIN no coincide";
+msg.textContent="PIN no coincide";
+
 
 }else{
 
@@ -383,8 +391,9 @@ pin.value===pin2.value &&
 
 
 
-
-usuario.oninput=()=>{
+usuario.addEventListener(
+"input",
+()=>{
 
 
 usuario.value =
@@ -398,11 +407,16 @@ usuario.value
 
 validar();
 
-};
+
+});
 
 
 
-pin.oninput=()=>{
+
+
+pin.addEventListener(
+"input",
+()=>{
 
 
 pin.value =
@@ -413,11 +427,16 @@ pin.value
 
 validar();
 
-};
+
+});
 
 
 
-pin2.oninput=()=>{
+
+
+pin2.addEventListener(
+"input",
+()=>{
 
 
 pin2.value =
@@ -428,12 +447,19 @@ pin2.value
 
 validar();
 
-};
+
+});
+
+
 
 
 
 boton.onclick =
-guardarUsuario;
+async function(){
+
+await guardarUsuario();
+
+};
 
 
 
@@ -459,30 +485,54 @@ async function guardarUsuario(){
 
 
 const boton =
-document.getElementById("btnGuardarUsuario");
+document.getElementById(
+"btnGuardarUsuario"
+);
 
 
 
 if(!boton || boton.disabled)
-
 return;
 
 
 
 
 const usuario =
-document.getElementById("usuarioNuevo")
+document
+.getElementById("usuarioNuevo")
 .value.trim();
 
 
 const pin =
-document.getElementById("pinNuevo")
+document
+.getElementById("pinNuevo")
+.value.trim();
+
+
+const confirmar =
+document
+.getElementById("pinConfirmar")
 .value.trim();
 
 
 const tipo =
-document.getElementById("tipoNuevo")
+document
+.getElementById("tipoNuevo")
 .value;
+
+
+
+
+
+if(
+usuario.length<4 ||
+pin.length!==4 ||
+pin!==confirmar
+){
+
+return;
+
+}
 
 
 
@@ -491,16 +541,19 @@ document.getElementById("tipoNuevo")
 const existe =
 (window.BD_usuarios||[])
 .some(
+
 u=>
-u.usuario.toLowerCase()
+
+String(u.usuario)
+.toLowerCase()
 ===
 usuario.toLowerCase()
+
 );
 
 
 
 if(existe)
-
 return;
 
 
@@ -517,9 +570,11 @@ collection(db,"usuarios"),
 
 {
 
-usuario,
-pin,
-tipo
+usuario:usuario,
+
+pin:pin,
+
+tipo:tipo
 
 }
 
@@ -531,19 +586,23 @@ tipo
 window.BD_usuarios.push({
 
 id:ref.id,
-usuario,
-pin,
-tipo
+
+usuario:usuario,
+
+pin:pin,
+
+tipo:tipo
 
 });
 
 
 
-cerrarModal();
-
 
 
 cargarUsuarios();
+
+
+cerrarModal();
 
 
 
@@ -674,7 +733,6 @@ maxlength="4">
 
 
 <select id="editTipo">
-
 
 <option value="Normal">
 Normal
