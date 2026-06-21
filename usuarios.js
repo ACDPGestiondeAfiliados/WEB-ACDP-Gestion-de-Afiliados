@@ -129,22 +129,20 @@ async function guardarUsuario() {
 
         const { doc, setDoc } = await import("./firebase.js");
 
+        const id = (modoUsuario === "nuevo")
+            ? crypto.randomUUID()
+            : usuarioEditandoId;
+
+        await setDoc(doc(window.db, "usuarios", id), data);
+
+        const actualizado = { id, ...data };
+
         if (modoUsuario === "nuevo") {
-
-            const id = crypto.randomUUID();
-
-            window.BD_usuarios.push({ id, ...data });
-
-            await setDoc(doc(window.db, "usuarios", id), data);
-
+            window.BD_usuarios = [...(window.BD_usuarios || []), actualizado];
         } else {
-
-            const idx = window.BD_usuarios.findIndex(x => x.id === usuarioEditandoId);
-
-            if (idx !== -1) {
-                window.BD_usuarios[idx] = { id: usuarioEditandoId, ...data };
-                await setDoc(doc(window.db, "usuarios", usuarioEditandoId), data);
-            }
+            window.BD_usuarios = (window.BD_usuarios || []).map(u =>
+                u.id === id ? actualizado : u
+            );
         }
 
     } catch (e) {
