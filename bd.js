@@ -26,6 +26,7 @@ async function cargarBD() {
 
         const usuarios = await getDocs(collection(db, "usuarios"));
         window.BD_usuarios = usuarios.docs.map(d => ({ id: d.id, ...d.data() }));
+window.dispatchEvent(new Event("BD_USUARIOS_CARGADA"));
 
         const afiliados = await getDocs(collection(db, "afiliados"));
         window.BD_afiliados = afiliados.docs.map(d => ({ id: d.id, ...d.data() }));
