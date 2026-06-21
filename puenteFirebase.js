@@ -235,8 +235,7 @@ cobros:
 BD_cobros || [],
 
 
-configuracion:
-BD_configuracion || {}
+configuracion: JSON.parse(JSON.stringify(BD_configuracion || {}))
 
 }
 
