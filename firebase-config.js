@@ -1,6 +1,13 @@
 // ===============================
-// FIREBASE ACDP
+// FIREBASE ACDP MODULAR
 // ===============================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+
+import {
+    getFirestore
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
 
 
 const firebaseConfig = {
@@ -26,8 +33,14 @@ appId:
 
 
 
-firebase.initializeApp(firebaseConfig);
+const app =
+initializeApp(firebaseConfig);
+
 
 
 const dbFirebase =
-firebase.firestore();
+getFirestore(app);
+
+
+
+window.dbFirebase = dbFirebase;
