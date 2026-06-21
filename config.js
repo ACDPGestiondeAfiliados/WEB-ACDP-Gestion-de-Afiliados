@@ -88,10 +88,14 @@ function guardarMonto() {
     const input = document.getElementById("montoConfiguracion");
     if (!input) return;
 
-    const valor = Number(input.value.trim());
+    const valor = Number((input.value || "").trim());
 
     if (isNaN(valor) || valor < 0) {
-        escribirConsola("Monto inválido.");
+
+        if (typeof escribirConsola === "function") {
+            escribirConsola("Monto inválido.");
+        }
+
         return;
     }
 
@@ -103,12 +107,14 @@ function guardarMonto() {
 
     guardarBD();
 
+    // LOG UNIFICADO (usa SIEMPRE el mismo sistema)
     registrarLog({
         accion: "CONFIGURACION",
         detalle: `Monto actualizado a $${valor}`
     });
 
-    if (typeof window.BD_logsSistema !== "undefined") {
+    // backup directo por seguridad
+    if (Array.isArray(window.BD_logsSistema)) {
         window.BD_logsSistema.push({
             fecha: new Date().toLocaleDateString(),
             hora: new Date().toLocaleTimeString(),
@@ -119,14 +125,15 @@ function guardarMonto() {
         });
     }
 
-    escribirConsola("Monto actualizado: $" + valor.toFixed(2));
+    if (typeof escribirConsola === "function") {
+        escribirConsola("Monto actualizado: $" + valor);
+    }
 
     if (typeof renderConsolaLogs === "function") {
         renderConsolaLogs(">todo");
     }
 
     input.value = window.BD_configuracion.monto;
-
 }
 
 
