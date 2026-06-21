@@ -5,195 +5,145 @@
 
 
 import {
-    db,
-    collection,
-    getDocs
+db,
+collection,
+getDocs
 } from "./firebase.js";
 
 
 
-document.addEventListener("DOMContentLoaded", async()=>{
 
-    iniciarMenu();
-    iniciarModal();
-    limitarNumeros();
+document.addEventListener(
+"DOMContentLoaded",
+async()=>{
 
-    await cargarUsuarios();
 
-    iniciarAccesoGlobal();
+iniciarMenu();
 
-    iniciarSesionInicial();
+iniciarModal();
+
+limitarNumeros();
+
+
+await cargarUsuarios();
+
+
+iniciarSesionInicial();
+
 
 });
 
 
 
 
+
+
+
 // ===============================
-// DATOS GLOBALES
+// VARIABLES
 // ===============================
 
 
 let usuariosSistema=[];
 
+
 let usuarioActivo=null;
 
+
+let rolActivo=null;
+
+
+let seccionActual=null;
+
+
+
 window.usuarioActivo=null;
+
+window.rolActivo=null;
+
 
 window.BD_usuarios=[];
 
 
 
 
+
+
+
+
 // ===============================
-// CARGAR USUARIOS FIRESTORE
+// CARGAR USUARIOS
 // ===============================
 
 
 async function cargarUsuarios(){
 
 
-    try{
+try{
 
 
-        const snap = await getDocs(
-            collection(db,"usuarios")
-        );
-
-
-        usuariosSistema=[];
-
-
-        snap.forEach(doc=>{
-
-
-            usuariosSistema.push({
-                id:doc.id,
-                ...doc.data()
-            });
-
-
-        });
-
-
-
-        window.BD_usuarios=usuariosSistema;
-
-
-    }catch(e){
-
-        console.error(
-            "Error cargando usuarios",
-            e
-        );
-
-    }
-
-
-}
-
-
-
-
-
-// ===============================
-// CONTROL MENU
-// ===============================
-
-
-function iniciarAccesoGlobal(){
-
-
-    document
-    .querySelectorAll(".menu button")
-    .forEach(btn=>{
-
-
-        btn.addEventListener(
-        "click",
-        ()=>{
-
-
-            const destino =
-            btn.dataset.seccion;
-
-
-
-            if(
-            destino==="usuarios" ||
-            destino==="configuracion"
-            ){
-
-                pedirPinAdmin(
-                    ()=>loginYabrir(destino)
-                );
-
-
-            }else{
-
-
-                pedirPinUsuario(
-                    ()=>loginYabrir(destino)
-                );
-
-
-            }
-
-
-        });
-
-
-    });
-
-
-
-}
-
-
-
-
-
-function loginYabrir(destino){
-
-    abrirSeccion(destino);
-
-    actualizarUsuarioActivo();
-
-}
-
-
-
-
-
-function abrirSeccion(destino){
-
-
-document
-.querySelectorAll(".seccion")
-.forEach(s=>
-s.classList.remove("activa")
+const snap =
+await getDocs(
+collection(db,"usuarios")
 );
 
 
 
-const sec =
-document.getElementById(destino);
+usuariosSistema=[];
 
 
 
-if(sec)
-sec.classList.add("activa");
+snap.forEach(d=>{
+
+
+usuariosSistema.push({
+
+id:d.id,
+
+...d.data()
+
+});
+
+
+});
+
+
+
+window.BD_usuarios =
+usuariosSistema;
+
+
+
+}catch(e){
+
+
+console.error(
+"Error cargando usuarios",
+e
+);
 
 
 }
 
 
 
+}
+
+
+
+
+
+
+
+
+
 // ===============================
-// MENU PRINCIPAL
+// MENU
 // ===============================
 
+
 function iniciarMenu(){
+
 
 
 document
@@ -211,17 +161,43 @@ btn.dataset.seccion;
 
 
 
-if(
+
+
+if(destino==="cerrarsesion"){
+
+
+cerrarSesion();
+
+
+return;
+
+
+}
+
+
+
+
+
+const esAdmin =
+
 destino==="usuarios" ||
-destino==="configuracion"
-){
+
+destino==="configuracion";
+
+
+
+
+
+if(esAdmin){
+
 
 
 pedirPinAdmin(
 
-()=>loginYabrir(destino)
+()=>abrirConSesion(destino)
 
 );
+
 
 
 }else{
@@ -229,7 +205,7 @@ pedirPinAdmin(
 
 pedirPinUsuario(
 
-()=>loginYabrir(destino)
+()=>abrirConSesion(destino)
 
 );
 
@@ -238,13 +214,77 @@ pedirPinUsuario(
 
 
 
+
 });
 
 
 });
+
 
 
 }
+
+
+
+
+
+
+
+
+
+function abrirConSesion(destino){
+
+
+abrirSeccion(destino);
+
+
+actualizarUsuarioActivo();
+
+
+}
+
+
+
+
+
+
+
+
+
+
+function abrirSeccion(destino){
+
+
+
+document
+.querySelectorAll(".seccion")
+.forEach(s=>
+s.classList.remove("activa")
+);
+
+
+
+const sec =
+document.getElementById(destino);
+
+
+
+if(sec)
+
+sec.classList.add("activa");
+
+
+
+seccionActual=destino;
+
+
+}
+
+
+
+
+
+
 
 
 
@@ -256,49 +296,53 @@ pedirPinUsuario(
 function pedirPinUsuario(callback){
 
 
-const fondo =
-document.getElementById("modalFondo");
 
+mostrarModal(`
 
-const contenido =
-document.getElementById("modalContenido");
-
-
-
-contenido.innerHTML=`
 
 <h3>Acceso requerido</h3>
 
+
 <p>Ingrese PIN</p>
 
-<input id="pinAcceso"
+
+<input
+
+id="pinAcceso"
+
 type="password"
+
 maxlength="4"
-inputmode="numeric">
+
+inputmode="numeric"
+
+
+>
 
 
 <div id="msgAcceso"></div>
 
 
+
 <button id="btnAcceso">
+
 Ingresar
+
 </button>
 
-`;
+
+`);
 
 
 
-fondo.classList.add("activo");
 
 
+btnAcceso.onclick=()=>{
 
-document
-.getElementById("btnAcceso")
-.onclick=()=>{
 
 
 const pin =
-document.getElementById("pinAcceso").value;
+pinAcceso.value;
 
 
 
@@ -309,26 +353,45 @@ u=>u.pin===pin
 
 
 
-const valido =
-pin==="9999" || usuario;
+if(
+pin!=="9999" &&
+!usuario
+){
 
 
+msgAcceso.innerHTML=
+"PIN incorrecto";
 
-if(!valido){
-
-document.getElementById("msgAcceso")
-.innerHTML="PIN incorrecto";
 
 return;
+
 
 }
 
 
 
+
+
+if(pin==="9999"){
+
+
+usuarioActivo="Admin";
+
+rolActivo="Administrador";
+
+
+}else{
+
+
 usuarioActivo =
-usuario ?
-usuario.usuario :
-"Admin";
+usuario.usuario;
+
+
+rolActivo =
+usuario.tipo || "Normal";
+
+
+}
 
 
 
@@ -336,17 +399,29 @@ window.usuarioActivo =
 usuarioActivo;
 
 
+window.rolActivo =
+rolActivo;
+
+
 
 cerrarModal();
+
 
 
 callback();
 
 
+
 };
 
 
+
 }
+
+
+
+
+
 
 
 
@@ -360,58 +435,66 @@ callback();
 function pedirPinAdmin(callback){
 
 
-const fondo =
-document.getElementById("modalFondo");
 
+mostrarModal(`
 
-const contenido =
-document.getElementById("modalContenido");
-
-
-
-contenido.innerHTML=`
 
 <h3>Acceso administrador</h3>
 
-<input id="pinAdminAcceso"
+
+
+<input
+
+id="pinAdminAcceso"
+
 type="password"
+
 maxlength="4"
-inputmode="numeric">
+
+inputmode="numeric"
+
+
+
+>
 
 
 <div id="msgAdminAcceso"></div>
 
 
+
 <button id="btnAdminAcceso">
+
 Ingresar
+
 </button>
 
-`;
+
+`);
 
 
 
-fondo.classList.add("activo");
 
 
+btnAdminAcceso.onclick=()=>{
 
-document
-.getElementById("btnAdminAcceso")
-.onclick=()=>{
 
 
 const pin =
-document
-.getElementById("pinAdminAcceso")
-.value;
+pinAdminAcceso.value;
 
 
 
 const usuario =
 usuariosSistema.find(
 u=>
+
 u.pin===pin &&
+
 u.tipo==="Administrador"
+
 );
+
+
 
 
 
@@ -420,31 +503,60 @@ pin!=="9999" &&
 !usuario
 ){
 
-document
-.getElementById("msgAdminAcceso")
-.innerHTML=
+
+msgAdminAcceso.innerHTML =
 "No es administrador";
 
+
 return;
+
 
 }
 
 
 
+
+
+if(pin==="9999"){
+
+
+usuarioActivo="Admin";
+
+rolActivo="Administrador";
+
+
+}else{
+
+
 usuarioActivo =
-usuario ?
-usuario.usuario :
-"Admin";
+usuario.usuario;
+
+
+rolActivo =
+"Administrador";
+
+
+}
+
+
+
 
 
 window.usuarioActivo =
 usuarioActivo;
 
 
+
+window.rolActivo =
+rolActivo;
+
+
+
 cerrarModal();
 
 
 callback();
+
 
 
 };
@@ -454,32 +566,6 @@ callback();
 
 
 
-
-
-
-// ===============================
-// UI USUARIO
-// ===============================
-
-
-function actualizarUsuarioActivo(){
-
-
-const div =
-document.getElementById("usuarioActivo");
-
-
-if(!div)return;
-
-
-
-div.innerHTML =
-usuarioActivo ?
-`Hola <b>${usuarioActivo}</b>` :
-"No hay sesión activa";
-
-
-}
 
 
 
@@ -491,24 +577,60 @@ usuarioActivo ?
 // ===============================
 
 
+function mostrarModal(html){
+
+
+const fondo =
+document.getElementById(
+"modalFondo"
+);
+
+
+
+const contenido =
+document.getElementById(
+"modalContenido"
+);
+
+
+
+contenido.innerHTML =
+html;
+
+
+
+fondo.classList.add(
+"activo"
+);
+
+
+
+}
+
+
+
+
 function iniciarModal(){
 
 
 const fondo =
-document.getElementById("modalFondo");
+document.getElementById(
+"modalFondo"
+);
+
 
 
 const cerrar =
-document.getElementById("cerrarModal");
-
-
-
-if(!fondo)return;
+document.getElementById(
+"cerrarModal"
+);
 
 
 
 cerrar.onclick=()=>{
-fondo.classList.remove("activo");
+
+cerrarModal();
+
 };
 
 
@@ -517,10 +639,12 @@ fondo.onclick=e=>{
 
 
 if(e.target===fondo)
-fondo.classList.remove("activo");
+
+cerrarModal();
 
 
 };
+
 
 
 }
@@ -529,8 +653,163 @@ fondo.classList.remove("activo");
 
 
 
+function cerrarModal(){
+
+
+document
+.getElementById(
+"modalFondo"
+)
+.classList.remove(
+"activo"
+);
+
+
+}
+
+
+
+
+
+
+
+
+
+
 // ===============================
-// INPUTS NUMERICOS
+// SESION INICIAL
+// ===============================
+
+
+function iniciarSesionInicial(){
+
+
+
+cerrarSesion();
+
+
+
+setTimeout(()=>{
+
+
+pedirPinUsuario(()=>{
+
+
+abrirSeccion(
+"cobrar"
+);
+
+
+});
+
+
+},300);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+// ===============================
+// SALIR
+// ===============================
+
+
+function cerrarSesion(){
+
+
+
+usuarioActivo=null;
+
+rolActivo=null;
+
+seccionActual=null;
+
+
+
+window.usuarioActivo=null;
+
+window.rolActivo=null;
+
+
+
+document
+.querySelectorAll(".seccion")
+.forEach(s=>
+
+s.classList.remove("activa")
+
+);
+
+
+
+actualizarUsuarioActivo();
+
+
+}
+
+
+
+
+
+
+
+
+
+// ===============================
+// UI
+// ===============================
+
+
+function actualizarUsuarioActivo(){
+
+
+
+const div =
+document.getElementById(
+"usuarioActivo"
+);
+
+
+
+if(!div)return;
+
+
+
+div.innerHTML =
+
+usuarioActivo
+
+?
+
+`Hola <b>${usuarioActivo}</b>`
+
+:
+
+"No hay sesión activa";
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ===============================
+// NUMERICOS
 // ===============================
 
 
@@ -546,72 +825,18 @@ i.addEventListener(
 "input",
 ()=>{
 
+
 i.value =
-i.value.replace(/[^0-9]/g,"");
-
-
-});
-
-
-});
-
-
-}
-
-
-
-
-
-// ===============================
-// SESION INICIAL
-// ===============================
-
-
-function iniciarSesionInicial(){
-
-
-usuarioActivo=null;
-
-window.usuarioActivo=null;
-
-
-
-document
-.querySelectorAll(".seccion")
-.forEach(s=>
-s.classList.remove("activa")
+i.value.replace(
+/[^0-9]/g,
+""
 );
 
 
-
-setTimeout(()=>{
-
-
-pedirPinUsuario(()=>{
-
-
-abrirSeccion("cobrar");
-
-
-actualizarUsuarioActivo();
+});
 
 
 });
 
-
-},300);
-
-
-
-}
-
-
-
-
-function cerrarModal(){
-
-document
-.getElementById("modalFondo")
-.classList.remove("activo");
 
 }
