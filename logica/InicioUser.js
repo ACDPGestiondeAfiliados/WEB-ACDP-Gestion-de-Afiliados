@@ -1,9 +1,17 @@
 // ===============================
 // ACDP - INICIO USER CONTROLLER
-// Sesión + PIN + navegación + roles + usuarios CRUD
+// Sesión + PIN + navegación + roles + usuarios CRUD (FIREBASE REAL)
 // ===============================
 
-import { db } from "../firebase.js";
+import {
+    db,
+    collection,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc
+} from "../firebase.js";
 
 // ===============================
 // ESTADO GLOBAL
@@ -17,13 +25,6 @@ window.ACDP = {
 };
 
 // ===============================
-// USUARIOS (TEMPORAL VACÍO)
-// FUTURO: FIREBASE
-// ===============================
-
-let USUARIOS = [];
-
-// ===============================
 // INIT
 // ===============================
 
@@ -35,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// BIND UI BOTONES
+// BIND UI
 // ===============================
 
 function bindUIActions() {
@@ -63,12 +64,13 @@ function mostrarModalLogin() {
     }, 100);
 }
 
-function validarLogin() {
+async function validarLogin() {
     const pin = document.getElementById("pinLogin").value;
 
     // ===============================
-    // PIN MASTER
+    // MASTER PIN (SIN FIRESTORE)
     // ===============================
+
     if (pin === "2015") {
         ACDP.usuario = "ADMIN MASTER";
         ACDP.rol = "administrador";
@@ -78,13 +80,39 @@ function validarLogin() {
         cerrarModal();
         desbloquearUI();
         actualizarUsuarioUI();
+        cambiarSeccion("cobrar");
         return;
     }
 
     // ===============================
-    // SIN USUARIOS AÚN (FIREBASE FUTURO)
+    // FIRESTORE LOGIN
     // ===============================
-    alert("Usuario no encontrado (Firebase no conectado aún)");
+
+    const snap = await getDocs(collection(db, "usuarios"));
+
+    let userFound = null;
+
+    snap.forEach(d => {
+        const u = d.data();
+        if (u.pin === pin) {
+            userFound = { id: d.id, ...u };
+        }
+    });
+
+    if (!userFound) {
+        alert("PIN incorrecto");
+        return;
+    }
+
+    ACDP.usuario = userFound.nombre;
+    ACDP.rol = userFound.rol;
+    ACDP.master = false;
+    ACDP.logeado = true;
+
+    cerrarModal();
+    desbloquearUI();
+    actualizarUsuarioUI();
+    cambiarSeccion("cobrar");
 }
 
 // ===============================
@@ -116,7 +144,7 @@ function actualizarUsuarioUI() {
 }
 
 // ===============================
-// MENÚ
+// MENU
 // ===============================
 
 function configurarMenu() {
@@ -135,13 +163,16 @@ function configurarMenu() {
 }
 
 // ===============================
-// CONTROL ACCESO
+// CONTROL DE ACCESO
 // ===============================
 
 function protegerSeccion(seccion) {
     if (!ACDP.logeado) return;
 
-    if ((seccion === "usuarios" || seccion === "configuracion") && !ACDP.master) {
+    if (
+        (seccion === "usuarios" || seccion === "configuracion") &&
+        !ACDP.master
+    ) {
         alert("Solo administrador master");
         return;
     }
@@ -171,15 +202,19 @@ function cambiarSeccion(seccion) {
 // ===============================
 
 function bloquearUI() {
-    document.querySelectorAll("button, input").forEach(el => el.disabled = true);
+    document.querySelectorAll("button, input, select").forEach(el => {
+        el.disabled = true;
+    });
 }
 
 function desbloquearUI() {
-    document.querySelectorAll("button, input").forEach(el => el.disabled = false);
+    document.querySelectorAll("button, input, select").forEach(el => {
+        el.disabled = false;
+    });
 }
 
 // ===============================
-// MODAL BASE
+// MODAL
 // ===============================
 
 function abrirModal(html) {
@@ -201,24 +236,28 @@ function cerrarModal() {
 }
 
 // ===============================
-// USUARIOS TABLE
+// FIRESTORE - USUARIOS
 // ===============================
 
-function renderUsuariosTable() {
+async function renderUsuariosTable() {
     const tbody = document.querySelector("#tablaUsuarios tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    USUARIOS.forEach(u => {
+    const snap = await getDocs(collection(db, "usuarios"));
+
+    snap.forEach(d => {
+        const u = d.data();
+
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
             <td>${u.nombre}</td>
             <td>${u.rol}</td>
             <td>
-                <button onclick="ACDP_user.editarUsuario('${u.id}')">Editar</button>
-                <button onclick="ACDP_user.eliminarUsuario('${u.id}')">Eliminar</button>
+                <button onclick="ACDP_user.editarUsuario('${d.id}')">Editar</button>
+                <button onclick="ACDP_user.eliminarUsuario('${d.id}')">Eliminar</button>
             </td>
         `;
 
@@ -257,7 +296,7 @@ function abrirCrearUsuario() {
 // GUARDAR USUARIO
 // ===============================
 
-function guardarUsuario() {
+async function guardarUsuario() {
     const nombre = document.getElementById("uNombre").value;
     const rol = document.getElementById("uRol").value;
     const pin = document.getElementById("uPin").value;
@@ -273,8 +312,7 @@ function guardarUsuario() {
         return;
     }
 
-    USUARIOS.push({
-        id: Date.now().toString(),
+    await addDoc(collection(db, "usuarios"), {
         nombre,
         rol,
         pin
@@ -285,11 +323,19 @@ function guardarUsuario() {
 }
 
 // ===============================
-// EDITAR / ELIMINAR (BASE)
+// EDITAR
 // ===============================
 
-function editarUsuario(id) {
-    const user = USUARIOS.find(u => u.id === id);
+async function editarUsuario(id) {
+    const snap = await getDocs(collection(db, "usuarios"));
+
+    let user = null;
+
+    snap.forEach(d => {
+        if (d.id === id) user = { id: d.id, ...d.data() };
+    });
+
+    if (!user) return;
 
     abrirModal(`
         <h3>Editar Usuario</h3>
@@ -312,19 +358,31 @@ function editarUsuario(id) {
     `);
 }
 
-function guardarEdicion(id) {
-    const user = USUARIOS.find(u => u.id === id);
+// ===============================
+// GUARDAR EDICIÓN
+// ===============================
 
-    user.nombre = document.getElementById("eNombre").value;
-    user.rol = document.getElementById("eRol").value;
-    user.pin = document.getElementById("ePin").value;
+async function guardarEdicion(id) {
+    const nombre = document.getElementById("eNombre").value;
+    const rol = document.getElementById("eRol").value;
+    const pin = document.getElementById("ePin").value;
+
+    await updateDoc(doc(db, "usuarios", id), {
+        nombre,
+        rol,
+        pin
+    });
 
     cerrarModal();
     renderUsuariosTable();
 }
 
-function eliminarUsuario(id) {
-    USUARIOS = USUARIOS.filter(u => u.id !== id);
+// ===============================
+// ELIMINAR
+// ===============================
+
+async function eliminarUsuario(id) {
+    await deleteDoc(doc(db, "usuarios", id));
     renderUsuariosTable();
 }
 
