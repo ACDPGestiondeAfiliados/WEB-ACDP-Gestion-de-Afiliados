@@ -276,8 +276,6 @@ function abrirEditarUsuario(index) {
         guardarBD();
         cerrarModal();
         cargarUsuarios();
-
-        escribirConsola("Usuario editado: " + nuevoUsuario);
     };
 }
 
