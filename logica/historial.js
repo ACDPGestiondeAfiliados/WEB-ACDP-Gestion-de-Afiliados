@@ -714,12 +714,15 @@ win.document.close();
 
 window.HISTORIAL={
 
-
 registrar,
 
 imprimir,
 
 anular
 
-
 };
+
+
+// PUENTE GLOBAL PARA OTROS MODULOS
+
+window.registrarHistorial = registrar;
