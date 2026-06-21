@@ -5,7 +5,6 @@
 
 
 import {
-
 db,
 collection,
 getDocs,
@@ -13,20 +12,19 @@ addDoc,
 updateDoc,
 deleteDoc,
 doc
-
 } from "./firebase.js";
 
 
 
-document.addEventListener("DOMContentLoaded",()=>{
-
-    iniciarUsuarios();
-
-});
-
-
-
 let usuarios=[];
+
+
+const modalContenido =
+document.getElementById("modalContenido");
+
+
+const modalFondo =
+document.getElementById("modalFondo");
 
 
 
@@ -36,11 +34,19 @@ let usuarios=[];
 // ===============================
 
 
+document.addEventListener("DOMContentLoaded",()=>{
+
+iniciarUsuarios();
+
+});
+
+
+
 async function iniciarUsuarios(){
 
-    await cargarUsuarios();
+await cargarUsuarios();
 
-    eventosUsuarios();
+eventosUsuarios();
 
 }
 
@@ -50,7 +56,7 @@ async function iniciarUsuarios(){
 
 
 // ===============================
-// CARGAR FIREBASE
+// CARGAR
 // ===============================
 
 
@@ -63,7 +69,6 @@ collection(db,"usuarios")
 );
 
 
-
 usuarios=[];
 
 
@@ -72,22 +77,17 @@ snap.forEach(d=>{
 usuarios.push({
 
 id:d.id,
-
 ...d.data()
 
 });
 
-
 });
-
 
 
 window.BD_usuarios=usuarios;
 
 
-
 renderUsuarios();
-
 
 }
 
@@ -109,12 +109,15 @@ const nuevo =
 document.getElementById("btnNuevoUsuario");
 
 
-if(nuevo)
+if(nuevo){
 
 nuevo.onclick=abrirNuevoUsuario;
 
+}
+
 
 }
+
 
 
 
@@ -137,7 +140,6 @@ document
 .querySelector("tbody");
 
 
-
 cuerpo.innerHTML="";
 
 
@@ -147,9 +149,7 @@ usuarios.forEach((u,index)=>{
 
 cuerpo.innerHTML+=`
 
-
 <tr>
-
 
 <td>${u.usuario}</td>
 
@@ -176,14 +176,13 @@ onclick="eliminarUsuario(${index})">
 
 </tr>
 
-
 `;
-
 
 });
 
 
 }
+
 
 
 
@@ -228,6 +227,7 @@ placeholder="Confirmar PIN">
 <div id="msgPin"></div>
 
 
+
 <select id="tipoNuevo">
 
 
@@ -242,6 +242,7 @@ Administrador
 
 
 </select>
+
 
 
 <button id="btnGuardarUsuario" disabled>
@@ -273,25 +274,25 @@ validarUsuarioNuevo();
 function validarUsuarioNuevo(){
 
 
-
-const usuarioInput=
+const usuarioInput =
 document.getElementById("usuarioNuevo");
 
 
-const pinInput=
+const pinInput =
 document.getElementById("pinNuevo");
 
 
-const confirmInput=
+const confirmInput =
 document.getElementById("pinConfirmar");
 
 
-const boton=
+const boton =
 document.getElementById("btnGuardarUsuario");
 
 
-const msg=
+const msg =
 document.getElementById("msgPin");
+
 
 
 
@@ -299,26 +300,22 @@ document.getElementById("msgPin");
 function validar(){
 
 
-const usuario=
+const usuario =
 usuarioInput.value.trim();
 
 
-
-const pin=
+const pin =
 pinInput.value;
 
 
-
-const pin2=
+const pin2 =
 confirmInput.value;
 
 
 
 const existe =
-usuarios.some(
-u=>
-u.usuario.toLowerCase()
-===
+usuarios.some(u=>
+u.usuario.toLowerCase()===
 usuario.toLowerCase()
 );
 
@@ -326,20 +323,17 @@ usuario.toLowerCase()
 
 if(existe)
 
-msg.textContent=
-"Usuario ya existe";
+msg.textContent="Usuario ya existe";
 
 
 else if(pin && pin2 && pin!==pin2)
 
-msg.textContent=
-"PIN no coincide";
+msg.textContent="PIN no coincide";
 
 
 else
 
 msg.textContent="";
-
 
 
 
@@ -353,6 +347,7 @@ pin===pin2 &&
 
 
 }
+
 
 
 
@@ -371,9 +366,7 @@ usuarioInput.value
 
 validar();
 
-
 };
-
 
 
 
@@ -388,7 +381,6 @@ pinInput.value
 
 
 validar();
-
 
 };
 
@@ -406,19 +398,19 @@ confirmInput.value
 
 validar();
 
-
 };
 
 
 
 
-
-boton.onclick=
-guardarUsuario;
-
+boton.onclick=guardarUsuario;
 
 
 }
+
+
+
+
 
 
 
@@ -432,17 +424,21 @@ guardarUsuario;
 async function guardarUsuario(){
 
 
-
 const usuario =
-usuarioNuevo.value.trim();
+document.getElementById("usuarioNuevo")
+.value.trim();
+
 
 
 const pin =
-pinNuevo.value.trim();
+document.getElementById("pinNuevo")
+.value.trim();
+
 
 
 const tipo =
-tipoNuevo.value;
+document.getElementById("tipoNuevo")
+.value;
 
 
 
@@ -454,10 +450,8 @@ return;
 
 
 const existe =
-usuarios.some(
-u=>
-u.usuario.toLowerCase()
-===
+usuarios.some(u=>
+u.usuario.toLowerCase()===
 usuario.toLowerCase()
 );
 
@@ -473,19 +467,12 @@ return;
 
 const ref =
 await addDoc(
-
 collection(db,"usuarios"),
-
 {
-
 usuario,
-
 pin,
-
 tipo
-
 }
-
 );
 
 
@@ -494,11 +481,8 @@ tipo
 usuarios.push({
 
 id:ref.id,
-
 usuario,
-
 pin,
-
 tipo
 
 });
@@ -508,21 +492,16 @@ tipo
 window.BD_usuarios=usuarios;
 
 
-
 cerrarModal();
+
 
 renderUsuarios();
 
 
 
-if(typeof escribirConsola==="function")
-
-escribirConsola(
-"Usuario creado: "+usuario
-);
-
-
 }
+
+
 
 
 
@@ -536,7 +515,6 @@ escribirConsola(
 
 
 async function eliminarUsuario(index){
-
 
 
 const u =
@@ -558,32 +536,18 @@ return;
 
 
 await deleteDoc(
-
 doc(db,"usuarios",u.id)
-
 );
-
 
 
 
 usuarios.splice(index,1);
 
 
-
 window.BD_usuarios=usuarios;
 
 
-
 renderUsuarios();
-
-
-
-
-if(typeof escribirConsola==="function")
-
-escribirConsola(
-"Usuario eliminado: "+u.usuario
-);
 
 
 }
@@ -604,7 +568,6 @@ escribirConsola(
 function abrirEditarUsuario(index){
 
 
-
 const u =
 usuarios[index];
 
@@ -621,10 +584,12 @@ value="${u.usuario}"
 maxlength="20">
 
 
+
 <input id="editPin"
 type="password"
 value="${u.pin}"
 maxlength="4">
+
 
 
 <select id="editTipo">
@@ -636,7 +601,6 @@ ${u.tipo==="Normal"?"selected":""}>
 Normal
 
 </option>
-
 
 
 <option value="Administrador"
@@ -654,7 +618,6 @@ Administrador
 <div id="msgEdit"></div>
 
 
-
 <button id="btnGuardarEdit">
 
 Guardar cambios
@@ -670,50 +633,45 @@ modalFondo.classList.add("activo");
 
 
 
-
 document
 .getElementById("btnGuardarEdit")
 .onclick=async()=>{
 
 
 const nuevoUsuario =
-editUsuario.value.trim();
+document.getElementById("editUsuario")
+.value.trim();
 
 
 const nuevoPin =
-editPin.value.trim();
+document.getElementById("editPin")
+.value.trim();
 
 
 const nuevoTipo =
-editTipo.value;
-
+document.getElementById("editTipo")
+.value;
 
 
 
 const existe =
-usuarios.some(
-
-(x,i)=>
-
+usuarios.some((x,i)=>
 i!==index &&
-x.usuario.toLowerCase()
-===
+x.usuario.toLowerCase()===
 nuevoUsuario.toLowerCase()
-
 );
 
 
 
 if(existe){
 
-msgEdit.textContent=
-"Usuario ya existe";
+document
+.getElementById("msgEdit")
+.textContent="Usuario ya existe";
 
 return;
 
 }
-
-
 
 
 
@@ -722,17 +680,12 @@ await updateDoc(
 doc(db,"usuarios",u.id),
 
 {
-
 usuario:nuevoUsuario,
-
 pin:nuevoPin,
-
 tipo:nuevoTipo
-
 }
 
 );
-
 
 
 
@@ -741,9 +694,7 @@ usuarios[index]={
 ...u,
 
 usuario:nuevoUsuario,
-
 pin:nuevoPin,
-
 tipo:nuevoTipo
 
 };
@@ -753,11 +704,9 @@ tipo:nuevoTipo
 window.BD_usuarios=usuarios;
 
 
-
 cerrarModal();
 
 renderUsuarios();
-
 
 
 };
@@ -765,6 +714,7 @@ renderUsuarios();
 
 
 }
+
 
 
 
@@ -778,3 +728,21 @@ function cerrarModal(){
 modalFondo.classList.remove("activo");
 
 }
+
+
+
+
+
+
+
+// ===============================
+// COMPATIBILIDAD MODULO
+// ===============================
+
+
+window.abrirEditarUsuario =
+abrirEditarUsuario;
+
+
+window.eliminarUsuario =
+eliminarUsuario;
