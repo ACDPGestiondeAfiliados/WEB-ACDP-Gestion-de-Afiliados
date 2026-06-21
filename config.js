@@ -96,24 +96,25 @@ function guardarMonto() {
         window.BD_configuracion = { monto: 0 };
     }
 
-    // 🔥 actualizar valor
+    // actualizar valor
     window.BD_configuracion.monto = valor;
 
-    // 🔥 CLAVE: forzar sync del sistema Firebase existente
+    // sync Firebase (puenteFirebase.js)
     if (typeof guardarBD === "function") {
-        guardarBD(); // esto activa tu puenteFirebase.js
+        guardarBD();
     }
 
     input.value = valor;
-}
 
-    // LOG UNIFICADO (usa SIEMPRE el mismo sistema)
-    registrarLog({
-        accion: "CONFIGURACION",
-        detalle: `Monto actualizado a $${valor}`
-    });
+    // LOG UNIFICADO
+    if (typeof registrarLog === "function") {
+        registrarLog({
+            accion: "CONFIGURACION",
+            detalle: `Monto actualizado a $${valor}`
+        });
+    }
 
-    // backup directo por seguridad
+    // backup local memoria (opcional)
     if (Array.isArray(window.BD_logsSistema)) {
         window.BD_logsSistema.push({
             fecha: new Date().toLocaleDateString(),
@@ -157,7 +158,9 @@ function registrarLog({ accion, detalle }) {
         detalle
     });
 
-    guardarBD();
+    if (typeof guardarBD === "function") {
+        guardarBD();
+    }
 
 }
 
@@ -266,7 +269,6 @@ function renderConsolaLogs(comando) {
         else if (accion.includes("HISTORIAL")) color = "#ffb347";
 
         let detalle = (l.detalle || "").toString();
-
         detalle = detalle.replace(/(\d{6,12})/g, `<b style="color:#fff">$1</b>`);
 
         html += `
@@ -317,17 +319,20 @@ function resetLogs() {
         window.BD_logsSistema.length = 0;
     }
 
-    guardarBD();
+    if (typeof guardarBD === "function") {
+        guardarBD();
+    }
 
     registrarLog({
         accion: "SISTEMA",
         detalle: "Reset semanal de logs ejecutado"
     });
 
-    escribirConsola("Reset semanal de logs ejecutado");
+    if (typeof escribirConsola === "function") {
+        escribirConsola("Reset semanal de logs ejecutado");
+    }
 
     renderConsolaLogs(">todo");
-
 }
 
 
