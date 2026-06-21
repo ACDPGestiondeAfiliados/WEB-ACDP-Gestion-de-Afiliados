@@ -55,6 +55,12 @@ await cargarUsuariosFirebase();
 
 
 }
+
+
+
+
+
+
 // ===============================
 // CARGAR FIREBASE
 // ===============================
@@ -146,6 +152,10 @@ const cuerpo =
 document
 .getElementById("tablaUsuarios")
 .querySelector("tbody");
+
+
+
+if(!cuerpo)return;
 
 
 
@@ -249,20 +259,26 @@ placeholder="Confirmar PIN">
 
 <select id="tipoNuevo">
 
+
 <option value="Normal">
 Normal
 </option>
+
 
 <option value="Administrador">
 Administrador
 </option>
 
+
 </select>
 
 
 <button id="btnGuardarUsuario" disabled>
+
 Guardar
+
 </button>
+
 
 `;
 
@@ -271,10 +287,12 @@ Guardar
 fondo.classList.add("activo");
 
 
-
 validarNuevo();
 
+
 }
+
+
 
 
 
@@ -310,34 +328,44 @@ document.getElementById("msgPin");
 function validar(){
 
 
+const lista =
+window.BD_usuarios || [];
+
+
+
 const existe =
-BD_usuarios.some(
+lista.some(
 u=>
+
 u.usuario.toLowerCase()
 ===
 usuario.value.toLowerCase()
+
 );
 
 
 
-if(existe)
+if(existe){
 
-msg.textContent=
+msg.textContent =
 "Usuario ya existe";
 
-else if(
+
+}else if(
 pin.value &&
 pin2.value &&
 pin.value!==pin2.value
-)
+){
 
-msg.textContent=
+msg.textContent =
 "PIN no coincide";
 
 
-else
+}else{
 
 msg.textContent="";
+
+}
 
 
 
@@ -345,8 +373,11 @@ boton.disabled =
 !(
 
 usuario.value.length>=4 &&
+
 pin.value.length===4 &&
+
 pin.value===pin2.value &&
+
 !existe
 
 );
@@ -359,6 +390,7 @@ pin.value===pin2.value &&
 
 usuario.oninput=()=>{
 
+
 usuario.value =
 usuario.value
 .replace(
@@ -368,13 +400,18 @@ usuario.value
 .slice(0,20);
 
 
+
 validar();
+
 
 };
 
 
 
+
+
 pin.oninput=()=>{
+
 
 pin.value =
 pin.value
@@ -382,13 +419,18 @@ pin.value
 .slice(0,4);
 
 
+
 validar();
+
 
 };
 
 
 
+
+
 pin2.oninput=()=>{
+
 
 pin2.value =
 pin2.value
@@ -396,14 +438,22 @@ pin2.value
 .slice(0,4);
 
 
+
 validar();
+
 
 };
 
 
 
+
+
 boton.onclick =
 guardarUsuario;
+
+
+
+validar();
 
 
 }
@@ -414,6 +464,11 @@ guardarUsuario;
 
 
 
+
+
+// ===============================
+// GUARDAR USUARIO
+// ===============================
 
 
 async function guardarUsuario(){
@@ -444,12 +499,14 @@ document
 
 
 
-// seguridad extra
+
+
 if(
-!usuario ||
+
 usuario.length<4 ||
 pin.length!==4 ||
 pin!==pin2
+
 ){
 
 return;
@@ -471,15 +528,10 @@ usuario.toLowerCase()
 
 
 
-if(existe)
-
-return;
+if(existe)return;
 
 
 
-
-
-try{
 
 
 const ref =
@@ -524,9 +576,7 @@ BD_usuarios;
 cerrarModal();
 
 
-
 cargarUsuarios();
-
 
 
 if(typeof escribirConsola==="function")
@@ -537,24 +587,16 @@ escribirConsola(
 
 
 
-}catch(error){
-
-
-console.error(
-"Error creando usuario:",
-error
-);
-
-
-alert(
-"No se pudo crear el usuario"
-);
-
-
 }
 
 
-}
+
+
+
+
+
+
+
 // ===============================
 // ELIMINAR
 // ===============================
@@ -581,11 +623,13 @@ return;
 
 
 await deleteDoc(
+
 doc(
 db,
 "usuarios",
 u.id
 )
+
 );
 
 
@@ -619,6 +663,7 @@ const u =
 BD_usuarios[index];
 
 
+
 const fondo =
 document.getElementById("modalFondo");
 
@@ -648,20 +693,27 @@ maxlength="4">
 
 
 <option value="Normal">
+
 Normal
+
 </option>
 
 
 <option value="Administrador">
+
 Administrador
+
 </option>
 
 
 </select>
 
 
+
 <button id="btnGuardarEdit">
+
 Guardar cambios
+
 </button>
 
 
@@ -675,7 +727,7 @@ fondo.classList.add("activo");
 
 document
 .getElementById("btnGuardarEdit")
-.onclick =
+.onclick=
 async()=>{
 
 
@@ -712,7 +764,6 @@ cerrarModal();
 };
 
 
-
 }
 
 
@@ -725,11 +776,14 @@ cerrarModal();
 
 function cerrarModal(){
 
+
 document
 .getElementById("modalFondo")
 .classList.remove("activo");
 
+
 }
+
 
 
 
