@@ -189,7 +189,62 @@ sec.classList.add("activa");
 
 
 
+// ===============================
+// MENU PRINCIPAL
+// ===============================
 
+function iniciarMenu(){
+
+
+document
+.querySelectorAll(".menu button")
+.forEach(btn=>{
+
+
+btn.addEventListener(
+"click",
+()=>{
+
+
+const destino =
+btn.dataset.seccion;
+
+
+
+if(
+destino==="usuarios" ||
+destino==="configuracion"
+){
+
+
+pedirPinAdmin(
+
+()=>loginYabrir(destino)
+
+);
+
+
+}else{
+
+
+pedirPinUsuario(
+
+()=>loginYabrir(destino)
+
+);
+
+
+}
+
+
+
+});
+
+
+});
+
+
+}
 
 
 
