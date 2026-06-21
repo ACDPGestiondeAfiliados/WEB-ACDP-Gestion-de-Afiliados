@@ -11,19 +11,17 @@ import { db } from "../firebase.js";
 
 window.ACDP = {
     usuario: null,
-    rol: null, // "normal" | "administrador"
-    logeado: false
+    rol: null,
+    logeado: false,
+    master: false
 };
 
 // ===============================
-// BASE DE USUARIOS (TEMPORAL)
-// luego Firebase
+// USUARIOS (TEMPORAL VACÍO)
+// FUTURO: FIREBASE
 // ===============================
 
-let USUARIOS = [
-    { id: "1", nombre: "Admin", pin: "2015", rol: "administrador" },
-    { id: "2", nombre: "Usuario", pin: "1234", rol: "normal" }
-];
+let USUARIOS = [];
 
 // ===============================
 // INIT
@@ -33,8 +31,19 @@ document.addEventListener("DOMContentLoaded", () => {
     bloquearUI();
     mostrarModalLogin();
     configurarMenu();
-    renderUsuariosTable();
+    bindUIActions();
 });
+
+// ===============================
+// BIND UI BOTONES
+// ===============================
+
+function bindUIActions() {
+    const btnNuevo = document.getElementById("btnNuevoUsuario");
+    if (btnNuevo) {
+        btnNuevo.addEventListener("click", abrirCrearUsuario);
+    }
+}
 
 // ===============================
 // LOGIN
@@ -57,26 +66,25 @@ function mostrarModalLogin() {
 function validarLogin() {
     const pin = document.getElementById("pinLogin").value;
 
-    const user = USUARIOS.find(u => u.pin === pin);
+    // ===============================
+    // PIN MASTER
+    // ===============================
+    if (pin === "2015") {
+        ACDP.usuario = "ADMIN MASTER";
+        ACDP.rol = "administrador";
+        ACDP.master = true;
+        ACDP.logeado = true;
 
-    if (!user && pin !== "9999") {
-        alert("PIN incorrecto");
+        cerrarModal();
+        desbloquearUI();
+        actualizarUsuarioUI();
         return;
     }
 
-    if (pin === "9999") {
-        ACDP.usuario = "Admin Master";
-        ACDP.rol = "administrador";
-    } else {
-        ACDP.usuario = user.nombre;
-        ACDP.rol = user.rol;
-    }
-
-    ACDP.logeado = true;
-
-    cerrarModal();
-    desbloquearUI();
-    actualizarUsuarioUI();
+    // ===============================
+    // SIN USUARIOS AÚN (FIREBASE FUTURO)
+    // ===============================
+    alert("Usuario no encontrado (Firebase no conectado aún)");
 }
 
 // ===============================
@@ -87,6 +95,7 @@ function cerrarSesion() {
     ACDP.usuario = null;
     ACDP.rol = null;
     ACDP.logeado = false;
+    ACDP.master = false;
 
     bloquearUI();
     mostrarModalLogin();
@@ -94,7 +103,7 @@ function cerrarSesion() {
 }
 
 // ===============================
-// UI USUARIO
+// UI
 // ===============================
 
 function actualizarUsuarioUI() {
@@ -126,14 +135,14 @@ function configurarMenu() {
 }
 
 // ===============================
-// CONTROL DE ACCESO
+// CONTROL ACCESO
 // ===============================
 
 function protegerSeccion(seccion) {
     if (!ACDP.logeado) return;
 
-    if ((seccion === "usuarios" || seccion === "configuracion") && ACDP.rol !== "administrador") {
-        alert("Solo administradores");
+    if ((seccion === "usuarios" || seccion === "configuracion") && !ACDP.master) {
+        alert("Solo administrador master");
         return;
     }
 
@@ -170,7 +179,7 @@ function desbloquearUI() {
 }
 
 // ===============================
-// MODAL BASE (CSS ACTIVO)
+// MODAL BASE
 // ===============================
 
 function abrirModal(html) {
@@ -192,7 +201,7 @@ function cerrarModal() {
 }
 
 // ===============================
-// USUARIOS CRUD
+// USUARIOS TABLE
 // ===============================
 
 function renderUsuariosTable() {
@@ -244,6 +253,10 @@ function abrirCrearUsuario() {
     `);
 }
 
+// ===============================
+// GUARDAR USUARIO
+// ===============================
+
 function guardarUsuario() {
     const nombre = document.getElementById("uNombre").value;
     const rol = document.getElementById("uRol").value;
@@ -272,7 +285,7 @@ function guardarUsuario() {
 }
 
 // ===============================
-// EDITAR USUARIO
+// EDITAR / ELIMINAR (BASE)
 // ===============================
 
 function editarUsuario(id) {
@@ -309,10 +322,6 @@ function guardarEdicion(id) {
     cerrarModal();
     renderUsuariosTable();
 }
-
-// ===============================
-// ELIMINAR USUARIO
-// ===============================
 
 function eliminarUsuario(id) {
     USUARIOS = USUARIOS.filter(u => u.id !== id);
