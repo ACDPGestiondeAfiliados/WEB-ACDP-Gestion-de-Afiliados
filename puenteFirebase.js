@@ -1,8 +1,3 @@
-// ===============================
-// PUENTE FIREBASE ACDP
-// VERSION ESTABLE SIN LOGS BASURA
-// ===============================
-
 import {
 doc,
 getDoc,
@@ -10,26 +5,31 @@ setDoc,
 onSnapshot
 } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
+let referencia = null;
 
 
-let referencia;
+// ===============================
+// INIT SEGURO (SIN LOAD ROTO)
+// ===============================
+function initFirebaseBridge() {
 
-
-
-window.addEventListener("load", async () => {
-
-    if (!window.dbFirebase) {
-        console.error("Firebase no inicializado");
-        return;
-    }
+    if (!window.dbFirebase) return;
 
     referencia = doc(window.dbFirebase, "ACDP", "BASE");
 
-    await cargarInicial();
+    cargarInicial();
     interceptarGuardado();
     escucharCambios();
 
-});
+}
+
+
+// auto-init seguro
+if (document.readyState === "complete") {
+    initFirebaseBridge();
+} else {
+    window.addEventListener("load", initFirebaseBridge);
+}
 
 
 
@@ -55,13 +55,13 @@ async function cargarInicial() {
         BD_cobros = d.cobros || BD_cobros;
 
         BD_configuracion = {
-            monto: Number(d.configuracion?.monto || 0)
+            monto: Number(d.configuracion?.monto ?? 0)
         };
 
         guardarBD();
 
     } catch (e) {
-        console.error("ERROR CARGA FIRESTORE", e);
+        console.error("FIREBASE LOAD ERROR", e);
     }
 
 }
@@ -69,27 +69,25 @@ async function cargarInicial() {
 
 
 // ===============================
-// INTERCEPTAR GUARDADO GLOBAL
+// INTERCEPTAR GUARDADO (FIX REAL)
 // ===============================
 function interceptarGuardado() {
 
-    const original = window.guardarBD;
+    if (typeof window.guardarBD !== "function") return;
 
-    if (typeof original !== "function") {
-        console.error("guardarBD no existe");
-        return;
-    }
+    const original = window.guardarBD;
 
     window.guardarBD = function () {
 
         original();
 
-        // debounce simple para evitar spam de escrituras
-        clearTimeout(window.__firestoreTimeout);
+        if (!referencia) return;
 
-        window.__firestoreTimeout = setTimeout(() => {
+        clearTimeout(window.__fbSync);
+
+        window.__fbSync = setTimeout(() => {
             subir();
-        }, 150);
+        }, 100);
 
     };
 
@@ -106,20 +104,18 @@ async function subir() {
 
         if (!window.dbFirebase || !referencia) return;
 
-        const data = {
+        await setDoc(referencia, {
             usuarios: BD_usuarios || [],
             afiliados: BD_afiliados || [],
             historial: BD_historial || [],
             cobros: BD_cobros || [],
             configuracion: {
-                monto: Number(BD_configuracion?.monto || 0)
+                monto: Number(BD_configuracion?.monto ?? 0)
             }
-        };
-
-        await setDoc(referencia, data);
+        });
 
     } catch (e) {
-        console.error("ERROR SUBIENDO FIRESTORE", e);
+        console.error("FIREBASE WRITE ERROR", e);
     }
 
 }
@@ -127,7 +123,7 @@ async function subir() {
 
 
 // ===============================
-// ESCUCHA TIEMPO REAL
+// ESCUCHA REALTIME
 // ===============================
 function escucharCambios() {
 
@@ -143,7 +139,7 @@ function escucharCambios() {
         BD_cobros = d.cobros || [];
 
         BD_configuracion = {
-            monto: Number(d.configuracion?.monto || 0)
+            monto: Number(d.configuracion?.monto ?? 0)
         };
 
         guardarBD();
