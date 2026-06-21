@@ -105,6 +105,7 @@ async function cargarCobros(){
 
     CACHE_COBROS=[];
 
+
     const snap =
     await getDocs(collection(db,"cobros"));
 
@@ -137,6 +138,7 @@ function bindCuotaButton(){
     btn.onclick=abrirModalCuota;
 
 }
+
 
 
 // ===============================
@@ -204,6 +206,7 @@ document
 },100);
 
 }
+
 
 
 // ===============================
@@ -295,6 +298,7 @@ cerrarModal();
 alert("Cuota actualizada");
 
 }
+
 
 
 // ===============================
@@ -468,8 +472,6 @@ crearModalCobro(afiliado);
 
 }
 
-
-
 // ===============================
 // MESES PAGADOS
 // ===============================
@@ -563,6 +565,9 @@ ${bloqueado?" (Pagado)":""}
 
 abrirModal(`
 
+<div class="modalCobro">
+
+
 <h3>Cobrar afiliado</h3>
 
 
@@ -572,7 +577,12 @@ ${afiliado.apellido}
 </h4>
 
 
-<div>
+<p>
+DNI: ${afiliado.dni}
+</p>
+
+
+<div class="listaMeses">
 
 ${html}
 
@@ -584,22 +594,28 @@ ${html}
 
 <select id="medioPago">
 
-<option>
+
+<option value="EFECTIVO">
 EFECTIVO
 </option>
 
-<option>
+
+<option value="TRANSFERENCIA">
 TRANSFERENCIA
 </option>
 
-<option>
+
+<option value="OTRO">
 OTRO
 </option>
+
 
 </select>
 
 
+
 <br><br>
+
 
 
 <button onclick="COBRAR.confirmarCobro('${afiliado.id}')">
@@ -609,12 +625,15 @@ Aceptar
 </button>
 
 
+
 <button onclick="COBRAR.cerrarModal()">
 
 Cancelar
 
 </button>
 
+
+</div>
 
 `);
 
@@ -632,15 +651,25 @@ const afiliado =
 CACHE_AFILIADOS.find(a=>a.id===id);
 
 
+if(!afiliado)return;
+
+
+
 let meses=[];
+
 
 
 document
 .querySelectorAll(".checkMes")
 .forEach(c=>{
 
-if(c.checked)
+
+if(c.checked){
+
 meses.push(c.value);
+
+}
+
 
 });
 
@@ -671,6 +700,11 @@ const fecha=new Date();
 
 
 
+const codigo =
+generarCodigoComprobante();
+
+
+
 const cobro={
 
 
@@ -687,16 +721,23 @@ afiliado.numeroAfiliado,
 
 
 afiliado:
-afiliado.nombre+" "+afiliado.apellido,
+afiliado.nombre+
+" "+
+afiliado.apellido,
 
 
 meses,
 
 
-medioPago:medio,
+medioPago:
+medio,
 
 
 total,
+
+
+codigoComprobante:
+codigo,
 
 
 fecha:
@@ -704,7 +745,20 @@ fecha.toLocaleDateString(),
 
 
 hora:
-fecha.toLocaleTimeString().slice(0,5)
+fecha.toLocaleTimeString().slice(0,5),
+
+
+detalleHistorial:
+
+"Cobro | "+
+meses.join(", ")+
+" | $"+
+total+
+" | "+
+medio+
+" | Codigo: "+
+codigo
+
 
 };
 
@@ -724,37 +778,62 @@ CACHE_COBROS.push(cobro);
 cerrarModal();
 
 
+
 generarTicket(
+
 afiliado,
+
 meses,
+
 total,
-medio
+
+medio,
+
+codigo
+
+);
+
+
+
+}
+
+
+
+// ===============================
+// CODIGO UNICO
+// ===============================
+
+function generarCodigoComprobante(){
+
+
+const letras =
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+
+let codigo="";
+
+
+
+for(let i=0;i<9;i++){
+
+
+codigo += letras.charAt(
+
+Math.floor(
+Math.random()*letras.length
+)
+
 );
 
 
 }
 
-// ===============================
-// CODIGO UNICO DE TICKET DE 9 LETRAS
-// ===============================
 
-function generarCodigoComprobante(){
-
-    const letras="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    let codigo="";
-
-    for(let i=0;i<9;i++){
-
-        codigo += letras.charAt(
-            Math.floor(Math.random()*letras.length)
-        );
-
-    }
-
-    return codigo;
+return codigo;
 
 }
+
+
 
 // ===============================
 // TICKET
@@ -768,11 +847,15 @@ medio,
 codigo
 ){
 
-const fecha = new Date();
+
+const fecha =
+new Date();
+
 
 
 const fechaTexto =
 fecha.toLocaleDateString();
+
 
 
 const horaTexto =
@@ -780,113 +863,163 @@ fecha.toLocaleTimeString().slice(0,5);
 
 
 
+
 const win =
-window.open("","_blank","width=250,height=350");
+window.open(
+"",
+"_blank",
+"width=300,height=420"
+);
 
 
 
 win.document.write(`
 
+
 <html>
+
 
 <body style="
 font-family:Arial;
 text-align:center;
 padding:5px;
-font-size:10px;
+font-size:9px;
 ">
 
 
 <div style="
-width:4cm;
-height:3cm;
+width:5cm;
+min-height:4cm;
 border:2px solid #A602AB;
-padding:8px;
+padding:6px;
 border-radius:6px;
+box-sizing:border-box;
 ">
 
 
-<img src="./iconos/logo.jpg"
-style="width:45px;">
+<img 
+src="./iconos/logo.jpg"
+style="width:35px;"
+>
 
 
 
-<h3 style="font-size:13px;margin:3px;">
+<h3 style="
+margin:2px;
+font-size:11px;
+">
+
 ACDP
+
 </h3>
 
 
+
 <b>
-COMPROBANTE
+COMPROBANTE DE PAGO
 </b>
 
 
 
 <p style="margin:3px;">
+
 ${afiliado.nombre}
+
 ${afiliado.apellido}
+
 </p>
 
 
 
 <p style="margin:3px;">
+
 DNI: ${afiliado.dni}
+
 </p>
+
+
+
+<hr>
 
 
 
 <p style="margin:3px;">
+
 ${meses.join(" - ")}
+
 </p>
+
 
 
 
 <b>
-$${total}
+
+TOTAL $${total}
+
 </b>
 
 
 
+
 <p style="margin:3px;">
+
 ${medio}
+
 </p>
 
 
 
 <p style="margin:3px;">
+
 ${fechaTexto}
+
 ${horaTexto}
+
 </p>
 
 
 
-<small>
+<hr>
+
+
+
+<b>
+
 Código:
+
 ${codigo}
-</small>
+
+</b>
+
 
 
 </div>
 
 
+
 <p style="
-font-size:9px;
+font-size:8px;
 ">
 
-Código válido ACDP
+Comprobante válido ACDP
 
 </p>
 
 
 
 <script>
+
 window.print();
+
 </script>
+
 
 
 </body>
 
+
 </html>
+
 
 `);
 
@@ -894,12 +1027,23 @@ window.print();
 
 win.document.close();
 
+
 }
+
+
+
+// ===============================
+// EXPORT
+// ===============================
 
 window.COBRAR={
 
+
 cobrarAfiliado,
+
 confirmarCobro,
+
 cerrarModal
+
 
 };
