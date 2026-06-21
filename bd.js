@@ -8,11 +8,11 @@
 // USUARIOS DEL SISTEMA
 // ===============================
 
-let BD_usuarios=[
+let BD_usuarios = [
     {
-        usuario:"Admin",
-        pin:"9999",
-        tipo:"Administrador"
+        usuario: "Admin",
+        pin: "9999",
+        tipo: "Administrador"
     }
 ];
 
@@ -23,7 +23,7 @@ let BD_usuarios=[
 // Registro principal
 // ===============================
 
-let BD_afiliados=[];
+let BD_afiliados = [];
 
 
 
@@ -32,7 +32,7 @@ let BD_afiliados=[];
 // Registros de pagos y acciones
 // ===============================
 
-let BD_historial=[];
+let BD_historial = [];
 
 
 
@@ -41,7 +41,7 @@ let BD_historial=[];
 // Pagos realizados
 // ===============================
 
-let BD_cobros=[];
+let BD_cobros = [];
 
 
 
@@ -50,11 +50,21 @@ let BD_cobros=[];
 // Valores generales
 // ===============================
 
-let BD_configuracion={
-
-    monto:0
-
+let BD_configuracion = {
+    monto: 0
 };
+
+
+
+// =====================================================
+// EXPOSICIÓN GLOBAL (CRÍTICO PARA FIREBASE + OTROS JS)
+// =====================================================
+
+window.BD_usuarios = BD_usuarios;
+window.BD_afiliados = BD_afiliados;
+window.BD_historial = BD_historial;
+window.BD_cobros = BD_cobros;
+window.BD_configuracion = BD_configuracion;
 
 
 
@@ -62,22 +72,15 @@ let BD_configuracion={
 // GUARDAR TODA LA BASE
 // ===============================
 
-function guardarBD(){
+function guardarBD() {
 
-    const datos={
-
-        usuarios:BD_usuarios,
-
-        afiliados:BD_afiliados,
-
-        historial:BD_historial,
-
-        cobros:BD_cobros,
-
-        configuracion:BD_configuracion
-
+    const datos = {
+        usuarios: BD_usuarios,
+        afiliados: BD_afiliados,
+        historial: BD_historial,
+        cobros: BD_cobros,
+        configuracion: BD_configuracion
     };
-
 
     localStorage.setItem(
         "ACDP_BD",
@@ -92,53 +95,41 @@ function guardarBD(){
 // CARGAR BASE EXISTENTE
 // ===============================
 
-function cargarBD(){
+function cargarBD() {
 
+    const datos = localStorage.getItem("ACDP_BD");
 
-    const datos=
-    localStorage.getItem("ACDP_BD");
-
-
-    if(!datos){
-
+    if (!datos) {
         guardarBD();
-
         return;
-
     }
 
+    const bd = JSON.parse(datos);
+
+    BD_usuarios = bd.usuarios || [];
+    BD_afiliados = bd.afiliados || [];
+    BD_historial = bd.historial || [];
+    BD_cobros = bd.cobros || [];
+
+    BD_configuracion = bd.configuracion || { monto: 0 };
 
 
-    const bd=JSON.parse(datos);
 
+    // =====================================================
+    // SINCRONIZAR CON WINDOW (CRÍTICO PARA FIREBASE PUENTE)
+    // =====================================================
 
-
-    BD_usuarios=
-    bd.usuarios || [];
-
-
-    BD_afiliados=
-    bd.afiliados || [];
-
-
-    BD_historial=
-    bd.historial || [];
-
-
-    BD_cobros=
-    bd.cobros || [];
-
-
-    BD_configuracion=
-    bd.configuracion || {monto:0};
-
+    window.BD_usuarios = BD_usuarios;
+    window.BD_afiliados = BD_afiliados;
+    window.BD_historial = BD_historial;
+    window.BD_cobros = BD_cobros;
+    window.BD_configuracion = BD_configuracion;
 
 }
 
 
 
 // Inicia base
-
 cargarBD();
 
 
@@ -148,25 +139,19 @@ cargarBD();
 // FUNCIONES GENERALES
 // ===============================
 
+function buscarAfiliado(valor) {
 
-function buscarAfiliado(valor){
+    valor = String(valor);
 
-    valor=String(valor);
-
-
-    return BD_afiliados.filter(a=>
-
-        a.dni===valor ||
-        a.numero===valor
-
+    return BD_afiliados.filter(a =>
+        a.dni === valor ||
+        a.numero === valor
     );
 
 }
 
 
 
-function guardarCambios(){
-
+function guardarCambios() {
     guardarBD();
-
 }
