@@ -4,43 +4,85 @@
 <head>
 
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
 <title>ACDP - Gestión de Afiliados</title>
 
+
 <link rel="stylesheet" href="styles.css">
 
+
 </head>
+
 
 
 <body>
 
 
+
+
 <header class="header">
 
-<img src="logo.jpg" alt="ACDP" width="100" height="100"><br>
 
-<p>Sistema de Gestión de Afiliados</p>
+<img
+src="logo.jpg"
+alt="ACDP"
+width="100"
+height="100"
+>
+
+
+<p>
+Sistema de Gestión de Afiliados
+</p>
+
 
 <div id="usuarioActivo"></div>
+
 
 </header>
 
 
 
+
+
+
+
 <nav class="menu">
 
-<button data-seccion="cobrar">COBRAR</button>
 
-<button data-seccion="historial">HISTORIAL</button>
+<button data-seccion="cobrar">
+COBRAR
+</button>
 
-<button data-seccion="afiliados">AFILIADOS</button>
 
-<button data-seccion="usuarios">USUARIOS</button>
+<button data-seccion="historial">
+HISTORIAL
+</button>
 
-<button data-seccion="configuracion">CONFIGURACIÓN</button>
+
+<button data-seccion="afiliados">
+AFILIADOS
+</button>
+
+
+<button data-seccion="usuarios">
+USUARIOS
+</button>
+
+
+<button data-seccion="configuracion">
+CONFIGURACIÓN
+</button>
+
 
 </nav>
+
+
+
+
 
 
 
@@ -49,12 +91,502 @@
 
 
 
-<!-- TODO TU CONTENIDO ORIGINAL VA EXACTAMENTE IGUAL -->
 
-<!--
-NO SE MODIFICA NINGÚN ID
-NO SE MODIFICA NINGUNA CLASE
--->
+
+
+<!-- =============================
+     COBRAR
+============================= -->
+
+
+<section
+id="cobrar"
+class="seccion"
+>
+
+
+<h2>Cobrar</h2>
+
+
+<div class="bloque">
+
+
+<input
+
+id="filtroCobrar"
+
+placeholder="Buscar DNI o número"
+
+class="inputNumero"
+
+>
+
+
+</div>
+
+
+
+
+<table id="tablaCobrar">
+
+
+<thead>
+
+<tr>
+
+<th>Número</th>
+
+<th>DNI</th>
+
+<th>Nombre</th>
+
+<th>Apellido</th>
+
+<th>Estado</th>
+
+<th>Acción</th>
+
+</tr>
+
+</thead>
+
+
+
+<tbody></tbody>
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- =============================
+     HISTORIAL
+============================= -->
+
+
+<section
+
+id="historial"
+
+class="seccion"
+
+>
+
+
+
+<h2>Historial</h2>
+
+
+
+<div class="fecha-control">
+
+
+<button id="historialAnterior">
+
+Anterior
+
+</button>
+
+
+<button id="historialSiguiente">
+
+Siguiente
+
+</button>
+
+
+</div>
+
+
+
+
+
+<input
+
+id="filtroHistorial"
+
+placeholder="Buscar DNI"
+
+class="inputNumero"
+
+
+>
+
+
+
+
+
+<table id="tablaHistorial">
+
+
+<thead>
+
+
+<tr>
+
+<th>Usuario</th>
+
+<th>Afiliado</th>
+
+<th>DNI</th>
+
+<th>Número</th>
+
+<th>Fecha</th>
+
+<th>Hora</th>
+
+<th>Acción</th>
+
+<th>Detalle</th>
+
+
+</tr>
+
+
+</thead>
+
+
+<tbody></tbody>
+
+
+</table>
+
+
+
+
+<h3>
+
+Total:
+
+<span id="montoHistorial">
+$0
+</span>
+
+
+</h3>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- =============================
+     AFILIADOS
+============================= -->
+
+
+<section
+
+id="afiliados"
+
+class="seccion"
+
+
+>
+
+
+<h2>Afiliados</h2>
+
+
+
+<div class="bloque">
+
+
+<button id="btnNuevoAfiliado">
+
+Nuevo afiliado
+
+</button>
+
+
+<input
+
+id="filtroAfiliados"
+
+placeholder="Buscar DNI"
+
+class="inputNumero"
+
+
+>
+
+
+</div>
+
+
+
+
+
+<table id="tablaAfiliados">
+
+
+<thead>
+
+
+<tr>
+
+<th>Número</th>
+
+<th>DNI</th>
+
+<th>Nombre</th>
+
+<th>Apellido</th>
+
+<th>Celular</th>
+
+<th>Correo</th>
+
+<th>Estado</th>
+
+<th>Fecha</th>
+
+<th>Acciones</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody></tbody>
+
+
+</table>
+
+
+
+<div class="paginacion">
+
+
+<button id="afiliadosAnterior">
+
+Anterior
+
+</button>
+
+
+
+<span id="paginaAfiliados">
+
+1
+
+</span>
+
+
+
+<button id="afiliadosSiguiente">
+
+Siguiente
+
+</button>
+
+
+</div>
+
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- =============================
+     USUARIOS
+============================= -->
+
+
+<section
+
+id="usuarios"
+
+class="seccion"
+
+
+>
+
+
+<h2>Usuarios</h2>
+
+
+
+<button id="btnNuevoUsuario">
+
+Nuevo usuario
+
+</button>
+
+
+
+
+
+<table id="tablaUsuarios">
+
+
+<thead>
+
+
+<tr>
+
+<th>Usuario</th>
+
+<th>Tipo</th>
+
+<th>Acciones</th>
+
+
+</tr>
+
+
+</thead>
+
+
+
+<tbody></tbody>
+
+
+</table>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<!-- =============================
+     CONFIGURACION
+============================= -->
+
+
+<section
+
+id="configuracion"
+
+class="seccion"
+
+
+>
+
+
+<h2>Configuración</h2>
+
+
+
+
+<div class="bloque">
+
+
+<input
+
+id="montoConfiguracion"
+
+type="number"
+
+placeholder="Monto cuota"
+
+
+>
+
+
+<button id="guardarConfiguracion">
+
+Guardar
+
+</button>
+
+
+</div>
+
+
+
+
+
+<h3>
+
+Consola
+
+</h3>
+
+
+
+
+<input
+
+id="inputLogs"
+
+placeholder="Comando"
+
+>
+
+
+
+<div
+
+id="consolaSistema"
+
+></div>
+
+
+
+<div class="ayudaLogs">
+
+
+&gt;todo
+
+<br>
+
+&gt;filtrarusuario nombre
+
+<br>
+
+&gt;buscardni numero
+
+<br>
+
+&gt;buscaraccion texto
+
+
+</div>
+
+
+
+</section>
+
+
+
 
 
 
@@ -63,16 +595,53 @@ NO SE MODIFICA NINGUNA CLASE
 
 
 
-<div id="modalFondo" class="modal-fondo">
 
 
-<div id="modal" class="modal">
 
 
-<button id="cerrarModal">X</button>
+
+<!-- =============================
+     MODAL GLOBAL
+============================= -->
 
 
-<div id="modalContenido"></div>
+<div
+
+id="modalFondo"
+
+class="modal-fondo"
+
+
+>
+
+
+<div
+
+id="modal"
+
+class="modal"
+
+
+>
+
+
+<button
+
+id="cerrarModal"
+
+>
+
+X
+
+</button>
+
+
+
+<div
+
+id="modalContenido"
+
+></div>
 
 
 </div>
@@ -84,40 +653,41 @@ NO SE MODIFICA NINGUNA CLASE
 
 
 
-<!-- ============================= -->
-<!-- FIREBASE -->
-<!-- ============================= -->
+
+
+
+
+<!-- =============================
+     FIREBASE + APP
+============================= -->
 
 
 <script type="module" src="firebase.js"></script>
 
 
-<script type="module" src="puenteFirebase.js"></script>
+<script type="module" src="bd.js"></script>
 
 
-
-<!-- ============================= -->
-<!-- SISTEMA ACDP -->
-<!-- ============================= -->
+<script type="module" src="inicio.js"></script>
 
 
-<script src="bd.js"></script>
-
-<script src="inicio.js"></script>
-
-<script src="config.js"></script>
+<script type="module" src="config.js"></script>
 
 
-<script src="afiliados.js"></script>
-
-<script src="usuarios.js"></script>
-
-<script src="historial.js"></script>
-
-<script src="cobrar.js"></script>
+<script type="module" src="afiliados.js"></script>
 
 
-<script src="imp.js"></script>
+<script type="module" src="usuarios.js"></script>
+
+
+<script type="module" src="historial.js"></script>
+
+
+<script type="module" src="cobrar.js"></script>
+
+
+<script type="module" src="imp.js"></script>
+
 
 
 
