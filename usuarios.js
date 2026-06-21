@@ -420,31 +420,85 @@ async function guardarUsuario(){
 
 
 const usuario =
-document.getElementById("usuarioNuevo")
+document
+.getElementById("usuarioNuevo")
 .value.trim();
 
 
 const pin =
-document.getElementById("pinNuevo")
+document
+.getElementById("pinNuevo")
+.value.trim();
+
+
+const pin2 =
+document
+.getElementById("pinConfirmar")
 .value.trim();
 
 
 const tipo =
-document.getElementById("tipoNuevo")
+document
+.getElementById("tipoNuevo")
 .value;
 
 
 
+// seguridad extra
+if(
+!usuario ||
+usuario.length<4 ||
+pin.length!==4 ||
+pin!==pin2
+){
+
+return;
+
+}
+
+
+
+
+const existe =
+BD_usuarios.some(
+
+u=>
+u.usuario.toLowerCase()
+===
+usuario.toLowerCase()
+
+);
+
+
+
+if(existe)
+
+return;
+
+
+
+
+
+try{
+
 
 const ref =
 await addDoc(
+
 collection(db,"usuarios"),
+
 {
+
 usuario,
+
 pin,
+
 tipo
+
 }
+
 );
+
 
 
 
@@ -462,21 +516,45 @@ tipo
 
 
 
+window.BD_usuarios =
+BD_usuarios;
+
+
+
 cerrarModal();
 
+
+
 cargarUsuarios();
+
+
+
+if(typeof escribirConsola==="function")
+
+escribirConsola(
+"Usuario creado: "+usuario
+);
+
+
+
+}catch(error){
+
+
+console.error(
+"Error creando usuario:",
+error
+);
+
+
+alert(
+"No se pudo crear el usuario"
+);
 
 
 }
 
 
-
-
-
-
-
-
-
+}
 // ===============================
 // ELIMINAR
 // ===============================
