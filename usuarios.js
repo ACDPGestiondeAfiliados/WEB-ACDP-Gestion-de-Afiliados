@@ -448,8 +448,10 @@ validar();
 
 
 
-boton.onclick =
-guardarUsuario;
+boton.addEventListener(
+"click",
+guardarUsuario
+);
 
 
 
