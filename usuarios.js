@@ -1,957 +1,163 @@
 // ===============================
-// USUARIOS ACDP FIREBASE MODULAR
-// APP MANDA - FIREBASE PERSISTE
+// USUARIOS.JS - ACDP
+// CRUD USUARIOS + ROLES + PIN CONTROL
 // ===============================
 
+(function () {
 
-import {
-db,
-collection,
-getDocs,
-addDoc,
-updateDoc,
-deleteDoc,
-doc
-} from "./firebase.js";
-
-
-
-
+let modoUsuario = "nuevo";
+let usuarioEditandoId = null;
 
 // ===============================
-// INICIO
+// INIT
 // ===============================
-
-
-function iniciarModuloUsuarios(){
-
-iniciarUsuarios();
-
-}
-
-
-
-if(document.readyState==="loading"){
-
-document.addEventListener(
-"DOMContentLoaded",
-iniciarModuloUsuarios
-);
-
-}else{
-
-iniciarModuloUsuarios();
-
-}
-
-
-
-
-
-
-async function iniciarUsuarios(){
-
-
-eventosUsuarios();
-
-
-if(
-!window.BD_usuarios ||
-window.BD_usuarios.length===0
-){
-
-await cargarUsuariosFirebase();
-
-}else{
-
-cargarUsuarios();
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// CARGAR FIREBASE
-// ===============================
-
-
-async function cargarUsuariosFirebase(){
-
-
-try{
-
-
-const snap =
-await getDocs(
-collection(db,"usuarios")
-);
-
-
-
-window.BD_usuarios =
-[];
-
-
-
-
-snap.forEach(d=>{
-
-
-window.BD_usuarios.push({
-
-id:d.id,
-
-...d.data()
-
-});
-
-
-});
-
-
-
-cargarUsuarios();
-
-
-
-}catch(e){
-
-
-console.error(
-"Error cargando usuarios",
-e
-);
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// EVENTOS
-// ===============================
-
-
-function eventosUsuarios(){
-
-
-const nuevo =
-document.getElementById(
-"btnNuevoUsuario"
-);
-
-
-
-if(nuevo){
-
-nuevo.onclick =
-abrirNuevoUsuario;
-
-}
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// TABLA
-// ===============================
-
-
-function cargarUsuarios(){
-
-
-const cuerpo =
-document
-.getElementById("tablaUsuarios")
-?.querySelector("tbody");
-
-
-
-if(!cuerpo)return;
-
-
-
-cuerpo.innerHTML="";
-
-
-
-
-(window.BD_usuarios||[])
-.forEach((u,index)=>{
-
-
-cuerpo.innerHTML+=`
-
-
-<tr>
-
-
-<td>${u.usuario}</td>
-
-
-<td>${u.tipo}</td>
-
-
-<td>
-
-
-<img
-src="edit.png"
-class="iconoHistorial"
-onclick="abrirEditarUsuario(${index})">
-
-
-<img
-src="delete.png"
-class="iconoHistorial"
-onclick="eliminarUsuario(${index})">
-
-
-</td>
-
-
-</tr>
-
-
-`;
-
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// NUEVO USUARIO
-// ===============================
-
-
-function abrirNuevoUsuario(){
-
-
-const fondo =
-document.getElementById(
-"modalFondo"
-);
-
-
-
-const contenido =
-document.getElementById(
-"modalContenido"
-);
-
-
-
-contenido.innerHTML=`
-
-
-<h3>Nuevo usuario</h3>
-
-
-
-<input
-id="usuarioNuevo"
-placeholder="Usuario"
-maxlength="20">
-
-
-
-<input
-id="pinNuevo"
-type="password"
-maxlength="4"
-inputmode="numeric"
-placeholder="PIN">
-
-
-
-<input
-id="pinConfirmar"
-type="password"
-maxlength="4"
-inputmode="numeric"
-placeholder="Confirmar PIN">
-
-
-
-<div id="msgPin"></div>
-
-
-
-<select id="tipoNuevo">
-
-
-<option value="Normal">
-Normal
-</option>
-
-
-<option value="Administrador">
-Administrador
-</option>
-
-
-</select>
-
-
-
-<button
-id="btnGuardarUsuario"
-disabled>
-
-Guardar
-
-</button>
-
-
-`;
-
-
-
-fondo.classList.add("activo");
-
-
-
-validarNuevo();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-function validarNuevo(){
-
-
-const usuario =
-document.getElementById("usuarioNuevo");
-
-
-const pin =
-document.getElementById("pinNuevo");
-
-
-const pin2 =
-document.getElementById("pinConfirmar");
-
-
-const boton =
-document.getElementById("btnGuardarUsuario");
-
-
-const msg =
-document.getElementById("msgPin");
-
-
-
-if(!usuario||!pin||!pin2||!boton)
-return;
-
-
-
-
-
-function validar(){
-
-
-const existe =
-(window.BD_usuarios||[])
-.some(u=>
-
-String(u.usuario)
-.toLowerCase()
-===
-usuario.value
-.trim()
-.toLowerCase()
-
-);
-
-
-
-
-
-if(existe){
-
-
-msg.textContent=
-"Usuario ya existe";
-
-
-}else if(
-pin.value &&
-pin2.value &&
-pin.value!==pin2.value
-){
-
-
-msg.textContent=
-"PIN no coincide";
-
-
-}else{
-
-
-msg.textContent="";
-
-
-}
-
-
-
-
-
-boton.disabled =
-!(
-
-usuario.value.trim().length>=4 &&
-
-pin.value.length===4 &&
-
-pin2.value.length===4 &&
-
-pin.value===pin2.value &&
-
-!existe
-
-);
-
-
-
-}
-
-
-
-
-
-
-
-usuario.oninput=()=>{
-
-
-usuario.value =
-usuario.value
-.replace(
-/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g,
-""
-)
-.slice(0,20);
-
-
-
-validar();
-
-
+window.initUsuarios = function () {
+    if (!window.BD_usuarios) window.BD_usuarios = [];
+
+    const btnNuevo = document.getElementById("btnNuevoUsuario");
+    if (btnNuevo) {
+        btnNuevo.onclick = () => abrirModalUsuario("nuevo");
+    }
+
+    renderUsuarios();
 };
 
+// ===============================
+// RENDER TABLA
+// ===============================
+window.renderUsuarios = function () {
+    const cont = document.getElementById("tablaUsuarios");
+    if (!cont) return;
 
+    cont.innerHTML = "";
 
+    (window.BD_usuarios || []).forEach(u => {
+        const tr = document.createElement("tr");
 
+        tr.innerHTML = `
+            <td>${u.usuario}</td>
+            <td>${u.rol}</td>
+            <td>${u.pin}</td>
+            <td>
+                <button onclick="editarUsuario('${u.id}')">Editar</button>
+                <button onclick="eliminarUsuario('${u.id}')">Eliminar</button>
+            </td>
+        `;
 
-pin.oninput=()=>{
-
-
-pin.value =
-pin.value
-.replace(/\D/g,"")
-.slice(0,4);
-
-
-
-validar();
-
-
+        cont.appendChild(tr);
+    });
 };
 
+// ===============================
+// ABRIR MODAL
+// ===============================
+window.abrirModalUsuario = function (modo, id = null) {
+    modoUsuario = modo;
+    usuarioEditandoId = id;
 
+    const modal = document.getElementById("modalUsuario");
+    if (modal) modal.style.display = "flex";
 
+    if (modo === "editar" && id) {
+        const u = (window.BD_usuarios || []).find(x => x.id === id);
+        if (!u) return;
 
-
-pin2.oninput=()=>{
-
-
-pin2.value =
-pin2.value
-.replace(/\D/g,"")
-.slice(0,4);
-
-
-
-validar();
-
-
+        setValue("usuarioNombre", u.usuario);
+        setValue("usuarioRol", u.rol);
+        setValue("usuarioPin", u.pin);
+    } else {
+        setValue("usuarioNombre", "");
+        setValue("usuarioRol", "NORMAL");
+        setValue("usuarioPin", "");
+    }
 };
 
-
-
-
-
-boton.onclick =
-guardarUsuario;
-
-
-
-validar();
-
-
-
-}
-
-
-
-
-
-
-
-
-
 // ===============================
-// GUARDAR
+// GUARDAR USUARIO
 // ===============================
-
-
-async function guardarUsuario(){
-
-
-const boton =
-document.getElementById(
-"btnGuardarUsuario"
-);
-
-
-
-if(!boton || boton.disabled)
-return;
-
-
-
-
-boton.disabled=true;
-
-
-
-
-const usuario =
-document
-.getElementById("usuarioNuevo")
-.value.trim();
-
-
-
-const pin =
-document
-.getElementById("pinNuevo")
-.value.trim();
-
-
-
-const tipo =
-document
-.getElementById("tipoNuevo")
-.value;
-
-
-
-
-
-try{
-
-
-const ref =
-await addDoc(
-
-collection(db,"usuarios"),
-
-{
-
-usuario,
-
-pin,
-
-tipo
-
-}
-
-);
-
-
-
-
-
-window.BD_usuarios.push({
-
-id:ref.id,
-
-usuario,
-
-pin,
-
-tipo
-
-});
-
-
-
-
-
-cargarUsuarios();
-
-
-
-cerrarModal();
-
-
-
-}catch(e){
-
-
-console.error(
-"ERROR CREANDO USUARIO",
-e
-);
-
-
-
-alert(
-"No se pudo guardar usuario"
-);
-
-
-
-boton.disabled=false;
-
-
-
-}
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// ELIMINAR
-// ===============================
-
-
-async function eliminarUsuario(index){
-
-
-const u =
-(window.BD_usuarios||[])[index];
-
-
-
-if(!u)
-return;
-
-
-
-
-if(u.usuario==="Admin"){
-
-
-alert(
-"El usuario Admin no puede eliminarse"
-);
-
-
-return;
-
-
-}
-
-
-
-
-
-await deleteDoc(
-
-doc(
-db,
-"usuarios",
-u.id
-)
-
-);
-
-
-
-
-
-window.BD_usuarios.splice(
-index,
-1
-);
-
-
-
-cargarUsuarios();
-
-
-
-}
-
-
-
-
-
-
-
-
+window.guardarUsuario = function () {
+    const nombre = getValue("usuarioNombre");
+    const rol = getValue("usuarioRol");
+    const pin = getValue("usuarioPin");
+
+    if (!nombre || !pin) return alert("Datos incompletos");
+
+    if (modoUsuario === "nuevo") {
+        const nuevo = {
+            id: crypto.randomUUID(),
+            usuario: nombre,
+            rol: rol,
+            pin: pin
+        };
+
+        window.BD_usuarios.push(nuevo);
+    }
+
+    if (modoUsuario === "editar") {
+        const idx = window.BD_usuarios.findIndex(x => x.id === usuarioEditandoId);
+        if (idx !== -1) {
+            window.BD_usuarios[idx].usuario = nombre;
+            window.BD_usuarios[idx].rol = rol;
+            window.BD_usuarios[idx].pin = pin;
+        }
+    }
+
+    cerrarModalUsuario();
+    renderUsuarios();
+};
 
 // ===============================
 // EDITAR
 // ===============================
-
-
-function abrirEditarUsuario(index){
-
-
-const u =
-(window.BD_usuarios||[])[index];
-
-
-
-if(!u)
-return;
-
-
-
-
-
-const fondo =
-document.getElementById(
-"modalFondo"
-);
-
-
-
-const contenido =
-document.getElementById(
-"modalContenido"
-);
-
-
-
-
-
-contenido.innerHTML=`
-
-
-<h3>Editar usuario</h3>
-
-
-<input
-id="editUsuario"
-value="${u.usuario}"
-maxlength="20">
-
-
-
-<input
-id="editPin"
-value="${u.pin}"
-maxlength="4">
-
-
-
-<select id="editTipo">
-
-
-<option value="Normal">
-Normal
-</option>
-
-
-<option value="Administrador">
-Administrador
-</option>
-
-
-</select>
-
-
-
-<button id="btnGuardarEdit">
-
-Guardar cambios
-
-</button>
-
-
-
-`;
-
-
-
-
-fondo.classList.add("activo");
-
-
-
-
-
-
-document
-.getElementById("btnGuardarEdit")
-.onclick =
-async()=>{
-
-
-
-await updateDoc(
-
-doc(
-db,
-"usuarios",
-u.id
-),
-
-{
-
-usuario:
-document
-.getElementById("editUsuario")
-.value,
-
-
-pin:
-document
-.getElementById("editPin")
-.value,
-
-
-tipo:
-document
-.getElementById("editTipo")
-.value
-
-
-}
-
-);
-
-
-
-
-
-u.usuario =
-document.getElementById("editUsuario").value;
-
-
-u.pin =
-document.getElementById("editPin").value;
-
-
-u.tipo =
-document.getElementById("editTipo").value;
-
-
-
-
-
-cargarUsuarios();
-
-
-
-cerrarModal();
-
-
-
+window.editarUsuario = function (id) {
+    abrirModalUsuario("editar", id);
 };
 
+// ===============================
+// ELIMINAR
+// ===============================
+window.eliminarUsuario = function (id) {
+    if (!confirm("Eliminar usuario?")) return;
 
+    window.BD_usuarios = window.BD_usuarios.filter(u => u.id !== id);
+    renderUsuarios();
+};
 
+// ===============================
+// CERRAR MODAL
+// ===============================
+window.cerrarModalUsuario = function () {
+    const modal = document.getElementById("modalUsuario");
+    if (modal) modal.style.display = "none";
+};
+
+// ===============================
+// HELPERS
+// ===============================
+function getValue(id) {
+    const el = document.getElementById(id);
+    return el ? el.value.trim() : "";
 }
 
-
-
-
-
-
-
-
-
-function cerrarModal(){
-
-
-document
-.getElementById("modalFondo")
-.classList.remove("activo");
-
-
+function setValue(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
 }
 
+// ===============================
+// SEGURIDAD SIMPLE (ADMIN PIN)
+// ===============================
+window.validarAdmin = function (pin) {
+    return pin === "9999";
+};
 
+// ===============================
+// AUTO INIT
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof window.initUsuarios === "function") {
+        window.initUsuarios();
+    }
+});
 
-
-
-
-
-
-window.abrirNuevoUsuario =
-abrirNuevoUsuario;
-
-
-window.abrirEditarUsuario =
-abrirEditarUsuario;
-
-
-window.eliminarUsuario =
-eliminarUsuario;
-
-
-window.guardarUsuario =
-guardarUsuario;
+})();
