@@ -1,79 +1,42 @@
 // ===============================
 // PUENTE FIREBASE ACDP
-// FIREBASE MODULAR
-// SIN TOCAR LA APP
+// VERSION COMPATIBILIDAD GLOBAL
 // ===============================
 
 
 import {
-    doc,
-    getDoc,
-    setDoc,
-    onSnapshot
+doc,
+getDoc,
+setDoc,
+onSnapshot
 }
 from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 
 
+const referencia =
+doc(
+window.dbFirebase,
+"ACDP",
+"BASE"
+);
 
-// ===============================
-// INICIO
-// ===============================
+
+
+
 
 window.addEventListener(
 "load",
 ()=>{
 
-    iniciarFirebaseACDP();
 
-});
-
-
-
-
-
-async function iniciarFirebaseACDP(){
-
-
-try{
-
-
-const referencia =
-doc(
-    window.dbFirebase,
-    "ACDP",
-    "BASE"
+console.log(
+"PUENTE FIREBASE INICIADO"
 );
 
 
 
-const snap =
-await getDoc(referencia);
-
-
-
-if(!snap.exists()){
-
-
-    await subirFirebase();
-
-}
-else{
-
-
-    aplicarDatosFirebase(
-        snap.data()
-    );
-
-
-}
-
-
-
-
-escucharFirebase(
-    referencia
-);
+cargarInicial();
 
 
 
@@ -81,8 +44,209 @@ interceptarGuardado();
 
 
 
+escucharCambios();
+
+
+
+});
+
+
+
+
+
+
+
+async function cargarInicial(){
+
+
+try{
+
+
+const snap =
+await getDoc(referencia);
+
+
+
+if(snap.exists()){
+
+
+const d =
+snap.data();
+
+
+
+BD_usuarios =
+d.usuarios || BD_usuarios;
+
+
+
+BD_afiliados =
+d.afiliados || BD_afiliados;
+
+
+
+BD_historial =
+d.historial || BD_historial;
+
+
+
+BD_cobros =
+d.cobros || BD_cobros;
+
+
+
+BD_configuracion =
+d.configuracion || BD_configuracion;
+
+
+
+guardarBD();
+
+
+
 console.log(
-"Firebase ACDP conectado correctamente"
+"BD cargada desde Firebase"
+);
+
+
+
+}else{
+
+
+await subir();
+
+
+console.log(
+"Firebase inicializado vacío"
+);
+
+
+
+}
+
+
+
+}catch(e){
+
+console.error(
+"CARGA FIREBASE ERROR",
+e
+);
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+function interceptarGuardado(){
+
+
+
+const original =
+guardarBD;
+
+
+
+if(!original){
+
+console.error(
+"No existe guardarBD"
+);
+
+return;
+
+}
+
+
+
+window.guardarBD =
+function(){
+
+
+original();
+
+
+
+setTimeout(
+()=>{
+
+subir();
+
+},
+100
+);
+
+
+
+};
+
+
+console.log(
+"GuardarBD interceptado"
+);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+async function subir(){
+
+
+
+try{
+
+
+await setDoc(
+
+referencia,
+
+{
+
+
+usuarios:
+BD_usuarios || [],
+
+
+afiliados:
+BD_afiliados || [],
+
+
+historial:
+BD_historial || [],
+
+
+cobros:
+BD_cobros || [],
+
+
+configuracion:
+BD_configuracion || {}
+
+}
+
+
+);
+
+
+
+console.log(
+"DATOS SUBIDOS A FIREBASE"
 );
 
 
@@ -91,7 +255,7 @@ console.log(
 
 
 console.error(
-"Firebase ACDP error",
+"ERROR SUBIENDO",
 e
 );
 
@@ -110,80 +274,7 @@ e
 
 
 
-// ===============================
-// CARGAR DESDE FIREBASE
-// ===============================
-
-
-function aplicarDatosFirebase(datos){
-
-
-
-window.BD_usuarios =
-datos.usuarios || [];
-
-
-
-window.BD_afiliados =
-datos.afiliados || [];
-
-
-
-window.BD_historial =
-datos.historial || [];
-
-
-
-window.BD_cobros =
-datos.cobros || [];
-
-
-
-window.BD_configuracion =
-datos.configuracion || {};
-
-
-
-
-
-// refrescar tablas si existen
-
-if(typeof cargarUsuarios==="function")
-cargarUsuarios();
-
-
-
-if(typeof cargarAfiliados==="function")
-cargarAfiliados();
-
-
-
-if(typeof cargarHistorial==="function")
-cargarHistorial();
-
-
-
-if(typeof cargarCobros==="function")
-cargarCobros();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// ESCUCHA EN TIEMPO REAL
-// ===============================
-
-
-function escucharFirebase(referencia){
+function escucharCambios(){
 
 
 
@@ -191,90 +282,39 @@ onSnapshot(
 
 referencia,
 
-(snapshot)=>{
+snap=>{
 
 
-
-if(!snapshot.exists())
+if(!snap.exists())
 return;
 
 
 
-aplicarDatosFirebase(
-snapshot.data()
-);
+const d =
+snap.data();
+
+
+
+BD_usuarios =
+d.usuarios || [];
+
+BD_afiliados =
+d.afiliados || [];
+
+BD_historial =
+d.historial || [];
+
+BD_cobros =
+d.cobros || [];
+
+BD_configuracion =
+d.configuracion || {};
+
 
 
 
 console.log(
-"Datos sincronizados desde Firebase"
-);
-
-
-
-}
-
-);
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// SUBIR DATOS
-// ===============================
-
-
-async function subirFirebase(){
-
-
-
-const referencia =
-doc(
-window.dbFirebase,
-"ACDP",
-"BASE"
-);
-
-
-
-await setDoc(
-
-referencia,
-
-{
-
-
-usuarios:
-window.BD_usuarios || [],
-
-
-afiliados:
-window.BD_afiliados || [],
-
-
-historial:
-window.BD_historial || [],
-
-
-cobros:
-window.BD_cobros || [],
-
-
-configuracion:
-window.BD_configuracion || {}
-
-}
-
-
+"CAMBIO RECIBIDO FIREBASE"
 );
 
 
@@ -282,51 +322,7 @@ window.BD_configuracion || {}
 }
 
 
-
-
-
-
-
-
-
-// ===============================
-// INTERCEPTAR GUARDADO LOCAL
-// ===============================
-
-
-function interceptarGuardado(){
-
-
-
-const original =
-window.guardarBD;
-
-
-
-if(!original)
-return;
-
-
-
-
-
-window.guardarBD = function(){
-
-
-
-// primero mantiene funcionamiento actual
-
-original();
-
-
-
-// después nube
-
-subirFirebase();
-
-
-
-};
+);
 
 
 
