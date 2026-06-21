@@ -3,7 +3,6 @@
 // VERSION COMPATIBILIDAD GLOBAL
 // ===============================
 
-
 import {
 doc,
 getDoc,
@@ -14,14 +13,9 @@ from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 
 
-const referencia =
-doc(
-window.dbFirebase,
-"ACDP",
-"BASE"
-);
-
-
+function getRef(){
+    return doc(window.dbFirebase, "ACDP", "BASE");
+}
 
 
 
@@ -63,7 +57,7 @@ try{
 
 
 const snap =
-await getDoc(referencia);
+await getDoc(getRef());
 
 
 
@@ -96,7 +90,7 @@ d.cobros || BD_cobros;
 
 
 BD_configuracion =
-d.configuracion || BD_configuracion;
+d.configuracion || {monto:0};
 
 
 
@@ -151,7 +145,7 @@ function interceptarGuardado(){
 
 
 const original =
-guardarBD;
+window.guardarBD;
 
 
 
@@ -167,11 +161,15 @@ return;
 
 
 
+window.originalGuardarBD = original;
+
+
+
 window.guardarBD =
 function(){
 
 
-original();
+window.originalGuardarBD();
 
 
 
@@ -212,9 +210,16 @@ async function subir(){
 try{
 
 
+if(!window.dbFirebase){
+console.error("Firebase no inicializado");
+return;
+}
+
+
+
 await setDoc(
 
-referencia,
+getRef(),
 
 {
 
@@ -235,7 +240,11 @@ cobros:
 BD_cobros || [],
 
 
-configuracion: JSON.parse(JSON.stringify(BD_configuracion || {}))
+configuracion:
+{
+monto: Number(BD_configuracion?.monto || 0)
+}
+
 
 }
 
@@ -279,7 +288,7 @@ function escucharCambios(){
 
 onSnapshot(
 
-referencia,
+getRef(),
 
 snap=>{
 
@@ -307,7 +316,9 @@ BD_cobros =
 d.cobros || [];
 
 BD_configuracion =
-d.configuracion || {};
+{
+monto: Number(d.configuracion?.monto || 0)
+};
 
 
 
