@@ -16,6 +16,7 @@ doc
 
 
 
+
 // ===============================
 // INICIO
 // ===============================
@@ -47,14 +48,12 @@ iniciarModuloUsuarios();
 
 async function iniciarUsuarios(){
 
-
 eventosUsuarios();
-
 
 await cargarUsuariosFirebase();
 
-
 }
+
 
 
 
@@ -124,12 +123,10 @@ document.getElementById(
 
 
 
-if(nuevo){
+if(nuevo)
 
 nuevo.onclick =
 abrirNuevoUsuario;
-
-}
 
 
 }
@@ -153,7 +150,7 @@ function cargarUsuarios(){
 const cuerpo =
 document
 .getElementById("tablaUsuarios")
-.querySelector("tbody");
+?.querySelector("tbody");
 
 
 
@@ -165,7 +162,7 @@ cuerpo.innerHTML="";
 
 
 
-(window.BD_usuarios || [])
+(window.BD_usuarios||[])
 .forEach((u,index)=>{
 
 
@@ -182,26 +179,22 @@ cuerpo.innerHTML+=`
 <td>
 
 
-<img
-src="edit.png"
+<img src="edit.png"
 class="iconoHistorial"
 onclick="abrirEditarUsuario(${index})">
 
 
-<img
-src="delete.png"
+<img src="delete.png"
 class="iconoHistorial"
 onclick="eliminarUsuario(${index})">
 
 
 </td>
 
-
 </tr>
 
 
 `;
-
 
 });
 
@@ -217,7 +210,7 @@ onclick="eliminarUsuario(${index})">
 
 
 // ===============================
-// CREAR
+// NUEVO USUARIO
 // ===============================
 
 
@@ -276,12 +269,11 @@ Administrador
 </select>
 
 
-<button id="btnGuardarUsuario">
+<button id="btnGuardarUsuario" disabled>
 
 Guardar
 
 </button>
-
 
 `;
 
@@ -328,32 +320,29 @@ document.getElementById("msgPin");
 
 
 
+
 function validar(){
 
 
 const lista =
-window.BD_usuarios || [];
+window.BD_usuarios||[];
 
 
 
 const existe =
 lista.some(
-
 u=>
-
 u.usuario.toLowerCase()
 ===
-usuario.value.toLowerCase()
-
+usuario.value.trim().toLowerCase()
 );
 
 
 
 if(existe){
 
-msg.textContent =
+msg.textContent=
 "Usuario ya existe";
-
 
 }else if(
 pin.value &&
@@ -361,9 +350,8 @@ pin2.value &&
 pin.value!==pin2.value
 ){
 
-msg.textContent =
+msg.textContent=
 "PIN no coincide";
-
 
 }else{
 
@@ -373,18 +361,16 @@ msg.textContent="";
 
 
 
-
-
 boton.disabled =
 !(
 
-usuario.value.trim().length >= 4 &&
+usuario.value.trim().length>=4 &&
 
-pin.value.length === 4 &&
+pin.value.length===4 &&
 
-pin2.value.length === 4 &&
+pin2.value.length===4 &&
 
-pin.value === pin2.value &&
+pin.value===pin2.value &&
 
 !existe
 
@@ -393,6 +379,7 @@ pin.value === pin2.value &&
 
 
 }
+
 
 
 
@@ -409,13 +396,9 @@ usuario.value
 .slice(0,20);
 
 
-
 validar();
 
-
 };
-
-
 
 
 
@@ -428,13 +411,9 @@ pin.value
 .slice(0,4);
 
 
-
 validar();
 
-
 };
-
-
 
 
 
@@ -447,13 +426,9 @@ pin2.value
 .slice(0,4);
 
 
-
 validar();
 
-
 };
-
-
 
 
 
@@ -467,8 +442,16 @@ validar();
 
 }
 
+
+
+
+
+
+
+
+
 // ===============================
-// GUARDAR USUARIO
+// GUARDAR
 // ===============================
 
 
@@ -479,25 +462,39 @@ const boton =
 document.getElementById("btnGuardarUsuario");
 
 
-if(boton.disabled)
+
+if(!boton || boton.disabled)
 
 return;
 
-}
+
+
+
+const usuario =
+document.getElementById("usuarioNuevo")
+.value.trim();
+
+
+const pin =
+document.getElementById("pinNuevo")
+.value.trim();
+
+
+const tipo =
+document.getElementById("tipoNuevo")
+.value;
+
 
 
 
 
 const existe =
-(window.BD_usuarios || [])
+(window.BD_usuarios||[])
 .some(
-
 u=>
-
 u.usuario.toLowerCase()
 ===
 usuario.toLowerCase()
-
 );
 
 
@@ -510,6 +507,9 @@ return;
 
 
 
+try{
+
+
 const ref =
 await addDoc(
 
@@ -518,9 +518,7 @@ collection(db,"usuarios"),
 {
 
 usuario,
-
 pin,
-
 tipo
 
 }
@@ -530,28 +528,40 @@ tipo
 
 
 
-
 window.BD_usuarios.push({
 
 id:ref.id,
-
 usuario,
-
 pin,
-
 tipo
 
 });
 
 
 
-
-
 cerrarModal();
+
 
 
 cargarUsuarios();
 
+
+
+}catch(e){
+
+
+console.error(
+"ERROR CREANDO USUARIO",
+e
+);
+
+
+alert(
+"No se pudo guardar usuario"
+);
+
+
+}
 
 
 }
@@ -573,7 +583,7 @@ async function eliminarUsuario(index){
 
 
 const u =
-(window.BD_usuarios || [])[index];
+(window.BD_usuarios||[])[index];
 
 
 
@@ -631,8 +641,7 @@ function abrirEditarUsuario(index){
 
 
 const u =
-(window.BD_usuarios || [])[index];
-
+(window.BD_usuarios||[])[index];
 
 
 if(!u)return;
@@ -668,21 +677,16 @@ maxlength="4">
 
 
 <option value="Normal">
-
 Normal
-
 </option>
 
 
 <option value="Administrador">
-
 Administrador
-
 </option>
 
 
 </select>
-
 
 
 <button id="btnGuardarEdit">
@@ -766,6 +770,10 @@ document
 
 
 
+window.abrirNuevoUsuario =
+abrirNuevoUsuario;
+
+
 window.abrirEditarUsuario =
 abrirEditarUsuario;
 
@@ -776,7 +784,3 @@ eliminarUsuario;
 
 window.guardarUsuario =
 guardarUsuario;
-
-
-window.abrirNuevoUsuario =
-abrirNuevoUsuario;
