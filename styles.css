@@ -9,6 +9,13 @@ background:#f2f4f7;
 color:#222;
 }
 
+.historialAnulado{
+
+opacity:0.5;
+background:#d0d0d0;
+filter:grayscale(100%);
+
+}
 
 .header{
 background:#A602AB;
