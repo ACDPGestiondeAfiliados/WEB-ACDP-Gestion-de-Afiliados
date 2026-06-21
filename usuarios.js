@@ -1,6 +1,5 @@
 // ===============================
-// USUARIOS.JS - ACDP
-// CRUD USUARIOS + ROLES + PIN CONTROL
+// USUARIOS.JS - ACDP (FIXED)
 // ===============================
 
 (function () {
@@ -12,32 +11,41 @@ let usuarioEditandoId = null;
 // INIT
 // ===============================
 window.initUsuarios = function () {
-    if (!window.BD_usuarios) window.BD_usuarios = [];
+
+    const esperarBD = () => {
+        if (!window.BD_usuarios) {
+            setTimeout(esperarBD, 150);
+            return;
+        }
+        renderUsuarios();
+    };
 
     const btnNuevo = document.getElementById("btnNuevoUsuario");
+
     if (btnNuevo) {
         btnNuevo.onclick = () => abrirModalUsuario("nuevo");
     }
 
-    renderUsuarios();
+    esperarBD();
 };
 
 // ===============================
 // RENDER TABLA
 // ===============================
 window.renderUsuarios = function () {
-    const cont = document.getElementById("tablaUsuarios");
+
+    const cont = document.querySelector("#tablaUsuarios tbody");
     if (!cont) return;
 
     cont.innerHTML = "";
 
     (window.BD_usuarios || []).forEach(u => {
+
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${u.usuario}</td>
-            <td>${u.rol}</td>
-            <td>${u.pin}</td>
+            <td>${u.usuario || ""}</td>
+            <td>${u.tipo || u.rol || "Normal"}</td>
             <td>
                 <button onclick="editarUsuario('${u.id}')">Editar</button>
                 <button onclick="eliminarUsuario('${u.id}')">Eliminar</button>
@@ -49,33 +57,54 @@ window.renderUsuarios = function () {
 };
 
 // ===============================
-// ABRIR MODAL
+// ABRIR MODAL (GLOBAL FIX)
 // ===============================
 window.abrirModalUsuario = function (modo, id = null) {
+
     modoUsuario = modo;
     usuarioEditandoId = id;
 
-    const modal = document.getElementById("modalUsuario");
-    if (modal) modal.style.display = "flex";
+    const fondo = document.getElementById("modalFondo");
+    const contenido = document.getElementById("modalContenido");
+
+    if (!fondo || !contenido) return;
+
+    fondo.classList.add("activo");
 
     if (modo === "editar" && id) {
+
         const u = (window.BD_usuarios || []).find(x => x.id === id);
         if (!u) return;
 
-        setValue("usuarioNombre", u.usuario);
-        setValue("usuarioRol", u.rol);
-        setValue("usuarioPin", u.pin);
+        contenido.innerHTML = `
+            <h3>Editar usuario</h3>
+
+            <input id="usuarioNombre" placeholder="Usuario" value="${u.usuario || ""}">
+            <input id="usuarioRol" placeholder="Tipo" value="${u.tipo || u.rol || "NORMAL"}">
+            <input id="usuarioPin" placeholder="PIN" value="${u.pin || ""}">
+
+            <button onclick="guardarUsuario()">Guardar</button>
+        `;
+
     } else {
-        setValue("usuarioNombre", "");
-        setValue("usuarioRol", "NORMAL");
-        setValue("usuarioPin", "");
+
+        contenido.innerHTML = `
+            <h3>Nuevo usuario</h3>
+
+            <input id="usuarioNombre" placeholder="Usuario">
+            <input id="usuarioRol" placeholder="Tipo (Normal/Administrador)" value="NORMAL">
+            <input id="usuarioPin" placeholder="PIN">
+
+            <button onclick="guardarUsuario()">Guardar</button>
+        `;
     }
 };
 
 // ===============================
-// GUARDAR USUARIO
+// GUARDAR
 // ===============================
 window.guardarUsuario = function () {
+
     const nombre = getValue("usuarioNombre");
     const rol = getValue("usuarioRol");
     const pin = getValue("usuarioPin");
@@ -83,21 +112,21 @@ window.guardarUsuario = function () {
     if (!nombre || !pin) return alert("Datos incompletos");
 
     if (modoUsuario === "nuevo") {
-        const nuevo = {
+
+        window.BD_usuarios.push({
             id: crypto.randomUUID(),
             usuario: nombre,
-            rol: rol,
+            tipo: rol,
             pin: pin
-        };
+        });
 
-        window.BD_usuarios.push(nuevo);
-    }
+    } else {
 
-    if (modoUsuario === "editar") {
         const idx = window.BD_usuarios.findIndex(x => x.id === usuarioEditandoId);
+
         if (idx !== -1) {
             window.BD_usuarios[idx].usuario = nombre;
-            window.BD_usuarios[idx].rol = rol;
+            window.BD_usuarios[idx].tipo = rol;
             window.BD_usuarios[idx].pin = pin;
         }
     }
@@ -117,6 +146,7 @@ window.editarUsuario = function (id) {
 // ELIMINAR
 // ===============================
 window.eliminarUsuario = function (id) {
+
     if (!confirm("Eliminar usuario?")) return;
 
     window.BD_usuarios = window.BD_usuarios.filter(u => u.id !== id);
@@ -127,8 +157,9 @@ window.eliminarUsuario = function (id) {
 // CERRAR MODAL
 // ===============================
 window.cerrarModalUsuario = function () {
-    const modal = document.getElementById("modalUsuario");
-    if (modal) modal.style.display = "none";
+
+    const fondo = document.getElementById("modalFondo");
+    if (fondo) fondo.classList.remove("activo");
 };
 
 // ===============================
@@ -139,25 +170,11 @@ function getValue(id) {
     return el ? el.value.trim() : "";
 }
 
-function setValue(id, val) {
-    const el = document.getElementById(id);
-    if (el) el.value = val;
-}
-
-// ===============================
-// SEGURIDAD SIMPLE (ADMIN PIN)
-// ===============================
-window.validarAdmin = function (pin) {
-    return pin === "9999";
-};
-
 // ===============================
 // AUTO INIT
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
-    if (typeof window.initUsuarios === "function") {
-        window.initUsuarios();
-    }
+    window.initUsuarios();
 });
 
 })();
