@@ -215,3 +215,11 @@ font-family:monospace;
     padding:10px;
     border:1px solid #222;
 }
+
+.modal-fondo{
+display:none;
+}
+
+.modal-fondo.activo{
+display:flex;
+}
