@@ -790,7 +790,25 @@ collection(db,"cobros"),
 cobro
 );
 
+if(window.registrarHistorial){
 
+await window.registrarHistorial(
+"Cobro",
+{
+afiliado:
+afiliado.nombre+" "+afiliado.apellido,
+
+dni:
+afiliado.dni,
+
+numeroAfiliado:
+afiliado.numeroAfiliado
+},
+
+cobro.detalleHistorial
+);
+
+}
 
 CACHE_COBROS.push(cobro);
 
