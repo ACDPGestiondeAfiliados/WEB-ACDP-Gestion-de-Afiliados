@@ -1,6 +1,7 @@
 // ===============================
 // USUARIOS ACDP FIREBASE
 // Gestión de cuentas y permisos
+// FIREBASE MODULAR
 // ===============================
 
 
@@ -16,15 +17,12 @@ doc
 
 
 
-let usuarios=[];
+let usuarios = [];
 
 
-const modalContenido =
-document.getElementById("modalContenido");
+let modalContenido = null;
+let modalFondo = null;
 
-
-const modalFondo =
-document.getElementById("modalFondo");
 
 
 
@@ -34,25 +32,57 @@ document.getElementById("modalFondo");
 // ===============================
 
 
-if(document.readyState==="loading"){
+function iniciarModuloUsuarios(){
 
-document.addEventListener("DOMContentLoaded",iniciarUsuarios);
 
-}else{
+modalContenido =
+document.getElementById("modalContenido");
+
+
+modalFondo =
+document.getElementById("modalFondo");
+
+
 
 iniciarUsuarios();
 
+
 }
+
+
+
+if(document.readyState==="loading"){
+
+document.addEventListener(
+"DOMContentLoaded",
+iniciarModuloUsuarios
+);
+
+}else{
+
+iniciarModuloUsuarios();
+
+}
+
+
+
+
 
 
 
 async function iniciarUsuarios(){
 
+
 await cargarUsuarios();
+
 
 eventosUsuarios();
 
+
 }
+
+
+
 
 
 
@@ -60,7 +90,7 @@ eventosUsuarios();
 
 
 // ===============================
-// CARGAR
+// CARGAR FIREBASE
 // ===============================
 
 
@@ -73,27 +103,37 @@ collection(db,"usuarios")
 );
 
 
+
 usuarios=[];
+
 
 
 snap.forEach(d=>{
 
+
 usuarios.push({
 
 id:d.id,
+
 ...d.data()
 
 });
 
+
 });
 
 
-window.BD_usuarios=usuarios;
+
+window.BD_usuarios = usuarios;
+
 
 
 renderUsuarios();
 
+
 }
+
+
 
 
 
@@ -109,15 +149,28 @@ renderUsuarios();
 function eventosUsuarios(){
 
 
-const nuevo =
-document.getElementById("btnNuevoUsuario");
+const boton =
+document.getElementById(
+"btnNuevoUsuario"
+);
 
 
-if(nuevo){
 
-nuevo.onclick=abrirNuevoUsuario;
+if(!boton){
+
+console.error(
+"No existe btnNuevoUsuario"
+);
+
+return;
 
 }
+
+
+
+boton.onclick =
+abrirNuevoUsuario;
+
 
 
 }
@@ -144,6 +197,11 @@ document
 .querySelector("tbody");
 
 
+
+if(!cuerpo)return;
+
+
+
 cuerpo.innerHTML="";
 
 
@@ -153,26 +211,35 @@ usuarios.forEach((u,index)=>{
 
 cuerpo.innerHTML+=`
 
+
 <tr>
+
 
 <td>${u.usuario}</td>
 
+
 <td>${u.tipo}</td>
+
 
 
 <td>
 
 
-<img 
+
+<img
 src="edit.png"
 class="iconoHistorial"
-onclick="abrirEditarUsuario(${index})">
+onclick="abrirEditarUsuario(${index})"
+>
+
 
 
 <img
 src="delete.png"
 class="iconoHistorial"
-onclick="eliminarUsuario(${index})">
+onclick="eliminarUsuario(${index})"
+>
+
 
 
 </td>
@@ -180,7 +247,10 @@ onclick="eliminarUsuario(${index})">
 
 </tr>
 
+
 `;
+
+
 
 });
 
@@ -196,36 +266,46 @@ onclick="eliminarUsuario(${index})">
 
 
 // ===============================
-// NUEVO
+// NUEVO USUARIO
 // ===============================
 
 
 function abrirNuevoUsuario(){
 
 
-modalContenido.innerHTML=`
+
+modalContenido.innerHTML = `
 
 
 <h3>Nuevo usuario</h3>
 
 
-<input id="usuarioNuevo"
+<input
+id="usuarioNuevo"
 placeholder="Usuario"
-maxlength="20">
+maxlength="20"
+>
 
 
-<input id="pinNuevo"
+
+<input
+id="pinNuevo"
 type="password"
 maxlength="4"
 inputmode="numeric"
-placeholder="PIN">
+placeholder="PIN"
+>
 
 
-<input id="pinConfirmar"
+
+<input
+id="pinConfirmar"
 type="password"
 maxlength="4"
 inputmode="numeric"
-placeholder="Confirmar PIN">
+placeholder="Confirmar PIN"
+>
+
 
 
 <div id="msgPin"></div>
@@ -263,10 +343,12 @@ Guardar
 modalFondo.classList.add("activo");
 
 
+
 validarUsuarioNuevo();
 
 
 }
+
 
 
 
@@ -286,7 +368,7 @@ const pinInput =
 document.getElementById("pinNuevo");
 
 
-const confirmInput =
+const confirmarInput =
 document.getElementById("pinConfirmar");
 
 
@@ -294,7 +376,7 @@ const boton =
 document.getElementById("btnGuardarUsuario");
 
 
-const msg =
+const mensaje =
 document.getElementById("msgPin");
 
 
@@ -302,6 +384,7 @@ document.getElementById("msgPin");
 
 
 function validar(){
+
 
 
 const usuario =
@@ -313,41 +396,60 @@ pinInput.value;
 
 
 const pin2 =
-confirmInput.value;
+confirmarInput.value;
 
 
 
 const existe =
 usuarios.some(u=>
-u.usuario.toLowerCase()===
+
+u.usuario.toLowerCase()
+===
 usuario.toLowerCase()
+
 );
 
 
 
-if(existe)
 
-msg.textContent="Usuario ya existe";
+if(existe){
 
-
-else if(pin && pin2 && pin!==pin2)
-
-msg.textContent="PIN no coincide";
+mensaje.textContent =
+"Usuario ya existe";
 
 
-else
+}else if(
+pin &&
+pin2 &&
+pin!==pin2
+){
 
-msg.textContent="";
+mensaje.textContent =
+"PIN no coincide";
+
+
+}else{
+
+mensaje.textContent="";
+
+}
+
 
 
 
 boton.disabled =
 !(
+
 usuario.length>=4 &&
+
 pin.length===4 &&
+
 pin===pin2 &&
+
 !existe
+
 );
+
 
 
 }
@@ -368,9 +470,12 @@ usuarioInput.value
 .slice(0,20);
 
 
+
 validar();
 
+
 };
+
 
 
 
@@ -384,30 +489,38 @@ pinInput.value
 .slice(0,4);
 
 
+
 validar();
+
 
 };
 
 
 
 
-confirmInput.oninput=()=>{
+
+confirmarInput.oninput=()=>{
 
 
-confirmInput.value =
-confirmInput.value
+confirmarInput.value =
+confirmarInput.value
 .replace(/\D/g,"")
 .slice(0,4);
 
 
+
 validar();
+
 
 };
 
 
 
 
-boton.onclick=guardarUsuario;
+
+boton.onclick =
+guardarUsuario;
+
 
 
 }
@@ -446,26 +559,20 @@ document.getElementById("tipoNuevo")
 
 
 
-if(!usuario || pin.length!==4)
-
-return;
-
-
 
 
 const existe =
 usuarios.some(u=>
-u.usuario.toLowerCase()===
+
+u.usuario.toLowerCase()
+===
 usuario.toLowerCase()
+
 );
 
 
 
-if(existe)
-
-return;
-
-
+if(existe)return;
 
 
 
@@ -473,11 +580,17 @@ const ref =
 await addDoc(
 collection(db,"usuarios"),
 {
+
 usuario,
+
 pin,
+
 tipo
+
 }
+
 );
+
 
 
 
@@ -485,18 +598,25 @@ tipo
 usuarios.push({
 
 id:ref.id,
+
 usuario,
+
 pin,
+
 tipo
 
 });
 
 
 
-window.BD_usuarios=usuarios;
+
+window.BD_usuarios =
+usuarios;
+
 
 
 cerrarModal();
+
 
 
 renderUsuarios();
@@ -521,6 +641,7 @@ renderUsuarios();
 async function eliminarUsuario(index){
 
 
+
 const u =
 usuarios[index];
 
@@ -538,20 +659,28 @@ return;
 
 
 
-
 await deleteDoc(
-doc(db,"usuarios",u.id)
+doc(
+db,
+"usuarios",
+u.id
+)
 );
+
 
 
 
 usuarios.splice(index,1);
 
 
-window.BD_usuarios=usuarios;
+
+window.BD_usuarios =
+usuarios;
+
 
 
 renderUsuarios();
+
 
 
 }
@@ -572,27 +701,34 @@ renderUsuarios();
 function abrirEditarUsuario(index){
 
 
+
 const u =
 usuarios[index];
 
 
 
-modalContenido.innerHTML=`
+
+modalContenido.innerHTML = `
 
 
 <h3>Editar usuario</h3>
 
 
-<input id="editUsuario"
+
+<input
+id="editUsuario"
 value="${u.usuario}"
-maxlength="20">
+maxlength="20"
+>
 
 
 
-<input id="editPin"
+<input
+id="editPin"
 type="password"
 value="${u.pin}"
-maxlength="4">
+maxlength="4"
+>
 
 
 
@@ -600,15 +736,18 @@ maxlength="4">
 
 
 <option value="Normal"
-${u.tipo==="Normal"?"selected":""}>
+${u.tipo==="Normal"?"selected":""}
+>
 
 Normal
 
 </option>
 
 
+
 <option value="Administrador"
-${u.tipo==="Administrador"?"selected":""}>
+${u.tipo==="Administrador"?"selected":""}
+>
 
 Administrador
 
@@ -622,6 +761,7 @@ Administrador
 <div id="msgEdit"></div>
 
 
+
 <button id="btnGuardarEdit">
 
 Guardar cambios
@@ -633,37 +773,54 @@ Guardar cambios
 
 
 
+
 modalFondo.classList.add("activo");
+
+
 
 
 
 document
 .getElementById("btnGuardarEdit")
-.onclick=async()=>{
+.onclick =
+async()=>{
+
 
 
 const nuevoUsuario =
-document.getElementById("editUsuario")
+document
+.getElementById("editUsuario")
 .value.trim();
+
 
 
 const nuevoPin =
-document.getElementById("editPin")
+document
+.getElementById("editPin")
 .value.trim();
 
 
+
 const nuevoTipo =
-document.getElementById("editTipo")
+document
+.getElementById("editTipo")
 .value;
+
+
 
 
 
 const existe =
 usuarios.some((x,i)=>
+
 i!==index &&
-x.usuario.toLowerCase()===
+
+x.usuario.toLowerCase()
+===
 nuevoUsuario.toLowerCase()
+
 );
+
 
 
 
@@ -671,7 +828,9 @@ if(existe){
 
 document
 .getElementById("msgEdit")
-.textContent="Usuario ya existe";
+.textContent =
+"Usuario ya existe";
+
 
 return;
 
@@ -679,17 +838,29 @@ return;
 
 
 
+
+
 await updateDoc(
 
-doc(db,"usuarios",u.id),
+doc(
+db,
+"usuarios",
+u.id
+),
 
 {
+
 usuario:nuevoUsuario,
+
 pin:nuevoPin,
+
 tipo:nuevoTipo
+
 }
 
 );
+
+
 
 
 
@@ -698,19 +869,26 @@ usuarios[index]={
 ...u,
 
 usuario:nuevoUsuario,
+
 pin:nuevoPin,
+
 tipo:nuevoTipo
 
 };
 
 
 
-window.BD_usuarios=usuarios;
+
+window.BD_usuarios =
+usuarios;
+
 
 
 cerrarModal();
 
+
 renderUsuarios();
+
 
 
 };
@@ -727,9 +905,18 @@ renderUsuarios();
 
 
 
+// ===============================
+// MODAL
+// ===============================
+
+
 function cerrarModal(){
 
+
+if(modalFondo)
+
 modalFondo.classList.remove("activo");
+
 
 }
 
@@ -739,9 +926,15 @@ modalFondo.classList.remove("activo");
 
 
 
+
+
 // ===============================
-// COMPATIBILIDAD MODULO
+// EXPORTAR PARA HTML
 // ===============================
+
+
+window.abrirNuevoUsuario =
+abrirNuevoUsuario;
 
 
 window.abrirEditarUsuario =
