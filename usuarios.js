@@ -21,23 +21,23 @@ doc
 // ===============================
 
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+function iniciarModuloUsuarios(){
 
 iniciarUsuarios();
 
-});
+}
 
 
+if(document.readyState==="loading"){
 
+document.addEventListener(
+"DOMContentLoaded",
+iniciarModuloUsuarios
+);
 
+}else{
 
-async function iniciarUsuarios(){
-
-await cargarUsuariosFirebase();
-
-eventosUsuarios();
+iniciarModuloUsuarios();
 
 }
 
@@ -45,8 +45,16 @@ eventosUsuarios();
 
 
 
+async function iniciarUsuarios(){
 
 
+eventosUsuarios();
+
+
+await cargarUsuariosFirebase();
+
+
+}
 // ===============================
 // CARGAR FIREBASE
 // ===============================
