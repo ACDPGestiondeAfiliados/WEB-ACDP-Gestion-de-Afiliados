@@ -90,22 +90,22 @@ function guardarMonto() {
 
     const valor = Number((input.value || "").trim());
 
-    if (isNaN(valor) || valor < 0) {
-
-        if (typeof escribirConsola === "function") {
-            escribirConsola("Monto inválido.");
-        }
-
-        return;
-    }
+    if (isNaN(valor) || valor < 0) return;
 
     if (!window.BD_configuracion) {
         window.BD_configuracion = { monto: 0 };
     }
 
+    // 🔥 actualizar valor
     window.BD_configuracion.monto = valor;
 
-    guardarBD();
+    // 🔥 CLAVE: forzar sync del sistema Firebase existente
+    if (typeof guardarBD === "function") {
+        guardarBD(); // esto activa tu puenteFirebase.js
+    }
+
+    input.value = valor;
+}
 
     // LOG UNIFICADO (usa SIEMPRE el mismo sistema)
     registrarLog({
