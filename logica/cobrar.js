@@ -792,9 +792,11 @@ cobro
 
 if(window.registrarHistorial){
 
-await window.registrarHistorial(
-"Cobro",
-{
+await window.registrarHistorial({
+
+usuario:
+window.ACDP?.usuario || "Sistema",
+
 afiliado:
 afiliado.nombre+" "+afiliado.apellido,
 
@@ -802,11 +804,19 @@ dni:
 afiliado.dni,
 
 numeroAfiliado:
-afiliado.numeroAfiliado
-},
+afiliado.numeroAfiliado,
 
-cobro.detalleHistorial
-);
+detalleHistorial:
+"Pago realizado | Código: "+
+codigo+
+" | "+
+meses.join(", ")+
+" | $"+
+total+
+" | "+
+medio
+
+});
 
 }
 
