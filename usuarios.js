@@ -1,6 +1,6 @@
 // ===============================
 // USUARIOS ACDP FIREBASE MODULAR
-// Mantiene estructura original ACDP
+// APP MANDA - FIREBASE PERSISTE
 // ===============================
 
 
@@ -17,6 +17,7 @@ doc
 
 
 
+
 // ===============================
 // INICIO
 // ===============================
@@ -27,6 +28,7 @@ function iniciarModuloUsuarios(){
 iniciarUsuarios();
 
 }
+
 
 
 if(document.readyState==="loading"){
@@ -46,13 +48,30 @@ iniciarModuloUsuarios();
 
 
 
+
 async function iniciarUsuarios(){
+
 
 eventosUsuarios();
 
+
+if(
+!window.BD_usuarios ||
+window.BD_usuarios.length===0
+){
+
 await cargarUsuariosFirebase();
 
+}else{
+
+cargarUsuarios();
+
 }
+
+
+}
+
+
 
 
 
@@ -68,6 +87,9 @@ await cargarUsuariosFirebase();
 async function cargarUsuariosFirebase(){
 
 
+try{
+
+
 const snap =
 await getDocs(
 collection(db,"usuarios")
@@ -75,7 +97,9 @@ collection(db,"usuarios")
 
 
 
-window.BD_usuarios=[];
+window.BD_usuarios =
+[];
+
 
 
 
@@ -90,11 +114,26 @@ id:d.id,
 
 });
 
+
 });
 
 
 
 cargarUsuarios();
+
+
+
+}catch(e){
+
+
+console.error(
+"Error cargando usuarios",
+e
+);
+
+
+}
+
 
 
 }
@@ -163,6 +202,7 @@ cuerpo.innerHTML="";
 
 
 
+
 (window.BD_usuarios||[])
 .forEach((u,index)=>{
 
@@ -172,7 +212,9 @@ cuerpo.innerHTML+=`
 
 <tr>
 
+
 <td>${u.usuario}</td>
+
 
 <td>${u.tipo}</td>
 
@@ -180,24 +222,30 @@ cuerpo.innerHTML+=`
 <td>
 
 
-<img src="edit.png"
+<img
+src="edit.png"
 class="iconoHistorial"
 onclick="abrirEditarUsuario(${index})">
 
 
-<img src="delete.png"
+<img
+src="delete.png"
 class="iconoHistorial"
 onclick="eliminarUsuario(${index})">
 
 
 </td>
 
+
 </tr>
 
 
 `;
 
+
+
 });
+
 
 
 }
@@ -219,42 +267,57 @@ function abrirNuevoUsuario(){
 
 
 const fondo =
-document.getElementById("modalFondo");
+document.getElementById(
+"modalFondo"
+);
+
 
 
 const contenido =
-document.getElementById("modalContenido");
+document.getElementById(
+"modalContenido"
+);
 
 
 
 contenido.innerHTML=`
 
+
 <h3>Nuevo usuario</h3>
 
 
-<input id="usuarioNuevo"
+
+<input
+id="usuarioNuevo"
 placeholder="Usuario"
 maxlength="20">
 
 
-<input id="pinNuevo"
+
+<input
+id="pinNuevo"
 type="password"
 maxlength="4"
 inputmode="numeric"
 placeholder="PIN">
 
 
-<input id="pinConfirmar"
+
+<input
+id="pinConfirmar"
 type="password"
 maxlength="4"
 inputmode="numeric"
 placeholder="Confirmar PIN">
 
 
+
 <div id="msgPin"></div>
 
 
+
 <select id="tipoNuevo">
+
 
 <option value="Normal">
 Normal
@@ -269,11 +332,15 @@ Administrador
 </select>
 
 
-<button id="btnGuardarUsuario" disabled>
+
+<button
+id="btnGuardarUsuario"
+disabled>
 
 Guardar
 
 </button>
+
 
 `;
 
@@ -282,7 +349,9 @@ Guardar
 fondo.classList.add("activo");
 
 
+
 validarNuevo();
+
 
 
 }
@@ -325,31 +394,32 @@ return;
 
 
 
+
 function validar(){
 
 
-const lista =
-window.BD_usuarios || [];
-
-
-
 const existe =
-lista.some(
-u=>
+(window.BD_usuarios||[])
+.some(u=>
 
 String(u.usuario)
 .toLowerCase()
 ===
-usuario.value.trim()
+usuario.value
+.trim()
 .toLowerCase()
 
 );
 
 
 
+
+
 if(existe){
 
-msg.textContent="Usuario ya existe";
+
+msg.textContent=
+"Usuario ya existe";
 
 
 }else if(
@@ -358,14 +428,20 @@ pin2.value &&
 pin.value!==pin2.value
 ){
 
-msg.textContent="PIN no coincide";
+
+msg.textContent=
+"PIN no coincide";
 
 
 }else{
 
+
 msg.textContent="";
 
+
 }
+
+
 
 
 
@@ -391,9 +467,10 @@ pin.value===pin2.value &&
 
 
 
-usuario.addEventListener(
-"input",
-()=>{
+
+
+
+usuario.oninput=()=>{
 
 
 usuario.value =
@@ -405,18 +482,17 @@ usuario.value
 .slice(0,20);
 
 
+
 validar();
 
 
-});
+};
 
 
 
 
 
-pin.addEventListener(
-"input",
-()=>{
+pin.oninput=()=>{
 
 
 pin.value =
@@ -425,18 +501,17 @@ pin.value
 .slice(0,4);
 
 
+
 validar();
 
 
-});
+};
 
 
 
 
 
-pin2.addEventListener(
-"input",
-()=>{
+pin2.oninput=()=>{
 
 
 pin2.value =
@@ -445,25 +520,23 @@ pin2.value
 .slice(0,4);
 
 
+
 validar();
 
 
-});
+};
 
 
 
 
 
 boton.onclick =
-async function(){
-
-await guardarUsuario();
-
-};
+guardarUsuario;
 
 
 
 validar();
+
 
 
 }
@@ -497,10 +570,16 @@ return;
 
 
 
+boton.disabled=true;
+
+
+
+
 const usuario =
 document
 .getElementById("usuarioNuevo")
 .value.trim();
+
 
 
 const pin =
@@ -509,52 +588,11 @@ document
 .value.trim();
 
 
-const confirmar =
-document
-.getElementById("pinConfirmar")
-.value.trim();
-
 
 const tipo =
 document
 .getElementById("tipoNuevo")
 .value;
-
-
-
-
-
-if(
-usuario.length<4 ||
-pin.length!==4 ||
-pin!==confirmar
-){
-
-return;
-
-}
-
-
-
-
-
-const existe =
-(window.BD_usuarios||[])
-.some(
-
-u=>
-
-String(u.usuario)
-.toLowerCase()
-===
-usuario.toLowerCase()
-
-);
-
-
-
-if(existe)
-return;
 
 
 
@@ -570,11 +608,11 @@ collection(db,"usuarios"),
 
 {
 
-usuario:usuario,
+usuario,
 
-pin:pin,
+pin,
 
-tipo:tipo
+tipo
 
 }
 
@@ -583,15 +621,16 @@ tipo:tipo
 
 
 
+
 window.BD_usuarios.push({
 
 id:ref.id,
 
-usuario:usuario,
+usuario,
 
-pin:pin,
+pin,
 
-tipo:tipo
+tipo
 
 });
 
@@ -600,6 +639,7 @@ tipo:tipo
 
 
 cargarUsuarios();
+
 
 
 cerrarModal();
@@ -615,12 +655,19 @@ e
 );
 
 
+
 alert(
 "No se pudo guardar usuario"
 );
 
 
+
+boton.disabled=false;
+
+
+
 }
+
 
 
 }
@@ -646,19 +693,26 @@ const u =
 
 
 
-if(!u)return;
+if(!u)
+return;
+
 
 
 
 if(u.usuario==="Admin"){
 
+
 alert(
 "El usuario Admin no puede eliminarse"
 );
 
+
 return;
 
+
 }
+
+
 
 
 
@@ -674,11 +728,17 @@ u.id
 
 
 
-window.BD_usuarios.splice(index,1);
+
+
+window.BD_usuarios.splice(
+index,
+1
+);
 
 
 
 cargarUsuarios();
+
 
 
 }
@@ -703,16 +763,27 @@ const u =
 (window.BD_usuarios||[])[index];
 
 
-if(!u)return;
+
+if(!u)
+return;
+
+
 
 
 
 const fondo =
-document.getElementById("modalFondo");
+document.getElementById(
+"modalFondo"
+);
+
 
 
 const contenido =
-document.getElementById("modalContenido");
+document.getElementById(
+"modalContenido"
+);
+
+
 
 
 
@@ -722,17 +793,22 @@ contenido.innerHTML=`
 <h3>Editar usuario</h3>
 
 
-<input id="editUsuario"
+<input
+id="editUsuario"
 value="${u.usuario}"
 maxlength="20">
 
 
-<input id="editPin"
+
+<input
+id="editPin"
 value="${u.pin}"
 maxlength="4">
 
 
+
 <select id="editTipo">
+
 
 <option value="Normal">
 Normal
@@ -747,6 +823,7 @@ Administrador
 </select>
 
 
+
 <button id="btnGuardarEdit">
 
 Guardar cambios
@@ -754,7 +831,9 @@ Guardar cambios
 </button>
 
 
+
 `;
+
 
 
 
@@ -762,10 +841,14 @@ fondo.classList.add("activo");
 
 
 
+
+
+
 document
 .getElementById("btnGuardarEdit")
 .onclick =
 async()=>{
+
 
 
 await updateDoc(
@@ -779,13 +862,22 @@ u.id
 {
 
 usuario:
-document.getElementById("editUsuario").value,
+document
+.getElementById("editUsuario")
+.value,
+
 
 pin:
-document.getElementById("editPin").value,
+document
+.getElementById("editPin")
+.value,
+
 
 tipo:
-document.getElementById("editTipo").value
+document
+.getElementById("editTipo")
+.value
+
 
 }
 
@@ -793,13 +885,33 @@ document.getElementById("editTipo").value
 
 
 
-await cargarUsuariosFirebase();
+
+
+u.usuario =
+document.getElementById("editUsuario").value;
+
+
+u.pin =
+document.getElementById("editPin").value;
+
+
+u.tipo =
+document.getElementById("editTipo").value;
+
+
+
+
+
+cargarUsuarios();
+
 
 
 cerrarModal();
 
 
+
 };
+
 
 
 }
@@ -821,6 +933,7 @@ document
 
 
 }
+
 
 
 
