@@ -92,49 +92,19 @@ function guardarMonto() {
 
     if (isNaN(valor) || valor < 0) return;
 
-    if (!window.BD_configuracion) {
-        window.BD_configuracion = { monto: 0 };
-    }
-
-    // actualizar valor
+    window.BD_configuracion = window.BD_configuracion || { monto: 0 };
     window.BD_configuracion.monto = valor;
 
-    // sync Firebase (puenteFirebase.js)
+    console.log("🔵 MONTO LOCAL ACTUALIZADO:", valor);
+
     if (typeof guardarBD === "function") {
+        console.log("🟡 EJECUTANDO guardarBD()");
         guardarBD();
+    } else {
+        console.log("❌ guardarBD NO EXISTE");
     }
 
     input.value = valor;
-
-    // LOG UNIFICADO
-    if (typeof registrarLog === "function") {
-        registrarLog({
-            accion: "CONFIGURACION",
-            detalle: `Monto actualizado a $${valor}`
-        });
-    }
-
-    // backup local memoria (opcional)
-    if (Array.isArray(window.BD_logsSistema)) {
-        window.BD_logsSistema.push({
-            fecha: new Date().toLocaleDateString(),
-            hora: new Date().toLocaleTimeString(),
-            usuario: window.usuarioActivo || "Sistema",
-            rol: window.usuarioActivo === "Admin" ? "ADMIN" : "USER",
-            accion: "CONFIGURACION",
-            detalle: `Monto actualizado a $${valor}`
-        });
-    }
-
-    if (typeof escribirConsola === "function") {
-        escribirConsola("Monto actualizado: $" + valor);
-    }
-
-    if (typeof renderConsolaLogs === "function") {
-        renderConsolaLogs(">todo");
-    }
-
-    input.value = window.BD_configuracion.monto;
 }
 
 
