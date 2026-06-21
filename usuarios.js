@@ -372,7 +372,28 @@ msg.textContent="";
 }
 
 
+
+
+
+boton.disabled =
+!(
+
+usuario.value.trim().length >= 4 &&
+
+pin.value.length === 4 &&
+
+pin2.value.length === 4 &&
+
+pin.value === pin2.value &&
+
+!existe
+
+);
+
+
+
 }
+
 
 
 
@@ -440,18 +461,11 @@ boton.onclick =
 guardarUsuario;
 
 
+
 validar();
 
 
 }
-
-
-
-
-
-
-
-
 
 // ===============================
 // GUARDAR USUARIO
