@@ -34,11 +34,15 @@ document.getElementById("modalFondo");
 // ===============================
 
 
-document.addEventListener("DOMContentLoaded",()=>{
+if(document.readyState==="loading"){
+
+document.addEventListener("DOMContentLoaded",iniciarUsuarios);
+
+}else{
 
 iniciarUsuarios();
 
-});
+}
 
 
 
