@@ -833,9 +833,7 @@ meses.join(", ")+
 " | $"+
 total+
 " | "+
-medio+
-" | Codigo: "+
-codigo
+medio
 
 
 );
