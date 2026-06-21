@@ -1,6 +1,13 @@
 // ===============================
-// USUARIOS ACDP
-// Gestión de cuentas y permisos
+// USUARIOS ACDP (FIRESTORE)
+// ===============================
+
+const COL_USUARIOS = "usuarios";
+
+let cacheUsuarios = [];
+
+// ===============================
+// INIT
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -10,26 +17,26 @@ document.addEventListener("DOMContentLoaded", () => {
 // ===============================
 // INICIALIZACIÓN
 // ===============================
-function iniciarUsuarios() {
-    cargarUsuarios();
+
+async function iniciarUsuarios() {
+    await cargarUsuarios();
     eventosUsuarios();
 }
 
 // ===============================
-// EVENTOS GENERALES
+// EVENTOS
 // ===============================
+
 function eventosUsuarios() {
     const nuevo = document.getElementById("btnNuevoUsuario");
-
-    if (nuevo) {
-        nuevo.addEventListener("click", abrirNuevoUsuario);
-    }
+    if (nuevo) nuevo.addEventListener("click", abrirNuevoUsuario);
 }
 
 // ===============================
-// RENDER TABLA
+// CARGAR USUARIOS
 // ===============================
-function cargarUsuarios() {
+
+async function cargarUsuarios() {
 
     const cuerpo = document
         .getElementById("tablaUsuarios")
@@ -37,87 +44,77 @@ function cargarUsuarios() {
 
     cuerpo.innerHTML = "";
 
-    BD_usuarios.forEach((u, index) => {
+    try {
 
-        cuerpo.innerHTML += `
-        <tr>
-            <td>${u.usuario}</td>
-            <td>${u.tipo}</td>
-            <td>
+        const snap = await getDocs(collection(window.db, COL_USUARIOS));
 
-                <img 
-                    src="edit.png"
-                    class="iconoHistorial"
-                    title="Editar usuario"
-                    onclick="abrirEditarUsuario(${index})"
-                >
+        cacheUsuarios = [];
 
-                <img 
-                    src="delete.png"
-                    class="iconoHistorial"
-                    title="Eliminar usuario"
-                    onclick="eliminarUsuario(${index})"
-                >
+        snap.forEach(d => cacheUsuarios.push(d.data()));
 
-            </td>
-        </tr>
-        `;
-    });
+        cacheUsuarios.forEach((u) => {
+
+            cuerpo.innerHTML += `
+            <tr>
+                <td>${u.usuario}</td>
+                <td>${u.tipo}</td>
+                <td>
+
+                    <img src="edit.png"
+                        class="iconoHistorial"
+                        title="Editar usuario"
+                        onclick="abrirEditarUsuario('${u.usuario}')"
+                    >
+
+                    <img src="delete.png"
+                        class="iconoHistorial"
+                        title="Eliminar usuario"
+                        onclick="eliminarUsuario('${u.usuario}')"
+                    >
+
+                </td>
+            </tr>`;
+        });
+
+    } catch (e) {
+        console.error("Error usuarios:", e);
+    }
 }
 
-//
-// ======================================================
-// CREAR USUARIO
-// ======================================================
-//
+// ===============================
+// NUEVO USUARIO
+// ===============================
+
 function abrirNuevoUsuario() {
 
-    const fondo = document.getElementById("modalFondo");
-    const contenido = document.getElementById("modalContenido");
+    document.getElementById("modalContenido").innerHTML = `
+    <h3>Nuevo usuario</h3>
 
-    contenido.innerHTML = `
-        <h3>Nuevo usuario</h3>
+    <input id="usuarioNuevo" placeholder="Usuario" maxlength="20">
 
-        <input id="usuarioNuevo"
-            placeholder="Usuario"
-            maxlength="20"
-            autocomplete="off"
-        >
+    <input id="pinNuevo" type="password" placeholder="PIN" maxlength="4" inputmode="numeric">
 
-        <input id="pinNuevo"
-            type="password"
-            placeholder="PIN"
-            maxlength="4"
-            inputmode="numeric"
-        >
+    <input id="pinConfirmar" type="password" placeholder="Confirmar PIN" maxlength="4" inputmode="numeric">
 
-        <input id="pinConfirmar"
-            type="password"
-            placeholder="Confirmar PIN"
-            maxlength="4"
-            inputmode="numeric"
-        >
+    <div id="msgPin" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
-        <div id="msgPin" style="font-size:12px;color:#c00;margin-top:6px;"></div>
+    <select id="tipoNuevo">
+        <option value="Normal">Normal</option>
+        <option value="Administrador">Administrador</option>
+    </select>
 
-        <select id="tipoNuevo">
-            <option value="Normal">Normal</option>
-            <option value="Administrador">Administrador</option>
-        </select>
-
-        <button id="btnGuardarUsuario" disabled>
-            Guardar
-        </button>
+    <button id="btnGuardarUsuario" disabled>Guardar</button>
     `;
 
-    fondo.classList.add("activo");
+    document.getElementById("modalFondo").classList.add("activo");
 
     aplicarValidacionesUsuario();
 }
 
 // ===============================
-// VALIDACIÓN CREAR
+// VALIDACIÓN
 // ===============================
+
 function aplicarValidacionesUsuario() {
 
     const usuarioInput = document.getElementById("usuarioNuevo");
@@ -132,19 +129,19 @@ function aplicarValidacionesUsuario() {
         const pin = pinInput.value.trim();
         const pin2 = confirmInput.value.trim();
 
-        const existe = BD_usuarios.some(
+        const existe = cacheUsuarios.some(
             u => u.usuario.toLowerCase() === usuario.toLowerCase()
         );
 
-        const usuarioOk = usuario.length >= 4 && !existe;
-        const pinOk = pin.length === 4;
-        const pinMatch = pin === pin2;
+        const okUsuario = usuario.length >= 4 && !existe;
+        const okPin = pin.length === 4;
+        const match = pin === pin2;
 
         if (existe) msg.textContent = "Usuario ya existe";
-        else if (pin && pin2 && !pinMatch) msg.textContent = "PIN no coincide";
+        else if (pin && pin2 && !match) msg.textContent = "PIN no coincide";
         else msg.textContent = "";
 
-        boton.disabled = !(usuarioOk && pinOk && pinMatch);
+        boton.disabled = !(okUsuario && okPin && match);
     }
 
     usuarioInput.oninput = () => {
@@ -164,7 +161,7 @@ function aplicarValidacionesUsuario() {
         validar();
     };
 
-    boton.onclick = guardarUsuario;
+    document.getElementById("btnGuardarUsuario").onclick = guardarUsuario;
 
     validar();
 }
@@ -172,119 +169,123 @@ function aplicarValidacionesUsuario() {
 // ===============================
 // GUARDAR USUARIO
 // ===============================
-function guardarUsuario() {
 
-    const usuario = document.getElementById("usuarioNuevo").value.trim();
-    const pin = document.getElementById("pinNuevo").value.trim();
-    const pin2 = document.getElementById("pinConfirmar").value.trim();
-    const tipo = document.getElementById("tipoNuevo").value;
+async function guardarUsuario() {
 
-    const existe = BD_usuarios.some(
+    const usuario = usuarioNuevo.value.trim();
+    const pin = pinNuevo.value.trim();
+    const pin2 = pinConfirmar.value.trim();
+    const tipo = tipoNuevo.value;
+
+    if (!usuario || !pin || pin !== pin2) return;
+
+    const existe = cacheUsuarios.some(
         u => u.usuario.toLowerCase() === usuario.toLowerCase()
     );
 
-    if (!usuario || !pin || !pin2) return;
-    if (usuario.length < 4) return;
-    if (pin !== pin2) return;
     if (existe) return;
 
-    BD_usuarios.push({
-        usuario,
-        pin,
-        tipo
-    });
+    try {
 
-    guardarBD();
-    cerrarModal();
-    cargarUsuarios();
+        await setDoc(doc(window.db, COL_USUARIOS, usuario), {
+            usuario,
+            pin,
+            tipo
+        });
 
-    escribirConsola("Usuario creado: " + usuario);
-}
+        cerrarModal();
+        await cargarUsuarios();
 
-// ===============================
-// ELIMINAR USUARIO
-// ===============================
-function eliminarUsuario(index) {
+        escribirConsola("Usuario creado: " + usuario);
 
-    const u = BD_usuarios[index];
-
-    if (u.usuario === "Admin") {
-        alert("El usuario Admin no puede eliminarse");
-        return;
+    } catch (e) {
+        console.error("Error creando usuario:", e);
     }
-
-    BD_usuarios.splice(index, 1);
-
-    guardarBD();
-    cargarUsuarios();
-
-    escribirConsola("Usuario eliminado: " + u.usuario);
 }
 
 // ===============================
-// EDITAR USUARIO
+// EDITAR
 // ===============================
-function abrirEditarUsuario(index) {
 
-    const u = BD_usuarios[index];
+function abrirEditarUsuario(usuario) {
 
-    const fondo = document.getElementById("modalFondo");
-    const contenido = document.getElementById("modalContenido");
+    const u = cacheUsuarios.find(x => x.usuario === usuario);
+    if (!u) return;
 
-    contenido.innerHTML = `
-        <h3>Editar usuario</h3>
+    document.getElementById("modalContenido").innerHTML = `
+    <h3>Editar usuario</h3>
 
-        <input id="editUsuario" value="${u.usuario}" maxlength="20">
+    <input id="editUsuario" value="${u.usuario}" maxlength="20">
 
-        <input id="editPin" type="password" value="${u.pin}" maxlength="4" inputmode="numeric">
+    <input id="editPin" type="password" value="${u.pin}" maxlength="4">
 
-        <select id="editTipo">
-            <option value="Normal" ${u.tipo === "Normal" ? "selected" : ""}>Normal</option>
-            <option value="Administrador" ${u.tipo === "Administrador" ? "selected" : ""}>Administrador</option>
-        </select>
+    <select id="editTipo">
+        <option value="Normal" ${u.tipo === "Normal" ? "selected" : ""}>Normal</option>
+        <option value="Administrador" ${u.tipo === "Administrador" ? "selected" : ""}>Administrador</option>
+    </select>
 
-        <div id="msgEdit" style="font-size:12px;color:#c00;margin-top:6px;"></div>
+    <div id="msgEdit"></div>
 
-        <button id="btnGuardarEdit">Guardar cambios</button>
+    <button id="btnGuardarEdit">Guardar cambios</button>
     `;
 
-    fondo.classList.add("activo");
+    document.getElementById("modalFondo").classList.add("activo");
 
-    document.getElementById("btnGuardarEdit").onclick = () => {
+    document.getElementById("btnGuardarEdit").onclick = async () => {
 
-        const nuevoUsuario = document.getElementById("editUsuario").value.trim();
-        const nuevoPin = document.getElementById("editPin").value.trim();
-        const nuevoTipo = document.getElementById("editTipo").value;
+        const nuevoUsuario = editUsuario.value.trim();
+        const nuevoPin = editPin.value.trim();
+        const nuevoTipo = editTipo.value;
 
-        const existe = BD_usuarios.some(
-            (x, i) =>
-                i !== index &&
-                x.usuario.toLowerCase() === nuevoUsuario.toLowerCase()
-        );
+        try {
 
-        if (existe) {
-            document.getElementById("msgEdit").textContent =
-                "Usuario ya existe";
-            return;
+            if (nuevoUsuario !== usuario) {
+                await deleteDoc(doc(window.db, COL_USUARIOS, usuario));
+            }
+
+            await setDoc(doc(window.db, COL_USUARIOS, nuevoUsuario), {
+                usuario: nuevoUsuario,
+                pin: nuevoPin,
+                tipo: nuevoTipo
+            });
+
+            cerrarModal();
+            await cargarUsuarios();
+
+        } catch (e) {
+            console.error("Error editando usuario:", e);
         }
-
-        BD_usuarios[index] = {
-            usuario: nuevoUsuario,
-            pin: nuevoPin,
-            tipo: nuevoTipo
-        };
-
-        guardarBD();
-        cerrarModal();
-        cargarUsuarios();
-
-        escribirConsola("Usuario editado: " + nuevoUsuario);
     };
 }
 
 // ===============================
-// CIERRE MODAL
+// ELIMINAR
 // ===============================
+
+async function eliminarUsuario(usuario) {
+
+    if (usuario === "Admin") {
+        alert("El usuario Admin no puede eliminarse");
+        return;
+    }
+
+    try {
+
+        await deleteDoc(doc(window.db, COL_USUARIOS, usuario));
+
+        await cargarUsuarios();
+
+        escribirConsola("Usuario eliminado: " + usuario);
+
+    } catch (e) {
+        console.error("Error eliminando usuario:", e);
+    }
+}
+
+// ===============================
+// MODAL
+// ===============================
+
 function cerrarModal() {
     document.getElementById("modalFondo").classList.remove("activo");
 }
