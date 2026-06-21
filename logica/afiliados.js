@@ -1,6 +1,7 @@
 // ===============================
 // ACDP - AFILIADOS CONTROLLER
-// Firebase CRUD + UI + impresión + paginación real + eliminación con motivo (HISTORIAL READY)
+// Firebase CRUD + UI + impresión + paginación real + eliminación con motivo
+// HISTORIAL INTEGRADO
 // ===============================
 
 import {
@@ -13,6 +14,7 @@ import {
     doc
 } from "../firebase.js";
 
+
 // ===============================
 // ESTADO PAGINACIÓN
 // ===============================
@@ -21,275 +23,949 @@ let CACHE_AFILIADOS = [];
 let PAGE_SIZE = 20;
 let PAGINA_ACTUAL = 0;
 
+
 // ===============================
 // INIT
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
+
     bindAfiliadosUI();
+
     cargarAfiliados(true);
+
 });
+
+
 
 // ===============================
 // HELPERS
 // ===============================
 
-function generarNumeroAfiliado() {
-    return String(Math.floor(Math.random() * 99999999) + 1).padStart(8, "0");
+function generarNumeroAfiliado(){
+
+    return String(
+        Math.floor(Math.random()*99999999)+1
+    ).padStart(8,"0");
+
 }
 
-function formatearFechaHora(date) {
-    const d = new Date(date);
 
-    const dia = String(d.getDate()).padStart(2, "0");
-    const mes = String(d.getMonth() + 1).padStart(2, "0");
-    const anio = String(d.getFullYear()).slice(-2);
 
-    const horas = String(d.getHours()).padStart(2, "0");
-    const minutos = String(d.getMinutes()).padStart(2, "0");
+function formatearFechaHora(date){
+
+    const d=new Date(date);
+
+    const dia=String(d.getDate()).padStart(2,"0");
+    const mes=String(d.getMonth()+1).padStart(2,"0");
+    const anio=String(d.getFullYear()).slice(-2);
+
+    const horas=String(d.getHours()).padStart(2,"0");
+    const minutos=String(d.getMinutes()).padStart(2,"0");
+
 
     return {
-        fecha: `${dia}/${mes}/${anio}`,
-        hora: `${horas}:${minutos}`
+
+        fecha:
+        `${dia}/${mes}/${anio}`,
+
+        hora:
+        `${horas}:${minutos}`
+
     };
+
 }
 
-// ===============================
-// LOG (LISTO PARA HISTORIAL.JS)
-// ===============================
-
-function crearLogEliminacion(af, motivo) {
-    return {
-        tipo: "ELIMINACION_AFILIADO",
-        fecha: new Date().toISOString(),
-        usuario: window.ACDP?.usuario || "SIN_USUARIO",
-        rol: window.ACDP?.rol || "SIN_ROL",
-        detalle: {
-            numeroAfiliado: af.numeroAfiliado,
-            dni: af.dni,
-            nombre: af.nombre,
-            apellido: af.apellido,
-            motivo
-        }
-    };
-}
 
 // ===============================
-// UI BIND
+// HISTORIAL
 // ===============================
 
-function bindAfiliadosUI() {
-    const btnNuevo = document.getElementById("btnNuevoAfiliado");
-    if (btnNuevo) btnNuevo.addEventListener("click", abrirCrearAfiliado);
+function enviarHistorial(
+accion,
+afiliado,
+detalle
+){
 
-    const filtro = document.getElementById("filtroAfiliados");
+    if(!window.HISTORIAL?.registrar)
+        return;
 
-    if (filtro) {
-        filtro.addEventListener("input", () => {
-            const val = filtro.value.trim();
 
-            if (val.length === 8 || val.length === 0) {
-                renderAfiliados();
-            }
-        });
-    }
+    window.HISTORIAL.registrar(
 
-    const btnPrev = document.getElementById("btnPrevAfiliados");
-    const btnNext = document.getElementById("btnNextAfiliados");
+        accion,
 
-    if (btnPrev) btnPrev.onclick = () => cambiarPagina(-1);
-    if (btnNext) btnNext.onclick = () => cambiarPagina(1);
-}
+        {
 
-// ===============================
-// CARGA FIRESTORE
-// ===============================
+            afiliado:
+            afiliado.nombre+" "+afiliado.apellido,
 
-async function cargarAfiliados(reset = false) {
-    const snap = await getDocs(collection(db, "afiliados"));
 
-    CACHE_AFILIADOS = [];
+            dni:
+            afiliado.dni,
 
-    snap.forEach(d => {
-        CACHE_AFILIADOS.push({ id: d.id, ...d.data() });
-    });
 
-    CACHE_AFILIADOS.sort((a, b) =>
-        new Date(b.fechaAlta) - new Date(a.fechaAlta)
+            numeroAfiliado:
+            afiliado.numeroAfiliado
+
+        },
+
+        detalle
+
     );
 
-    if (reset) PAGINA_ACTUAL = 0;
-
-    renderAfiliados();
 }
 
+
+
 // ===============================
-// PAGINACIÓN
+// UI
 // ===============================
 
-function cambiarPagina(dir) {
-    const maxPage = Math.floor(CACHE_AFILIADOS.length / PAGE_SIZE);
+function bindAfiliadosUI(){
 
-    PAGINA_ACTUAL += dir;
 
-    if (PAGINA_ACTUAL < 0) PAGINA_ACTUAL = 0;
-    if (PAGINA_ACTUAL > maxPage) PAGINA_ACTUAL = maxPage;
+const btnNuevo =
+document.getElementById("btnNuevoAfiliado");
 
-    renderAfiliados();
+
+if(btnNuevo)
+btnNuevo.onclick=abrirCrearAfiliado;
+
+
+
+const filtro =
+document.getElementById("filtroAfiliados");
+
+
+if(filtro){
+
+filtro.oninput=()=>{
+
+const val=filtro.value.trim();
+
+
+if(val.length===8 || val.length===0){
+
+renderAfiliados();
+
 }
 
+};
+
+}
+
+
+
+const anterior =
+document.getElementById("afiliadosAnterior");
+
+
+const siguiente =
+document.getElementById("afiliadosSiguiente");
+
+
+
+if(anterior)
+anterior.onclick=()=>cambiarPagina(-1);
+
+
+if(siguiente)
+siguiente.onclick=()=>cambiarPagina(1);
+
+
+}
+
+
+
 // ===============================
-// VALIDACIONES
+// CARGAR
 // ===============================
 
-const soloTexto = v => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v);
-const soloNumeros = v => /^[0-9]+$/.test(v);
+async function cargarAfiliados(reset=false){
+
+
+const snap =
+await getDocs(collection(db,"afiliados"));
+
+
+CACHE_AFILIADOS=[];
+
+
+
+snap.forEach(d=>{
+
+CACHE_AFILIADOS.push({
+
+id:d.id,
+...d.data()
+
+});
+
+});
+
+
+
+CACHE_AFILIADOS.sort((a,b)=>
+
+new Date(b.fechaAlta) -
+new Date(a.fechaAlta)
+
+);
+
+
+
+if(reset)
+PAGINA_ACTUAL=0;
+
+
+
+renderAfiliados();
+
+
+}
+
+
+
+// ===============================
+// PAGINACION
+// ===============================
+
+function cambiarPagina(dir){
+
+
+const max =
+Math.floor(
+CACHE_AFILIADOS.length/PAGE_SIZE
+);
+
+
+
+PAGINA_ACTUAL+=dir;
+
+
+if(PAGINA_ACTUAL<0)
+PAGINA_ACTUAL=0;
+
+
+if(PAGINA_ACTUAL>max)
+PAGINA_ACTUAL=max;
+
+
+
+renderAfiliados();
+
+
+}
+
+
+
+// ===============================
+// VALIDACION
+// ===============================
+
+const soloTexto =
+v=>/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v);
+
+
+const soloNumeros =
+v=>/^[0-9]+$/.test(v);
+
+
 
 // ===============================
 // MODAL
 // ===============================
 
-function abrirModal(html) {
-    const fondo = document.getElementById("modalFondo");
-    const cont = document.getElementById("modalContenido");
+function abrirModal(html){
 
-    cont.innerHTML = html;
-    fondo.classList.add("activo");
 
-    document.getElementById("cerrarModal").onclick = cerrarModal;
+document
+.getElementById("modalContenido")
+.innerHTML=html;
+
+
+
+document
+.getElementById("modalFondo")
+.classList.add("activo");
+
+
+
+document
+.getElementById("cerrarModal")
+.onclick=cerrarModal;
+
+
 }
 
-function cerrarModal() {
-    document.getElementById("modalContenido").innerHTML = "";
-    document.getElementById("modalFondo").classList.remove("activo");
+
+
+function cerrarModal(){
+
+
+document
+.getElementById("modalContenido")
+.innerHTML="";
+
+
+document
+.getElementById("modalFondo")
+.classList.remove("activo");
+
+
 }
+
+
+
+// ===============================
+// CREAR
+// ===============================
+
+function abrirCrearAfiliado(){
+
+
+abrirModal(`
+
+<h3>Nuevo Afiliado</h3>
+
+
+<input id="aNombre" placeholder="Nombre"><br><br>
+
+<input id="aApellido" placeholder="Apellido"><br><br>
+
+<input id="aDni" placeholder="DNI" maxlength="8"><br><br>
+
+<input id="aCelular" placeholder="Celular" maxlength="10"><br><br>
+
+<input id="aCorreo" placeholder="Correo"><br><br>
+
+
+<select id="aEstado">
+
+<option value="ADHERENTE">
+ADHERENTE
+</option>
+
+<option value="ACTIVO">
+ACTIVO
+</option>
+
+</select>
+
+
+<br><br>
+
+
+<button id="btnGuardarAfiliado">
+Guardar
+</button>
+
+
+`);
+
+
+setTimeout(()=>{
+
+
+document
+.getElementById("btnGuardarAfiliado")
+.onclick=guardarAfiliado;
+
+
+},100);
+
+
+}
+
+
 
 // ===============================
 // GUARDAR
 // ===============================
 
-async function guardarAfiliado() {
-
-    const nuevo = {
-
-        numeroAfiliado: generarNumeroAfiliado(),
-
-        nombre:
-        document.getElementById("aNombre").value.trim(),
-
-        apellido:
-        document.getElementById("aApellido").value.trim(),
-
-        dni:
-        document.getElementById("aDni").value,
-
-        celular:
-        document.getElementById("aCelular").value,
-
-        correo:
-        document.getElementById("aCorreo").value.trim(),
-
-        estado:
-        document.getElementById("aEstado").value,
-
-        fechaAlta:
-        new Date().toISOString()
-
-    };
+async function guardarAfiliado(){
 
 
-    await addDoc(
-        collection(db,"afiliados"),
-        nuevo
-    );
+const nuevo={
 
 
-    if(window.registrarHistorial){
-
-        window.registrarHistorial({
-
-            afiliado:
-            nuevo.nombre+" "+nuevo.apellido,
-
-            dni:
-            nuevo.dni,
-
-            numeroAfiliado:
-            nuevo.numeroAfiliado,
-
-            detalleHistorial:
-            "Afiliado dado de alta"
-
-        });
-
-    }
+numeroAfiliado:
+generarNumeroAfiliado(),
 
 
-    cerrarModal();
+nombre:
+document.getElementById("aNombre").value.trim(),
 
-    cargarAfiliados(true);
+
+apellido:
+document.getElementById("aApellido").value.trim(),
+
+
+dni:
+document.getElementById("aDni").value,
+
+
+celular:
+document.getElementById("aCelular").value,
+
+
+correo:
+document.getElementById("aCorreo").value.trim(),
+
+
+estado:
+document.getElementById("aEstado").value,
+
+
+fechaAlta:
+new Date().toISOString()
+
+
+};
+
+
+
+await addDoc(
+collection(db,"afiliados"),
+nuevo
+);
+
+
+
+enviarHistorial(
+"Alta afiliado",
+nuevo,
+"Afiliado dado de alta"
+);
+
+
+
+cerrarModal();
+
+
+cargarAfiliados(true);
+
+
+}
 
 // ===============================
-// IMPRESIÓN
+// TABLA
 // ===============================
 
-async function imprimir(id) {
-    const snap = await getDocs(collection(db, "afiliados"));
+function renderAfiliados(){
 
-    let af = null;
-    snap.forEach(d => {
-        if (d.id === id) af = { id: d.id, ...d.data() };
-    });
+const tbody =
+document.querySelector("#tablaAfiliados tbody");
 
-    const color = af.estado === "ACTIVO" ? "#A602AB" : "#FFB700";
 
-    const win = window.open("", "_blank");
+if(!tbody)return;
 
-    win.document.write(`
+
+tbody.innerHTML="";
+
+
+
+const filtro =
+document.getElementById("filtroAfiliados")
+?.value.trim() || "";
+
+
+
+let data=[...CACHE_AFILIADOS];
+
+
+
+if(
+filtro.length===8 &&
+soloNumeros(filtro)
+){
+
+
+data=data.filter(a=>
+
+a.dni===filtro ||
+a.numeroAfiliado===filtro
+
+);
+
+
+}
+
+
+
+const inicio =
+PAGINA_ACTUAL*PAGE_SIZE;
+
+
+
+const lista =
+data.slice(
+inicio,
+inicio+PAGE_SIZE
+);
+
+
+
+
+lista.forEach(a=>{
+
+
+const f =
+formatearFechaHora(a.fechaAlta);
+
+
+
+tbody.innerHTML+=`
+
+
+<tr>
+
+
+<td>${a.numeroAfiliado||""}</td>
+
+
+<td>${a.dni||""}</td>
+
+
+<td>${a.nombre||""}</td>
+
+
+<td>${a.apellido||""}</td>
+
+
+<td>${a.celular||""}</td>
+
+
+<td>${a.correo||""}</td>
+
+
+<td>${a.estado||""}</td>
+
+
+<td>
+${f.fecha}
+${f.hora}
+</td>
+
+
+<td>
+
+
+<button onclick="AFILIADOS.editarAfiliado('${a.id}')">
+
+Editar
+
+</button>
+
+
+
+<button onclick="AFILIADOS.imprimir('${a.id}')">
+
+Imprimir
+
+</button>
+
+
+
+<button onclick="AFILIADOS.eliminarAfiliado('${a.id}')">
+
+Eliminar
+
+</button>
+
+
+</td>
+
+
+</tr>
+
+
+`;
+
+
+});
+
+
+}
+
+
+
+
+// ===============================
+// EDITAR
+// ===============================
+
+async function editarAfiliado(id){
+
+
+const af =
+CACHE_AFILIADOS.find(
+a=>a.id===id
+);
+
+
+
+if(!af)return;
+
+
+
+abrirModal(`
+
+
+<h3>Editar Afiliado</h3>
+
+
+<input id="eNombre" value="${af.nombre}">
+
+
+<br><br>
+
+
+<input id="eApellido" value="${af.apellido}">
+
+
+<br><br>
+
+
+<input id="eDni" value="${af.dni}">
+
+
+<br><br>
+
+
+<input id="eCelular" value="${af.celular||""}">
+
+
+<br><br>
+
+
+<input id="eCorreo" value="${af.correo||""}">
+
+
+<br><br>
+
+
+<select id="eEstado">
+
+
+<option ${af.estado==="ADHERENTE"?"selected":""}>
+ADHERENTE
+</option>
+
+
+<option ${af.estado==="ACTIVO"?"selected":""}>
+ACTIVO
+</option>
+
+
+</select>
+
+
+<br><br>
+
+
+<button id="btnEditarAfiliado">
+
+Guardar
+
+</button>
+
+
+`);
+
+
+
+document
+.getElementById("btnEditarAfiliado")
+.onclick=async()=>{
+
+
+const actualizado={
+
+
+nombre:
+document.getElementById("eNombre").value.trim(),
+
+
+apellido:
+document.getElementById("eApellido").value.trim(),
+
+
+dni:
+document.getElementById("eDni").value,
+
+
+celular:
+document.getElementById("eCelular").value,
+
+
+correo:
+document.getElementById("eCorreo").value.trim(),
+
+
+estado:
+document.getElementById("eEstado").value
+
+
+};
+
+
+
+await updateDoc(
+
+doc(
+db,
+"afiliados",
+id
+),
+
+actualizado
+
+);
+
+
+
+enviarHistorial(
+
+"Edicion afiliado",
+
+{
+
+...actualizado,
+
+numeroAfiliado:
+af.numeroAfiliado
+
+},
+
+"Afiliado editado"
+
+
+);
+
+
+
+cerrarModal();
+
+
+cargarAfiliados(true);
+
+
+};
+
+
+}
+
+
+
+
+// ===============================
+// ELIMINAR
+// ===============================
+
+async function eliminarAfiliado(id){
+
+
+const af =
+CACHE_AFILIADOS.find(
+a=>a.id===id
+);
+
+
+
+if(!af)return;
+
+
+
+abrirModal(`
+
+
+<h3>Eliminar Afiliado</h3>
+
+
+<textarea
+
+id="motivo"
+
+maxlength="40"
+
+style="width:100%;height:100px"
+
+></textarea>
+
+
+<br><br>
+
+
+<button id="btnConfirmarEliminar">
+
+Confirmar
+
+</button>
+
+
+`);
+
+
+
+
+document
+.getElementById("btnConfirmarEliminar")
+.onclick=async()=>{
+
+
+const motivo =
+document.getElementById("motivo")
+.value.trim();
+
+
+
+if(!motivo){
+
+alert("Ingrese motivo");
+
+return;
+
+}
+
+
+
+
+await deleteDoc(
+
+doc(
+db,
+"afiliados",
+id
+)
+
+);
+
+
+
+
+enviarHistorial(
+
+"Eliminacion afiliado",
+
+af,
+
+"Motivo: "+motivo
+
+);
+
+
+
+
+cerrarModal();
+
+
+cargarAfiliados(true);
+
+
+};
+
+
+}
+
+
+
+
+
+// ===============================
+// IMPRIMIR
+// ===============================
+
+async function imprimir(id){
+
+
+const af =
+CACHE_AFILIADOS.find(
+a=>a.id===id
+);
+
+
+
+if(!af)return;
+
+
+
+const win =
+window.open(
+"",
+"_blank",
+"width=300,height=400"
+);
+
+
+
+win.document.write(`
+
 <html>
-<body>
-<div style="width:8cm;height:6cm;border:3px solid ${color};
-display:flex;padding:10px;font-family:Arial;">
-    <div style="width:40%;display:flex;align-items:center;justify-content:center;">
-        <img src="./iconos/logo.jpg" style="width:35%;">
-    </div>
 
-    <div style="width:60%;font-size:12px;">
-        <div>${af.dni}</div>
-        <div>${af.nombre}</div>
-        <div>${af.apellido}</div>
-        <div>${af.celular || ""}</div>
-        <div>${af.correo}</div>
-        <div>${af.numeroAfiliado}</div>
+<body style="font-family:Arial;text-align:center">
 
-        <svg id="barcode"></svg>
-    </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<h3>ACDP</h3>
+
+
+<p>
+${af.nombre}
+${af.apellido}
+</p>
+
+
+<p>
+DNI:
+${af.dni}
+</p>
+
+
+<p>
+N°:
+${af.numeroAfiliado}
+</p>
+
 
 <script>
-JsBarcode("#barcode","${af.numeroAfiliado}",{
-    format:"CODE128",
-    displayValue:false,
-    width:1.5,
-    height:40
-});
-window.onload = () => window.print();
-</script>
-</body>
-</html>
-    `);
 
-    win.document.close();
+window.print();
+
+</script>
+
+
+</body>
+
+</html>
+
+`);
+
+
+
+win.document.close();
+
+
 }
+
+
+
+
 
 // ===============================
 // EXPORT
 // ===============================
 
-window.AFILIADOS = {
-    editarAfiliado,
-    eliminarAfiliado,
-    imprimir
+window.AFILIADOS={
+
+
+editarAfiliado,
+
+
+eliminarAfiliado,
+
+
+imprimir
+
+
 };
