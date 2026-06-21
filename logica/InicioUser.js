@@ -41,9 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function bindUIActions() {
     const btnNuevo = document.getElementById("btnNuevoUsuario");
-    if (btnNuevo) {
-        btnNuevo.addEventListener("click", abrirCrearUsuario);
-    }
+    if (btnNuevo) btnNuevo.addEventListener("click", abrirCrearUsuario);
 }
 
 // ===============================
@@ -54,8 +52,11 @@ function mostrarModalLogin() {
     abrirModal(`
         <h2>Ingreso al sistema</h2>
         <p>Ingrese su PIN</p>
+
         <input id="pinLogin" type="password" maxlength="4" placeholder="PIN">
+
         <br><br>
+
         <button id="btnLoginAceptar">Aceptar</button>
     `);
 
@@ -67,13 +68,9 @@ function mostrarModalLogin() {
 async function validarLogin() {
     const pin = document.getElementById("pinLogin").value;
 
-    // ===============================
-    // MASTER PIN (SIN FIRESTORE)
-    // ===============================
-
     if (pin === "2015") {
         ACDP.usuario = "ADMIN MASTER";
-        ACDP.rol = "administrador";
+        ACDP.rol = "ADMINISTRADOR";
         ACDP.master = true;
         ACDP.logeado = true;
 
@@ -84,18 +81,13 @@ async function validarLogin() {
         return;
     }
 
-    // ===============================
-    // FIRESTORE LOGIN
-    // ===============================
-
     const snap = await getDocs(collection(db, "usuarios"));
 
     let userFound = null;
 
     snap.forEach(d => {
-        const u = d.data();
-        if (u.pin === pin) {
-            userFound = { id: d.id, ...u };
+        if (d.data().pin === pin) {
+            userFound = { id: d.id, ...d.data() };
         }
     });
 
@@ -105,7 +97,7 @@ async function validarLogin() {
     }
 
     ACDP.usuario = userFound.nombre;
-    ACDP.rol = userFound.rol;
+    ACDP.rol = String(userFound.rol).toUpperCase();
     ACDP.master = false;
     ACDP.logeado = true;
 
@@ -163,28 +155,14 @@ function configurarMenu() {
 }
 
 // ===============================
-// CONTROL DE ACCESO
+// CONTROL ACCESO
 // ===============================
 
 function protegerSeccion(seccion) {
     if (!ACDP.logeado) return;
 
-    // ===============================
-    // SOLO ADMIN + MASTER pueden entrar aquí
-    // ===============================
-    if (seccion === "usuarios" || seccion === "configuracion") {
-
-        if (ACDP.master) {
-            cambiarSeccion(seccion);
-            return;
-        }
-
-        if (ACDP.rol === "administrador") {
-            cambiarSeccion(seccion);
-            return;
-        }
-
-        alert("Solo administradores o master");
+    if ((seccion === "usuarios" || seccion === "configuracion") && !ACDP.master && ACDP.rol !== "ADMINISTRADOR") {
+        alert("Acceso solo administrador o master");
         return;
     }
 
@@ -196,16 +174,12 @@ function protegerSeccion(seccion) {
 // ===============================
 
 function cambiarSeccion(seccion) {
-    document.querySelectorAll(".seccion").forEach(s => {
-        s.style.display = "none";
-    });
+    document.querySelectorAll(".seccion").forEach(s => s.style.display = "none");
 
     const target = document.getElementById(seccion);
     if (target) target.style.display = "block";
 
-    if (seccion === "usuarios") {
-        renderUsuariosTable();
-    }
+    if (seccion === "usuarios") renderUsuariosTable();
 }
 
 // ===============================
@@ -213,15 +187,11 @@ function cambiarSeccion(seccion) {
 // ===============================
 
 function bloquearUI() {
-    document.querySelectorAll("button, input, select").forEach(el => {
-        el.disabled = true;
-    });
+    document.querySelectorAll("button, input, select").forEach(el => el.disabled = true);
 }
 
 function desbloquearUI() {
-    document.querySelectorAll("button, input, select").forEach(el => {
-        el.disabled = false;
-    });
+    document.querySelectorAll("button, input, select").forEach(el => el.disabled = false);
 }
 
 // ===============================
@@ -229,55 +199,26 @@ function desbloquearUI() {
 // ===============================
 
 function abrirModal(html) {
-    const fondo = document.getElementById("modalFondo");
-    const cont = document.getElementById("modalContenido");
-
-    cont.innerHTML = html;
-    fondo.classList.add("activo");
-
+    document.getElementById("modalContenido").innerHTML = html;
+    document.getElementById("modalFondo").classList.add("activo");
     document.getElementById("cerrarModal").onclick = cerrarModal;
 }
 
 function cerrarModal() {
-    const fondo = document.getElementById("modalFondo");
-    const cont = document.getElementById("modalContenido");
-
-    cont.innerHTML = "";
-    fondo.classList.remove("activo");
+    document.getElementById("modalContenido").innerHTML = "";
+    document.getElementById("modalFondo").classList.remove("activo");
 }
 
 // ===============================
-// FIRESTORE - USUARIOS
+// VALIDACIONES
 // ===============================
 
-async function renderUsuariosTable() {
-    const tbody = document.querySelector("#tablaUsuarios tbody");
-    if (!tbody) return;
-
-    tbody.innerHTML = "";
-
-    const snap = await getDocs(collection(db, "usuarios"));
-
-    snap.forEach(d => {
-        const u = d.data();
-
-        const tr = document.createElement("tr");
-
-        tr.innerHTML = `
-            <td>${u.nombre}</td>
-            <td>${u.rol}</td>
-            <td>
-                <button onclick="ACDP_user.editarUsuario('${d.id}')">Editar</button>
-                <button onclick="ACDP_user.eliminarUsuario('${d.id}')">Eliminar</button>
-            </td>
-        `;
-
-        tbody.appendChild(tr);
-    });
+function soloTextoValido(valor) {
+    return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(valor);
 }
 
 // ===============================
-// CREAR USUARIO
+// CREAR USUARIO (VALIDACIÓN EN VIVO)
 // ===============================
 
 function abrirCrearUsuario() {
@@ -288,19 +229,47 @@ function abrirCrearUsuario() {
         <br><br>
 
         <select id="uRol">
-            <option value="normal">Normal</option>
-            <option value="administrador">Administrador</option>
+            <option value="NORMAL">NORMAL</option>
+            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
         </select>
 
         <br><br>
 
-        <input id="uPin" placeholder="PIN" maxlength="4">
-        <input id="uPin2" placeholder="Repetir PIN" maxlength="4">
+        <input id="uPin" type="password" maxlength="4" placeholder="PIN">
+        <input id="uPin2" type="password" maxlength="4" placeholder="Repetir PIN">
 
         <br><br>
 
-        <button onclick="ACDP_user.guardarUsuario()">Aceptar</button>
+        <button id="btnGuardarUser" disabled>Aceptar</button>
     `);
+
+    setTimeout(() => {
+        const n = document.getElementById("uNombre");
+        const p1 = document.getElementById("uPin");
+        const p2 = document.getElementById("uPin2");
+        const btn = document.getElementById("btnGuardarUser");
+        const rol = document.getElementById("uRol");
+
+        function validar() {
+            const nombreOk = soloTextoValido(n.value.trim());
+            const pinOk = p1.value.length === 4;
+            const pinMatch = p1.value === p2.value && pinOk;
+
+            btn.disabled = !(nombreOk && pinMatch);
+
+            rol.value = rol.value.toUpperCase();
+        }
+
+        n.addEventListener("input", () => {
+            n.value = n.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
+            validar();
+        });
+
+        p1.addEventListener("input", validar);
+        p2.addEventListener("input", validar);
+
+        btn.onclick = guardarUsuario;
+    }, 100);
 }
 
 // ===============================
@@ -308,20 +277,9 @@ function abrirCrearUsuario() {
 // ===============================
 
 async function guardarUsuario() {
-    const nombre = document.getElementById("uNombre").value;
-    const rol = document.getElementById("uRol").value;
+    const nombre = document.getElementById("uNombre").value.trim();
+    const rol = document.getElementById("uRol").value.toUpperCase();
     const pin = document.getElementById("uPin").value;
-    const pin2 = document.getElementById("uPin2").value;
-
-    if (!nombre || !pin || !pin2) {
-        alert("Complete todos los datos");
-        return;
-    }
-
-    if (pin !== pin2) {
-        alert("PIN no coincide");
-        return;
-    }
 
     await addDoc(collection(db, "usuarios"), {
         nombre,
@@ -334,19 +292,16 @@ async function guardarUsuario() {
 }
 
 // ===============================
-// EDITAR
+// EDITAR USUARIO (MISMA VALIDACIÓN)
 // ===============================
 
 async function editarUsuario(id) {
     const snap = await getDocs(collection(db, "usuarios"));
 
     let user = null;
-
     snap.forEach(d => {
         if (d.id === id) user = { id: d.id, ...d.data() };
     });
-
-    if (!user) return;
 
     abrirModal(`
         <h3>Editar Usuario</h3>
@@ -355,18 +310,40 @@ async function editarUsuario(id) {
         <br><br>
 
         <select id="eRol">
-            <option value="normal" ${user.rol === "normal" ? "selected" : ""}>Normal</option>
-            <option value="administrador" ${user.rol === "administrador" ? "selected" : ""}>Administrador</option>
+            <option value="NORMAL">NORMAL</option>
+            <option value="ADMINISTRADOR">ADMINISTRADOR</option>
         </select>
 
         <br><br>
 
-        <input id="ePin" value="${user.pin}" maxlength="4">
+        <input id="ePin" type="password" maxlength="4" value="${user.pin}">
 
         <br><br>
 
-        <button onclick="ACDP_user.guardarEdicion('${id}')">Guardar</button>
+        <button id="btnEditUser">Guardar</button>
     `);
+
+    setTimeout(() => {
+        const n = document.getElementById("eNombre");
+        const p = document.getElementById("ePin");
+        const btn = document.getElementById("btnEditUser");
+
+        function validar() {
+            const nombreOk = soloTextoValido(n.value.trim());
+            const pinOk = p.value.length === 4;
+
+            btn.disabled = !(nombreOk && pinOk);
+        }
+
+        n.addEventListener("input", () => {
+            n.value = n.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
+            validar();
+        });
+
+        p.addEventListener("input", validar);
+
+        btn.onclick = () => guardarEdicion(id);
+    }, 100);
 }
 
 // ===============================
@@ -374,14 +351,10 @@ async function editarUsuario(id) {
 // ===============================
 
 async function guardarEdicion(id) {
-    const nombre = document.getElementById("eNombre").value;
-    const rol = document.getElementById("eRol").value;
-    const pin = document.getElementById("ePin").value;
-
     await updateDoc(doc(db, "usuarios", id), {
-        nombre,
-        rol,
-        pin
+        nombre: document.getElementById("eNombre").value.trim(),
+        rol: document.getElementById("eRol").value.toUpperCase(),
+        pin: document.getElementById("ePin").value
     });
 
     cerrarModal();
@@ -398,7 +371,35 @@ async function eliminarUsuario(id) {
 }
 
 // ===============================
-// EXPORT GLOBAL
+// TABLE
+// ===============================
+
+async function renderUsuariosTable() {
+    const tbody = document.querySelector("#tablaUsuarios tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    const snap = await getDocs(collection(db, "usuarios"));
+
+    snap.forEach(d => {
+        const u = d.data();
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${u.nombre}</td>
+                <td>${String(u.rol).toUpperCase()}</td>
+                <td>
+                    <button onclick="ACDP_user.editarUsuario('${d.id}')">Editar</button>
+                    <button onclick="ACDP_user.eliminarUsuario('${d.id}')">Eliminar</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+// ===============================
+// EXPORT
 // ===============================
 
 window.ACDP_user = {
@@ -406,7 +407,6 @@ window.ACDP_user = {
     cambiarSeccion,
     abrirModal,
     cerrarModal,
-
     abrirCrearUsuario,
     guardarUsuario,
     editarUsuario,
