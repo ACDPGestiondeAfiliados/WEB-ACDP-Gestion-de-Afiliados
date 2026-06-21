@@ -1,6 +1,6 @@
 // ===============================
-// INICIO ACDP
-// Control general de interfaz + accesos + sesión
+// INICIO ACDP (FIRESTORE READY)
+// Control de acceso + sesión + UI
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -14,14 +14,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ===============================
-// SESIÓN ACTIVA
+// SESIÓN GLOBAL
 // ===============================
 let usuarioActivo = null;
 window.usuarioActivo = null;
 
 // ===============================
-// CONTROL DE ACCESO GLOBAL
+// ACCESO GLOBAL
 // ===============================
+
 function iniciarAccesoGlobal() {
 
     const botones = document.querySelectorAll(".menu button");
@@ -45,38 +46,38 @@ function iniciarAccesoGlobal() {
 }
 
 // ===============================
-// LOGIN + CAMBIO DE SECCIÓN
+// LOGIN + NAVEGACIÓN
 // ===============================
-function loginYabrir(destino) {
 
+function loginYabrir(destino) {
     abrirSeccion(destino);
     actualizarUsuarioActivo();
 }
 
 // ===============================
-// ABRIR SECCIÓN
+// CAMBIO DE SECCIÓN
 // ===============================
+
 function abrirSeccion(destino) {
 
     document.querySelectorAll(".seccion")
         .forEach(s => s.classList.remove("activa"));
 
     const nueva = document.getElementById(destino);
-
     if (nueva) nueva.classList.add("activa");
 }
 
 // ===============================
-// LOGIN USUARIO (NORMAL O ADMIN)
+// LOGIN USUARIO (FIRESTORE)
 // ===============================
-function pedirPinUsuario(callback) {
+
+async function pedirPinUsuario(callback) {
 
     const fondo = document.getElementById("modalFondo");
     const contenido = document.getElementById("modalContenido");
 
     contenido.innerHTML = `
         <h3>Acceso requerido</h3>
-
         <p>Ingrese PIN de usuario o administrador</p>
 
         <input id="pinAcceso" type="password" maxlength="4" inputmode="numeric">
@@ -88,32 +89,47 @@ function pedirPinUsuario(callback) {
 
     fondo.classList.add("activo");
 
-    document.getElementById("btnAcceso").onclick = () => {
+    document.getElementById("btnAcceso").onclick = async () => {
 
-        const pin = document.getElementById("pinAcceso").value;
+        const pin = document.getElementById("pinAcceso").value.trim();
 
-        const usuario = BD_usuarios.find(u => u.pin === pin);
+        if (!pin) return;
 
-        const esValido = pin === "9999" || usuario;
+        try {
 
-        if (!esValido) {
-            document.getElementById("msgAcceso").textContent =
-                "PIN incorrecto";
-            return;
+            const snap = await getDocs(collection(window.db, "usuarios"));
+
+            let usuario = null;
+
+            snap.forEach(d => {
+                const u = d.data();
+                if (u.pin === pin) usuario = u;
+            });
+
+            const esValido = pin === "9999" || usuario;
+
+            if (!esValido) {
+                document.getElementById("msgAcceso").textContent = "PIN incorrecto";
+                return;
+            }
+
+            usuarioActivo = usuario ? usuario.usuario : "Admin";
+            window.usuarioActivo = usuarioActivo;
+
+            cerrarModal();
+            callback();
+
+        } catch (e) {
+            console.error("Error login usuario:", e);
         }
-
-        usuarioActivo = usuario ? usuario.usuario : "Admin";
-        window.usuarioActivo = usuarioActivo;
-
-        cerrarModal();
-        callback();
     };
 }
 
 // ===============================
-// LOGIN SOLO ADMIN
+// LOGIN ADMIN (FIRESTORE)
 // ===============================
-function pedirPinAdmin(callback) {
+
+async function pedirPinAdmin(callback) {
 
     const fondo = document.getElementById("modalFondo");
     const contenido = document.getElementById("modalContenido");
@@ -132,93 +148,61 @@ function pedirPinAdmin(callback) {
 
     fondo.classList.add("activo");
 
-    document.getElementById("btnAdminAcceso").onclick = () => {
+    document.getElementById("btnAdminAcceso").onclick = async () => {
 
-        const pin = document.getElementById("pinAdminAcceso").value;
+        const pin = document.getElementById("pinAdminAcceso").value.trim();
 
-        const usuario = BD_usuarios.find(
-            u => u.pin === pin && u.tipo === "Administrador"
-        );
+        try {
 
-        const esAdmin = pin === "9999" || usuario;
+            const snap = await getDocs(collection(window.db, "usuarios"));
 
-        if (!esAdmin) {
-            document.getElementById("msgAdminAcceso").textContent =
-                "Necesita un PIN de administrador";
-            return;
+            let usuario = null;
+
+            snap.forEach(d => {
+                const u = d.data();
+                if (u.pin === pin && u.tipo === "Administrador") {
+                    usuario = u;
+                }
+            });
+
+            const esAdmin = pin === "9999" || usuario;
+
+            if (!esAdmin) {
+                document.getElementById("msgAdminAcceso").textContent =
+                    "Necesita un PIN de administrador";
+                return;
+            }
+
+            usuarioActivo = usuario ? usuario.usuario : "Admin";
+            window.usuarioActivo = usuarioActivo;
+
+            cerrarModal();
+            callback();
+
+        } catch (e) {
+            console.error("Error admin login:", e);
         }
-
-        usuarioActivo = usuario ? usuario.usuario : "Admin";
-        window.usuarioActivo = usuarioActivo;
-
-        cerrarModal();
-        callback();
     };
 }
 
 // ===============================
-// ACTUALIZAR UI USUARIO ACTIVO
+// UI USUARIO ACTIVO
 // ===============================
+
 function actualizarUsuarioActivo() {
 
     const cont = document.getElementById("usuarioActivo");
-
     if (!cont) return;
 
-    if (!usuarioActivo) {
-        cont.innerHTML = "No hay sesión activa";
-        return;
-    }
-
-    cont.innerHTML = `Hola <b>${usuarioActivo}</b>`;
-}
-
-// ===============================
-// MENÚ BASE
-// ===============================
-function iniciarMenu() {
-    // control manejado por acceso global
-}
-
-// ===============================
-// MODAL GLOBAL
-// ===============================
-function iniciarModal() {
-
-    const fondo = document.getElementById("modalFondo");
-    const cerrar = document.getElementById("cerrarModal");
-
-    if (!fondo || !cerrar) return;
-
-    cerrar.addEventListener("click", () => {
-        fondo.classList.remove("activo");
-    });
-
-    fondo.addEventListener("click", (e) => {
-        if (e.target === fondo) {
-            fondo.classList.remove("activo");
-        }
-    });
-}
-
-// ===============================
-// NUMÉRICOS
-// ===============================
-function limitarNumeros() {
-
-    document.querySelectorAll(".inputNumero")
-        .forEach(input => {
-
-            input.addEventListener("input", () => {
-                input.value = input.value.replace(/[^0-9]/g, "");
-            });
-
-        });
+    cont.innerHTML = usuarioActivo
+        ? `Hola <b>${usuarioActivo}</b>`
+        : "No hay sesión activa";
 }
 
 // ===============================
 // SISTEMA
 // ===============================
+
 function iniciarSistema() {
 
     if (!window.BD_configuracion) {
@@ -226,7 +210,6 @@ function iniciarSistema() {
     }
 
     const consola = document.getElementById("consolaSistema");
-
     if (consola) {
         consola.innerHTML = "Sistema ACDP iniciado correctamente.";
     }
@@ -235,40 +218,55 @@ function iniciarSistema() {
 }
 
 // ===============================
-// CIERRE MODAL
+// MODAL
 // ===============================
-function cerrarModal() {
-    document.getElementById("modalFondo").classList.remove("activo");
+
+function iniciarModal() {
+
+    const fondo = document.getElementById("modalFondo");
+    const cerrar = document.getElementById("cerrarModal");
+
+    if (!fondo || !cerrar) return;
+
+    cerrar.addEventListener("click", () => fondo.classList.remove("activo"));
+
+    fondo.addEventListener("click", (e) => {
+        if (e.target === fondo) fondo.classList.remove("activo");
+    });
 }
 
 // ===============================
-// ACCESO AL ABRIR / RECARGAR PÁGINA
+// NUMÉRICOS
 // ===============================
 
-function iniciarSesionInicial(){
+function limitarNumeros() {
 
-    // Siempre exigir ingreso al iniciar
+    document.querySelectorAll(".inputNumero")
+        .forEach(input => {
+            input.addEventListener("input", () => {
+                input.value = input.value.replace(/[^0-9]/g, "");
+            });
+        });
+}
+
+// ===============================
+// INICIO SESIÓN AUTOMÁTICO
+// ===============================
+
+function iniciarSesionInicial() {
+
     usuarioActivo = null;
     window.usuarioActivo = null;
 
-
-    // Ocultar secciones hasta autenticarse
     document.querySelectorAll(".seccion")
-        .forEach(s=>{
-            s.classList.remove("activa");
-        });
+        .forEach(s => s.classList.remove("activa"));
 
+    setTimeout(() => {
 
-    // Abrir modal usando el sistema existente
-    setTimeout(()=>{
-
-        pedirPinUsuario(()=>{
-
+        pedirPinUsuario(() => {
             abrirSeccion("cobrar");
             actualizarUsuarioActivo();
-
         });
 
-    },300);
-
+    }, 300);
 }
