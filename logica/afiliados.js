@@ -1,6 +1,6 @@
 // ===============================
 // ACDP - AFILIADOS CONTROLLER
-// Firebase CRUD + UI + validaciones + impresión
+// Firebase CRUD + UI + impresión
 // ===============================
 
 import {
@@ -64,7 +64,6 @@ function bindAfiliadosUI() {
 
 const soloTexto = v => /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(v);
 const soloNumeros = v => /^[0-9]+$/.test(v);
-const soloEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 // ===============================
 // MODAL
@@ -153,12 +152,10 @@ function abrirCrearAfiliado() {
 }
 
 // ===============================
-// GUARDAR AFILIADO
+// GUARDAR
 // ===============================
 
 async function guardarAfiliado() {
-    const now = new Date();
-
     await addDoc(collection(db, "afiliados"), {
         numeroAfiliado: generarNumeroAfiliado(),
         nombre: document.getElementById("aNombre").value.trim(),
@@ -167,7 +164,7 @@ async function guardarAfiliado() {
         celular: document.getElementById("aCelular").value,
         correo: document.getElementById("aCorreo").value.trim(),
         estado: document.getElementById("aEstado").value,
-        fechaAlta: now.toISOString()
+        fechaAlta: new Date().toISOString()
     });
 
     cerrarModal();
@@ -175,7 +172,7 @@ async function guardarAfiliado() {
 }
 
 // ===============================
-// RENDER TABLA (orden + fecha + hora)
+// RENDER TABLA
 // ===============================
 
 async function renderAfiliados() {
@@ -191,7 +188,6 @@ async function renderAfiliados() {
 
     snap.forEach(d => data.push({ id: d.id, ...d.data() }));
 
-    // más recientes primero
     data.sort((a, b) => new Date(b.fechaAlta) - new Date(a.fechaAlta));
 
     data.forEach(a => {
@@ -215,6 +211,7 @@ async function renderAfiliados() {
             <td>${a.estado}</td>
             <td>${f.fecha} ${f.hora}</td>
             <td>
+                <button onclick="AFILIADOS.editarAfiliado('${a.id}')">Editar</button>
                 <button onclick="AFILIADOS.imprimir('${a.id}')">Imprimir</button>
                 <button onclick="AFILIADOS.eliminarAfiliado('${a.id}')">Eliminar</button>
             </td>
@@ -225,7 +222,70 @@ async function renderAfiliados() {
 }
 
 // ===============================
-// IMPRESIÓN (PNG EN MEMORIA)
+// EDITAR
+// ===============================
+
+async function editarAfiliado(id) {
+    const snap = await getDocs(collection(db, "afiliados"));
+
+    let af = null;
+    snap.forEach(d => {
+        if (d.id === id) af = { id: d.id, ...d.data() };
+    });
+
+    if (!af) return;
+
+    abrirModal(`
+        <h3>Editar Afiliado</h3>
+
+        <input id="eNombre" value="${af.nombre}"><br><br>
+        <input id="eApellido" value="${af.apellido}"><br><br>
+        <input id="eDni" value="${af.dni}" maxlength="8"><br><br>
+        <input id="eCelular" value="${af.celular || ""}" maxlength="10"><br><br>
+        <input id="eCorreo" value="${af.correo}" maxlength="30"><br><br>
+
+        <select id="eEstado">
+            <option value="ADHERENTE" ${af.estado === "ADHERENTE" ? "selected" : ""}>ADHERENTE</option>
+            <option value="ACTIVO" ${af.estado === "ACTIVO" ? "selected" : ""}>ACTIVO</option>
+        </select>
+
+        <br><br>
+
+        <button id="btnEditarAfiliado">Guardar</button>
+    `);
+
+    document.getElementById("btnEditarAfiliado").onclick = () => guardarEdicionAfiliado(id);
+}
+
+// ===============================
+// GUARDAR EDICIÓN
+// ===============================
+
+async function guardarEdicionAfiliado(id) {
+    await updateDoc(doc(db, "afiliados", id), {
+        nombre: document.getElementById("eNombre").value.trim(),
+        apellido: document.getElementById("eApellido").value.trim(),
+        dni: document.getElementById("eDni").value,
+        celular: document.getElementById("eCelular").value,
+        correo: document.getElementById("eCorreo").value.trim(),
+        estado: document.getElementById("eEstado").value
+    });
+
+    cerrarModal();
+    renderAfiliados();
+}
+
+// ===============================
+// ELIMINAR
+// ===============================
+
+async function eliminarAfiliado(id) {
+    await deleteDoc(doc(db, "afiliados", id));
+    renderAfiliados();
+}
+
+// ===============================
+// IMPRESIÓN
 // ===============================
 
 async function imprimir(id) {
@@ -236,16 +296,14 @@ async function imprimir(id) {
         if (d.id === id) af = { id: d.id, ...d.data() };
     });
 
-    if (!af) return;
-
     const color = af.estado === "ACTIVO" ? "#A602AB" : "#FFB700";
 
-    const win = window.open("", "_blank", "width=400,height=300");
+    const win = window.open("", "_blank");
 
     win.document.write(`
         <html>
         <body>
-        <div id="ficha" style="
+        <div style="
             width:8cm;
             height:6cm;
             border:3px solid ${color};
@@ -253,9 +311,8 @@ async function imprimir(id) {
             padding:10px;
             font-family:Arial;
         ">
-
             <div style="width:40%;display:flex;align-items:center;justify-content:center;">
-                <img src="logo.jpg" style="width:100%;height:auto;">
+                <img src="./iconos/logo.jpg" style="width:100%;">
             </div>
 
             <div style="width:60%;font-size:12px;">
@@ -268,7 +325,6 @@ async function imprimir(id) {
 
                 <svg id="barcode"></svg>
             </div>
-
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -283,7 +339,6 @@ async function imprimir(id) {
 
             window.onload = () => window.print();
         </script>
-
         </body>
         </html>
     `);
@@ -292,19 +347,11 @@ async function imprimir(id) {
 }
 
 // ===============================
-// ELIMINAR
-// ===============================
-
-async function eliminarAfiliado(id) {
-    await deleteDoc(doc(db, "afiliados", id));
-    renderAfiliados();
-}
-
-// ===============================
 // EXPORT
 // ===============================
 
 window.AFILIADOS = {
-    imprimir,
-    eliminarAfiliado
+    editarAfiliado,
+    eliminarAfiliado,
+    imprimir
 };
