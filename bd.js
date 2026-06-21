@@ -1,6 +1,7 @@
 // ===============================
 // BASE DE DATOS ACDP FIREBASE
 // Estado global compartido
+// APP MANDA - FIREBASE PERSISTE
 // ===============================
 
 
@@ -14,22 +15,34 @@ import {
 
 
 
+
 // ===============================
 // VARIABLES GLOBALES
 // ===============================
 
 
-window.BD_usuarios = [];
+window.BD_usuarios =
+window.BD_usuarios || [];
 
-window.BD_afiliados = [];
 
-window.BD_historial = [];
+window.BD_afiliados =
+window.BD_afiliados || [];
 
-window.BD_cobros = [];
 
-window.BD_configuracion = {
+window.BD_historial =
+window.BD_historial || [];
+
+
+window.BD_cobros =
+window.BD_cobros || [];
+
+
+window.BD_configuracion =
+window.BD_configuracion || {
     monto:0
 };
+
+
 
 
 
@@ -42,138 +55,147 @@ window.BD_configuracion = {
 async function cargarBD(){
 
 
-    try{
+try{
 
 
-        const usuarios =
-        await getDocs(
-            collection(db,"usuarios")
-        );
 
+// ===============================
+// USUARIOS
+// ===============================
 
-        window.BD_usuarios=[];
 
+const usuarios =
+await getDocs(
+collection(db,"usuarios")
+);
 
-        usuarios.forEach(d=>{
 
-            window.BD_usuarios.push({
-                id:d.id,
-                ...d.data()
-            });
 
-        });
+window.BD_usuarios =
+usuarios.docs.map(d=>({
 
+id:d.id,
 
+...d.data()
 
+}));
 
 
-        const afiliados =
-        await getDocs(
-            collection(db,"afiliados")
-        );
 
 
-        window.BD_afiliados=[];
 
 
-        afiliados.forEach(d=>{
 
-            window.BD_afiliados.push({
-                id:d.id,
-                ...d.data()
-            });
+// ===============================
+// AFILIADOS
+// ===============================
 
-        });
 
+const afiliados =
+await getDocs(
+collection(db,"afiliados")
+);
 
 
 
+window.BD_afiliados =
+afiliados.docs.map(d=>({
 
+id:d.id,
 
-        const historial =
-        await getDocs(
-            collection(db,"historial")
-        );
+...d.data()
 
+}));
 
-        window.BD_historial=[];
 
 
-        historial.forEach(d=>{
 
-            window.BD_historial.push({
-                id:d.id,
-                ...d.data()
-            });
 
-        });
 
 
+// ===============================
+// HISTORIAL
+// ===============================
 
 
+const historial =
+await getDocs(
+collection(db,"historial")
+);
 
 
 
-        const cobros =
-        await getDocs(
-            collection(db,"cobros")
-        );
+window.BD_historial =
+historial.docs.map(d=>({
 
+id:d.id,
 
-        window.BD_cobros=[];
+...d.data()
 
+}));
 
-        cobros.forEach(d=>{
 
-            window.BD_cobros.push({
-                id:d.id,
-                ...d.data()
-            });
 
-        });
 
 
 
 
+// ===============================
+// COBROS
+// ===============================
 
 
+const cobros =
+await getDocs(
+collection(db,"cobros")
+);
 
-        const config =
-        await getDoc(
-            doc(db,"configuracion","principal")
-        );
 
 
+window.BD_cobros =
+cobros.docs.map(d=>({
 
-        if(config.exists()){
+id:d.id,
 
-            window.BD_configuracion =
-            config.data();
+...d.data()
 
-        }
+}));
 
 
 
-        console.log(
-            "ACDP Firebase cargado"
-        );
 
 
 
-        window.dispatchEvent(
-            new Event("BD_CARGADA")
-        );
 
+// ===============================
+// CONFIGURACION
+// ===============================
 
 
-    }catch(e){
+const config =
+await getDoc(
 
-        console.error(
-            "Error cargando Firebase",
-            e
-        );
+doc(
+db,
+"configuracion",
+"principal"
+)
 
-    }
+);
+
+
+
+if(config.exists()){
+
+
+window.BD_configuracion =
+{
+
+...window.BD_configuracion,
+
+...config.data()
+
+};
 
 
 }
@@ -181,7 +203,47 @@ async function cargarBD(){
 
 
 
+
+console.log(
+"ACDP Firebase cargado"
+);
+
+
+
+
+
+window.dispatchEvent(
+new Event("BD_CARGADA")
+);
+
+
+
+
+
+}catch(e){
+
+
+console.error(
+"Error cargando Firebase",
+e
+);
+
+
+}
+
+
+}
+
+
+
+
+
+
 cargarBD();
+
+
+
+
 
 
 
@@ -194,7 +256,8 @@ cargarBD();
 window.buscarAfiliado=function(valor){
 
 
-valor=String(valor);
+valor =
+String(valor);
 
 
 
@@ -215,6 +278,9 @@ String(a.numero)===valor
 
 
 
+
+
+
 // ===============================
 // COMPATIBILIDAD
 // ===============================
@@ -222,18 +288,24 @@ String(a.numero)===valor
 
 window.guardarBD=function(){
 
+
 console.warn(
 "guardarBD reemplazado por Firestore"
 );
+
 
 };
 
 
 
+
+
 window.guardarCambios=function(){
+
 
 console.warn(
 "guardarCambios reemplazado por Firestore"
 );
+
 
 };
