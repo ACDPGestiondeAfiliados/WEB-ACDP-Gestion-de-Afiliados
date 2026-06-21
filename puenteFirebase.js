@@ -1,18 +1,26 @@
 // ===============================
 // PUENTE FIREBASE ACDP
+// FIREBASE MODULAR
 // NO MODIFICA LA APP
 // ===============================
+
+
+import {
+    doc,
+    getDoc,
+    setDoc
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
 
 
 window.addEventListener(
 "load",
 ()=>{
 
-
-sincronizarFirebase();
-
+    sincronizarFirebase();
 
 });
+
 
 
 
@@ -23,60 +31,73 @@ async function sincronizarFirebase(){
 try{
 
 
-const ref =
-dbFirebase
-.collection("ACDP")
-.doc("BASE");
+const referencia =
+doc(
+    window.dbFirebase,
+    "ACDP",
+    "BASE"
+);
 
 
 
 const snap =
-await ref.get();
+await getDoc(referencia);
 
 
 
-if(snap.exists){
 
-
-const datos=snap.data();
+if(snap.exists()){
 
 
 
-BD_usuarios =
-datos.usuarios || BD_usuarios;
+const datos =
+snap.data();
 
 
-BD_afiliados =
-datos.afiliados || BD_afiliados;
+
+window.BD_usuarios =
+datos.usuarios ||
+window.BD_usuarios;
 
 
-BD_historial =
-datos.historial || BD_historial;
+
+window.BD_afiliados =
+datos.afiliados ||
+window.BD_afiliados;
 
 
-BD_cobros =
-datos.cobros || BD_cobros;
+
+window.BD_historial =
+datos.historial ||
+window.BD_historial;
 
 
-BD_configuracion =
-datos.configuracion || BD_configuracion;
+
+window.BD_cobros =
+datos.cobros ||
+window.BD_cobros;
+
+
+
+window.BD_configuracion =
+datos.configuracion ||
+window.BD_configuracion;
+
 
 
 
 guardarBD();
 
 
-}
+
+}else{
 
 
-
-else{
-
-
-subirFirebase();
+await subirFirebase();
 
 
 }
+
 
 
 
@@ -91,6 +112,7 @@ console.log(
 
 
 }catch(e){
+
 
 console.error(
 "Firebase error",
@@ -107,24 +129,42 @@ e
 
 
 
+
 async function subirFirebase(){
 
 
-await dbFirebase
-.collection("ACDP")
-.doc("BASE")
-.set({
+const referencia =
+doc(
+    window.dbFirebase,
+    "ACDP",
+    "BASE"
+);
 
 
-usuarios:BD_usuarios,
 
-afiliados:BD_afiliados,
+await setDoc(
+referencia,
+{
 
-historial:BD_historial,
 
-cobros:BD_cobros,
+usuarios:
+window.BD_usuarios || [],
 
-configuracion:BD_configuracion
+
+afiliados:
+window.BD_afiliados || [],
+
+
+historial:
+window.BD_historial || [],
+
+
+cobros:
+window.BD_cobros || [],
+
+
+configuracion:
+window.BD_configuracion || {}
 
 
 });
@@ -136,11 +176,17 @@ configuracion:BD_configuracion
 
 
 
+
 function interceptarGuardado(){
 
 
 const original =
 window.guardarBD;
+
+
+
+if(!original)return;
+
 
 
 
@@ -156,6 +202,7 @@ subirFirebase();
 
 
 };
+
 
 
 }
