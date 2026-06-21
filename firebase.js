@@ -1,19 +1,9 @@
 // ===============================
-// FIREBASE ACDP
-// Configuración central
+// FIREBASE ACDP - v13.8.0 MODULAR
 // ===============================
 
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
 import {
-    initializeApp
-}
-from
-"https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
-
-
-
-import {
-
     getFirestore,
     collection,
     doc,
@@ -27,86 +17,46 @@ import {
     where,
     orderBy,
     onSnapshot
-
-}
-from
-"https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
-
-
-
+} from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 // ===============================
-// CONFIG FIREBASE
+// CONFIG
 // ===============================
-
 
 const firebaseConfig = {
-
-
-    apiKey: "TU_API_KEY",
-
-    authDomain: "TU_AUTH_DOMAIN",
-
-    projectId: "TU_PROJECT_ID",
-
-    storageBucket: "TU_STORAGE_BUCKET",
-
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-
-    appId: "TU_APP_ID"
-
-
+    apiKey: "AIzaSyBuXoGjEGxmGXuvrWSGbJW_-i8NDydJX38",
+    authDomain: "acdp-afiliados.firebaseapp.com",
+    projectId: "acdp-afiliados",
+    storageBucket: "acdp-afiliados.firebasestorage.app",
+    messagingSenderId: "67829346831",
+    appId: "1:67829346831:web:2abdb4c55b504b752ce97a"
 };
 
-
-
-
 // ===============================
-// INICIALIZAR
+// INIT
 // ===============================
 
-
-const app =
-initializeApp(firebaseConfig);
-
-
-
-const db =
-getFirestore(app);
-
-
-
-
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // ===============================
-// EXPORTS GLOBALES
+// EXPORTS
 // ===============================
-
 
 export {
-
     db,
-
-
     collection,
     doc,
-
     getDoc,
     getDocs,
-
     addDoc,
     setDoc,
-
     updateDoc,
     deleteDoc,
-
     query,
     where,
     orderBy,
-
     onSnapshot
-
-
 };
 
 window.db = db;
