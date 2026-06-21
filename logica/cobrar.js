@@ -828,7 +828,7 @@ codigo
 },
 
 
-"Pago realizado | "+
+""+
 meses.join(", ")+
 " | $"+
 total+
