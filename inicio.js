@@ -1,6 +1,5 @@
 // ===============================
-// INICIO ACDP (FIRESTORE READY)
-// Control de acceso + sesión + UI
+// INICIO ACDP (ESTABLE + FIRESTORE SAFE)
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
     iniciarSistema();
     iniciarAccesoGlobal();
     iniciarSesionInicial();
+
 });
 
 // ===============================
@@ -20,9 +20,15 @@ let usuarioActivo = null;
 window.usuarioActivo = null;
 
 // ===============================
-// ACCESO GLOBAL
+// UTIL FIRESTORE SAFE
 // ===============================
+function firestoreDisponible() {
+    return typeof window.db !== "undefined";
+}
 
+// ===============================
+// ACCESO GLOBAL (MENÚ)
+// ===============================
 function iniciarAccesoGlobal() {
 
     const botones = document.querySelectorAll(".menu button");
@@ -34,9 +40,9 @@ function iniciarAccesoGlobal() {
             const destino = boton.getAttribute("data-seccion");
 
             if (destino === "usuarios" || destino === "configuracion") {
-                pedirPinAdmin(() => loginYabrir(destino));
+                pedirPinAdmin(() => abrirSeccionSeguro(destino));
             } else {
-                pedirPinUsuario(() => loginYabrir(destino));
+                pedirPinUsuario(() => abrirSeccionSeguro(destino));
             }
 
         });
@@ -46,18 +52,16 @@ function iniciarAccesoGlobal() {
 }
 
 // ===============================
-// LOGIN + NAVEGACIÓN
+// ABRIR SECCIÓN (SEGURO)
 // ===============================
-
-function loginYabrir(destino) {
+function abrirSeccionSeguro(destino) {
     abrirSeccion(destino);
     actualizarUsuarioActivo();
 }
 
 // ===============================
-// CAMBIO DE SECCIÓN
+// ABRIR SECCIÓN
 // ===============================
-
 function abrirSeccion(destino) {
 
     document.querySelectorAll(".seccion")
@@ -65,13 +69,13 @@ function abrirSeccion(destino) {
 
     const nueva = document.getElementById(destino);
     if (nueva) nueva.classList.add("activa");
+
 }
 
 // ===============================
-// LOGIN USUARIO (FIRESTORE)
+// LOGIN USUARIO (FIRESTORE + FALLBACK)
 // ===============================
-
-async function pedirPinUsuario(callback) {
+function pedirPinUsuario(callback) {
 
     const fondo = document.getElementById("modalFondo");
     const contenido = document.getElementById("modalContenido");
@@ -81,7 +85,6 @@ async function pedirPinUsuario(callback) {
         <p>Ingrese PIN de usuario o administrador</p>
 
         <input id="pinAcceso" type="password" maxlength="4" inputmode="numeric">
-
         <div id="msgAcceso" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
         <button id="btnAcceso">Ingresar</button>
@@ -92,55 +95,64 @@ async function pedirPinUsuario(callback) {
     document.getElementById("btnAcceso").onclick = async () => {
 
         const pin = document.getElementById("pinAcceso").value.trim();
+        const msg = document.getElementById("msgAcceso");
 
         if (!pin) return;
 
+        let usuario = null;
+
         try {
 
-            const snap = await getDocs(collection(window.db, "usuarios"));
+            // 🔥 FIRESTORE SI EXISTE
+            if (firestoreDisponible()) {
 
-            let usuario = null;
+                const snap = await getDocs(collection(window.db, "usuarios"));
 
-            snap.forEach(d => {
-                const u = d.data();
-                if (u.pin === pin) usuario = u;
-            });
+                snap.forEach(d => {
+                    const u = d.data();
+                    if (u.pin === pin) usuario = u;
+                });
 
-            const esValido = pin === "9999" || usuario;
+            } else {
 
-            if (!esValido) {
-                document.getElementById("msgAcceso").textContent = "PIN incorrecto";
-                return;
+                // 🧠 FALLBACK LOCAL
+                usuario = (BD_usuarios || []).find(u => u.pin === pin);
+
             }
 
-            usuarioActivo = usuario ? usuario.usuario : "Admin";
-            window.usuarioActivo = usuarioActivo;
-
-            cerrarModal();
-            callback();
-
         } catch (e) {
-            console.error("Error login usuario:", e);
+            console.warn("Firestore fallback activado", e);
+            usuario = (BD_usuarios || []).find(u => u.pin === pin);
         }
+
+        const esValido = pin === "9999" || usuario;
+
+        if (!esValido) {
+            msg.textContent = "PIN incorrecto";
+            return;
+        }
+
+        usuarioActivo = usuario ? usuario.usuario : "Admin";
+        window.usuarioActivo = usuarioActivo;
+
+        cerrarModal();
+        callback();
     };
 }
 
 // ===============================
-// LOGIN ADMIN (FIRESTORE)
+// LOGIN ADMIN (SAFE)
 // ===============================
-
-async function pedirPinAdmin(callback) {
+function pedirPinAdmin(callback) {
 
     const fondo = document.getElementById("modalFondo");
     const contenido = document.getElementById("modalContenido");
 
     contenido.innerHTML = `
         <h3>Acceso administrador</h3>
-
         <p>Ingrese PIN de administrador</p>
 
         <input id="pinAdminAcceso" type="password" maxlength="4" inputmode="numeric">
-
         <div id="msgAdminAcceso" style="font-size:12px;color:#c00;margin-top:6px;"></div>
 
         <button id="btnAdminAcceso">Ingresar</button>
@@ -151,58 +163,71 @@ async function pedirPinAdmin(callback) {
     document.getElementById("btnAdminAcceso").onclick = async () => {
 
         const pin = document.getElementById("pinAdminAcceso").value.trim();
+        const msg = document.getElementById("msgAdminAcceso");
+
+        let usuario = null;
 
         try {
 
-            const snap = await getDocs(collection(window.db, "usuarios"));
+            if (firestoreDisponible()) {
 
-            let usuario = null;
+                const snap = await getDocs(collection(window.db, "usuarios"));
 
-            snap.forEach(d => {
-                const u = d.data();
-                if (u.pin === pin && u.tipo === "Administrador") {
-                    usuario = u;
-                }
-            });
+                snap.forEach(d => {
+                    const u = d.data();
+                    if (u.pin === pin && u.tipo === "Administrador") {
+                        usuario = u;
+                    }
+                });
 
-            const esAdmin = pin === "9999" || usuario;
+            } else {
 
-            if (!esAdmin) {
-                document.getElementById("msgAdminAcceso").textContent =
-                    "Necesita un PIN de administrador";
-                return;
+                usuario = (BD_usuarios || []).find(
+                    u => u.pin === pin && u.tipo === "Administrador"
+                );
+
             }
 
-            usuarioActivo = usuario ? usuario.usuario : "Admin";
-            window.usuarioActivo = usuarioActivo;
-
-            cerrarModal();
-            callback();
-
         } catch (e) {
-            console.error("Error admin login:", e);
+            console.warn("Firestore fallback admin", e);
+            usuario = (BD_usuarios || []).find(
+                u => u.pin === pin && u.tipo === "Administrador"
+            );
         }
+
+        const esAdmin = pin === "9999" || usuario;
+
+        if (!esAdmin) {
+            msg.textContent = "Necesita PIN de administrador";
+            return;
+        }
+
+        usuarioActivo = usuario ? usuario.usuario : "Admin";
+        window.usuarioActivo = usuarioActivo;
+
+        cerrarModal();
+        callback();
     };
 }
 
 // ===============================
-// UI USUARIO ACTIVO
+// UI USUARIO
 // ===============================
-
 function actualizarUsuarioActivo() {
 
     const cont = document.getElementById("usuarioActivo");
+
     if (!cont) return;
 
     cont.innerHTML = usuarioActivo
         ? `Hola <b>${usuarioActivo}</b>`
         : "No hay sesión activa";
+
 }
 
 // ===============================
 // SISTEMA
 // ===============================
-
 function iniciarSistema() {
 
     if (!window.BD_configuracion) {
@@ -220,7 +245,6 @@ function iniciarSistema() {
 // ===============================
 // MODAL
 // ===============================
-
 function iniciarModal() {
 
     const fondo = document.getElementById("modalFondo");
@@ -238,7 +262,6 @@ function iniciarModal() {
 // ===============================
 // NUMÉRICOS
 // ===============================
-
 function limitarNumeros() {
 
     document.querySelectorAll(".inputNumero")
@@ -247,12 +270,12 @@ function limitarNumeros() {
                 input.value = input.value.replace(/[^0-9]/g, "");
             });
         });
+
 }
 
 // ===============================
-// INICIO SESIÓN AUTOMÁTICO
+// INICIO SESIÓN
 // ===============================
-
 function iniciarSesionInicial() {
 
     usuarioActivo = null;
