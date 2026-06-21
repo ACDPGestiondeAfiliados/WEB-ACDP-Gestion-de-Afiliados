@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ACDP - Gestión de Afiliados</title>
+
+<link rel="stylesheet" href="styles.css">
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+<img src="logo.jpg" alt="ACDP" width="100" height="100"><br>
+
+<p>Sistema de Gestión de Afiliados</p>
+
+<div id="usuarioActivo"></div>
+
+</header>
+
+
+
+<nav class="menu">
+
+<button data-seccion="cobrar">COBRAR</button>
+
+<button data-seccion="historial">HISTORIAL</button>
+
+<button data-seccion="afiliados">AFILIADOS</button>
+
+<button data-seccion="usuarios">USUARIOS</button>
+
+<button data-seccion="configuracion">CONFIGURACIÓN</button>
+
+</nav>
+
+
+
+
+<main id="app">
+
+
+
+<!-- TODO TU CONTENIDO ORIGINAL VA EXACTAMENTE IGUAL -->
+
+<!--
+NO SE MODIFICA NINGÚN ID
+NO SE MODIFICA NINGUNA CLASE
+-->
+
+
+
+</main>
+
+
+
+
+<div id="modalFondo" class="modal-fondo">
+
+
+<div id="modal" class="modal">
+
+
+<button id="cerrarModal">X</button>
+
+
+<div id="modalContenido"></div>
+
+
+</div>
+
+
+</div>
+
+
+
+
+
+<!-- ============================= -->
+<!-- FIREBASE -->
+<!-- ============================= -->
+
+
+<script type="module" src="firebase.js"></script>
+
+
+<script type="module" src="puenteFirebase.js"></script>
+
+
+
+<!-- ============================= -->
+<!-- SISTEMA ACDP -->
+<!-- ============================= -->
+
+
+<script src="bd.js"></script>
+
+<script src="inicio.js"></script>
+
+<script src="config.js"></script>
+
+
+<script src="afiliados.js"></script>
+
+<script src="usuarios.js"></script>
+
+<script src="historial.js"></script>
+
+<script src="cobrar.js"></script>
+
+
+<script src="imp.js"></script>
+
+
+
+</body>
+
+</html>
