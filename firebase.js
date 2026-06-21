@@ -108,3 +108,6 @@ export {
 
 
 };
+
+window.db = db;
+window.firebaseApp = app;
