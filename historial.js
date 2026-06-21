@@ -1,544 +1,757 @@
 // ===============================
-// HISTORIAL.JS — ACDP
-// Registro de pagos y acciones
-// Versión Firebase Modular v9+
+// HISTORIAL ACDP FIREBASE
 // ===============================
 
-let fechaActual   = new Date();
-let historialVista = [];
 
-document.addEventListener("DOMContentLoaded", () => {
-    iniciarHistorial();
+import {
+
+db,
+collection,
+getDocs,
+addDoc,
+updateDoc,
+doc,
+query,
+orderBy
+
+} from "./firebase.js";
+
+
+
+let fechaActual=new Date();
+
+let historialVista=[];
+
+let BD_historial=[];
+
+
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+iniciarHistorial();
+
 });
 
+
+
+
+
+async function iniciarHistorial(){
+
+
+await cargarHistorial();
+
+
+eventosHistorial();
+
+
+}
+
+
+
+
+
+
+
 // ===============================
-// INICIALIZACIÓN
+// CARGA FIREBASE
 // ===============================
 
-function iniciarHistorial() {
-    eventosHistorial();
-    actualizarFecha();
+
+async function cargarHistorial(){
+
+
+const q =
+query(
+collection(db,"historial"),
+orderBy("fecha")
+);
+
+
+
+const snap =
+await getDocs(q);
+
+
+
+BD_historial=[];
+
+
+
+snap.forEach(d=>{
+
+
+BD_historial.push({
+
+id:d.id,
+
+...d.data()
+
+});
+
+
+});
+
+
+
+window.BD_historial =
+BD_historial;
+
+
+
+cargarHistorialFecha();
+
+
 }
+
+
+
+
+
+
+
 
 // ===============================
 // EVENTOS
 // ===============================
 
-function eventosHistorial() {
 
-    const filtro    = document.getElementById("filtroHistorial");
-    const anterior  = document.getElementById("historialAnterior");
-    const siguiente = document.getElementById("historialSiguiente");
-    const selector  = document.getElementById("fechaHistorial");
-    const btnImpr   = document.getElementById("btnImprimirHistorial");
+function eventosHistorial(){
 
-    if (filtro) {
-        filtro.addEventListener("input", () => {
-            filtrarHistorial(filtro.value);
-        });
-    }
 
-    if (anterior) {
-        anterior.addEventListener("click", () => {
-            cambiarFecha(-1);
-        });
-    }
+const filtro =
+document.getElementById(
+"filtroHistorial"
+);
 
-    if (siguiente) {
-        siguiente.addEventListener("click", () => {
-            cambiarFecha(1);
-        });
-    }
 
-    if (selector) {
-        selector.addEventListener("change", () => {
-            if (!selector.value) return;
-            const partes  = selector.value.split("-");
-            fechaActual   = new Date(partes[0], partes[1] - 1, partes[2]);
-            actualizarFecha();
-            cargarHistorialFecha();
-        });
 
-        selector.addEventListener("keydown", e => {
-            if (e.key === "Enter") {
-                const partes  = selector.value.split("-");
-                fechaActual   = new Date(partes[0], partes[1] - 1, partes[2]);
-                actualizarFecha();
-                cargarHistorialFecha();
-            }
-        });
-    }
+if(filtro)
 
-    if (btnImpr) {
-        btnImpr.addEventListener("click", () => {
-            if (typeof imprimirHistorial === "function") {
-                imprimirHistorial();
-            }
-        });
-    }
+filtro.oninput=()=>{
 
-}
+filtrarHistorial(
+filtro.value
+);
 
-// ===============================
-// CARGAR POR FECHA
-// ===============================
+};
 
-async function cargarHistorialFecha() {
 
-    mostrarCargandoHistorial();
 
-    const fechaBuscada = fechaActual.toLocaleDateString();
+const anterior =
+document.getElementById(
+"historialAnterior"
+);
 
-    try {
 
-        const todos = await DB.getHistorialPorFecha(fechaBuscada);
-        historialVista = todos;
-        mostrarHistorial();
 
-    } catch(e) {
+if(anterior)
 
-        console.error("Error cargando historial:", e);
-        mostrarErrorHistorial("Error al cargar el historial.");
+anterior.onclick=()=>{
 
-    }
+cambiarFecha(-1);
+
+};
+
+
+
+
+const siguiente =
+document.getElementById(
+"historialSiguiente"
+);
+
+
+
+if(siguiente)
+
+siguiente.onclick=()=>{
+
+cambiarFecha(1);
+
+};
+
+
 
 }
 
-// ===============================
-// FILTRAR POR DNI O NÚMERO
-// ===============================
 
-async function filtrarHistorial(valor) {
 
-    valor = valor.trim();
 
-    if (!valor) {
-        await cargarHistorialFecha();
-        return;
-    }
 
-    mostrarCargandoHistorial();
 
-    try {
 
-        const resultados = await DB.getHistorialPorDni(valor);
-        historialVista   = resultados;
-        mostrarHistorial();
 
-    } catch(e) {
 
-        console.error("Error filtrando historial:", e);
+function normalizarTexto(v){
 
-    }
+
+if(!v)return "";
+
+if(typeof v==="object")
+
+return v.usuario ||
+v.nombre ||
+v.afiliado ||
+"";
+
+
+return String(v);
+
 
 }
 
+
+
+
+
+
+
+
+
 // ===============================
-// RENDER TABLA
+// FILTRO FECHA
 // ===============================
 
-function mostrarHistorial() {
 
-    const tbody = document
-        .getElementById("tablaHistorial")
-        ?.querySelector("tbody");
+function cargarHistorialFecha(){
 
-    if (!tbody) return;
 
-    tbody.innerHTML = "";
 
-    let montoTotal = 0;
+const fecha =
+fechaActual.toLocaleDateString();
 
-    if (historialVista.length === 0) {
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="8"
-                    style="text-align:center;padding:20px;color:#888;">
-                    Sin registros para esta fecha
-                </td>
-            </tr>`;
 
-        actualizarMontoTotal(0);
-        return;
+historialVista =
+BD_historial.filter(h=>{
 
-    }
 
-    historialVista.forEach(h => {
+return h.fecha===fecha;
 
-        if (h.estado !== "Anulado") {
-            montoTotal += obtenerMonto(h.detalle);
-        }
 
-        const anulado = h.estado === "Anulado";
-        const clase   = anulado ? "historialAnulado" : "";
+})
+.reverse();
 
-        const acciones = (h.accion === "Cobro" && !anulado)
-            ? `
-                <img src="print.png"
-                    class="iconoHistorial"
-                    title="Reimprimir comprobante"
-                    onclick="imprimirRegistro('${h.id}')">
-                <img src="delete.png"
-                    class="iconoHistorial"
-                    title="Anular cobro"
-                    onclick="solicitarAnulacion('${h.id}')">
-              `
-            : (anulado
-                ? `<span style="font-size:11px;color:#999;">ANULADO</span>`
-                : "");
 
-        tbody.innerHTML += `
-            <tr class="${clase}">
-                <td>${normalizarTexto(h.usuario)}</td>
-                <td>${normalizarTexto(h.afiliado)}</td>
-                <td>${h.dni    || ""}</td>
-                <td>${h.numero || ""}</td>
-                <td>${h.fecha  || ""}</td>
-                <td>${h.hora   || ""}</td>
-                <td>${acciones}</td>
-                <td>${h.detalle || ""}</td>
-            </tr>`;
 
-    });
+mostrarHistorial();
 
-    actualizarMontoTotal(montoTotal);
-    actualizarFecha();
 
 }
 
-// ===============================
-// UTILIDADES
-// ===============================
 
-function normalizarTexto(valor) {
 
-    if (valor === null || valor === undefined) return "";
 
-    if (typeof valor === "object") {
-        return valor.usuario  ||
-               valor.nombre   ||
-               valor.afiliado ||
-               "Desconocido";
-    }
 
-    return String(valor);
 
-}
 
-function obtenerMonto(texto) {
+function filtrarHistorial(valor){
 
-    if (!texto) return 0;
 
-    // Busca el último número en el texto (el total)
-    const matches = String(texto).match(/\d+/g);
-    if (!matches) return 0;
+valor=
+valor.trim();
 
-    return Number(matches[matches.length - 1]) || 0;
+
+
+if(!valor){
+
+cargarHistorialFecha();
+
+return;
 
 }
 
-function actualizarMontoTotal(monto) {
 
-    const elem = document.getElementById("montoHistorial");
-    if (elem) {
-        elem.textContent = "$" + monto.toLocaleString("es-AR", {
-            minimumFractionDigits: 2
-        });
-    }
 
-}
+historialVista =
+BD_historial.filter(h=>
 
-// ===============================
-// HELPERS VISUALES
-// ===============================
+String(h.dni)===valor ||
 
-function mostrarCargandoHistorial() {
+String(h.numero)===valor
 
-    const tbody = document
-        .getElementById("tablaHistorial")
-        ?.querySelector("tbody");
+)
+.reverse();
 
-    if (!tbody) return;
 
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="8"
-                style="text-align:center;padding:20px;color:#888;">
-                Cargando...
-            </td>
-        </tr>`;
+
+mostrarHistorial();
+
 
 }
 
-function mostrarErrorHistorial(mensaje) {
 
-    const tbody = document
-        .getElementById("tablaHistorial")
-        ?.querySelector("tbody");
 
-    if (!tbody) return;
 
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="8"
-                style="text-align:center;padding:20px;color:#c00;">
-                ${mensaje}
-            </td>
-        </tr>`;
+
+
+
+
+
+// ===============================
+// TABLA
+// ===============================
+
+
+function mostrarHistorial(){
+
+
+
+const cuerpo =
+document
+.getElementById("tablaHistorial")
+.querySelector("tbody");
+
+
+
+cuerpo.innerHTML="";
+
+
+
+let total=0;
+
+
+
+if(!historialVista.length){
+
+
+cuerpo.innerHTML=
+
+`
+
+<tr>
+
+<td colspan="8">
+
+SIN REGISTRO
+
+</td>
+
+</tr>
+
+`;
 
 }
 
-// ===============================
-// CONTROL DE FECHA
-// ===============================
 
-function cambiarFecha(valor) {
-    fechaActual.setDate(fechaActual.getDate() + valor);
-    actualizarFecha();
-    cargarHistorialFecha();
-}
 
-function actualizarFecha() {
+historialVista.forEach(h=>{
 
-    const selector = document.getElementById("fechaHistorial");
 
-    if (!selector) return;
+if(h.estado!=="Anulado")
 
-    const anio = fechaActual.getFullYear();
-    const mes  = String(fechaActual.getMonth() + 1).padStart(2, "0");
-    const dia  = String(fechaActual.getDate()).padStart(2, "0");
+total+=obtenerMonto(h.detalle);
 
-    if (selector.tagName === "INPUT") {
-        selector.value = `${anio}-${mes}-${dia}`;
-    } else {
-        selector.textContent = fechaActual.toLocaleDateString();
-    }
 
-    // Deshabilitar botón "siguiente" si ya es hoy
-    const btnSig = document.getElementById("historialSiguiente");
-    if (btnSig) {
-        const hoy = new Date();
-        btnSig.disabled =
-            fechaActual.toDateString() === hoy.toDateString();
-    }
 
-}
 
-// ===============================
-// REIMPRIMIR COMPROBANTE
-// ===============================
+cuerpo.innerHTML+=`
 
-async function imprimirRegistro(id) {
+<tr class="${h.estado==="Anulado"?"historialAnulado":""}">
 
-    try {
 
-        const todos     = await DB.getHistorial();
-        const registro  = todos.find(h => h.id === id);
+<td>${normalizarTexto(h.usuario)}</td>
 
-        if (!registro) return;
+<td>${normalizarTexto(h.afiliado)}</td>
 
-        if (typeof generarComprobanteCobro === "function") {
+<td>${h.dni||""}</td>
 
-            const partes   = String(registro.afiliado || "").split(" ");
-            const afiliado = {
-                nombre   : partes[0] || "",
-                apellido : partes.slice(1).join(" ") || "",
-                dni      : registro.dni
-            };
+<td>${h.numero||""}</td>
 
-            const meses = registro.meses || [];
-            const total = registro.total || obtenerMonto(registro.detalle);
+<td>${h.fecha||""}</td>
 
-            generarComprobanteCobro(afiliado, meses, total);
+<td>${h.hora||""}</td>
 
-        }
 
-    } catch(e) {
+<td>
 
-        console.error("Error reimprimiendo registro:", e);
-        alert("Error al reimprimir el comprobante.");
 
-    }
+${
+h.accion==="Cobro" &&
+h.estado!=="Anulado"
+
+?
+
+`
+
+<img src="print.png"
+class="iconoHistorial"
+onclick="imprimirRegistro('${h.id}')">
+
+
+<img src="delete.png"
+class="iconoHistorial"
+onclick="solicitarAnulacion('${h.id}')">
+
+
+`
+
+:""
 
 }
 
-// ===============================
-// SOLICITAR ANULACIÓN
-// (pide PIN admin primero)
-// ===============================
 
-function solicitarAnulacion(id) {
 
-    if (typeof pedirPinAdmin === "function") {
+</td>
 
-        pedirPinAdmin(() => {
-            abrirModalAnulacion(id);
-        });
 
-    } else {
+<td>${h.detalle||""}</td>
 
-        alert("No se pudo abrir el acceso de administrador.");
 
-    }
+</tr>
 
-}
+`;
 
-// ===============================
-// MODAL DE ANULACIÓN
-// ===============================
 
-async function abrirModalAnulacion(id) {
 
-    let registro;
-
-    try {
-
-        const todos = await DB.getHistorial();
-        registro    = todos.find(h => h.id === id);
-
-    } catch(e) {
-
-        alert("Error al cargar el registro.");
-        return;
-
-    }
-
-    if (!registro) return;
-
-    // Bloqueo: no anular registros de años anteriores
-    const anioActual = new Date().getFullYear();
-
-    if (registro.anio && registro.anio < anioActual) {
-        alert("No se pueden anular registros de años anteriores.");
-        return;
-    }
-
-    if (registro.estado === "Anulado") {
-        alert("Este registro ya fue anulado.");
-        return;
-    }
-
-    const fondo     = document.getElementById("modalFondo");
-    const contenido = document.getElementById("modalContenido");
-
-    const meses   = registro.meses?.join(", ") || "";
-    const total   = registro.total
-        ? "$" + Number(registro.total).toLocaleString("es-AR")
-        : "";
-
-    contenido.innerHTML = `
-
-        <h3>Anular cobro</h3>
-
-        <p>
-            <b>${normalizarTexto(registro.afiliado)}</b><br>
-            <span style="font-size:13px;color:#666;">
-                DNI: ${registro.dni || ""}<br>
-                Fecha: ${registro.fecha || ""} ${registro.hora || ""}<br>
-                Meses: ${meses}<br>
-                Total: ${total}
-            </span>
-        </p>
-
-        <p style="color:#c00;font-size:13px;">
-            Esta acción revertirá los meses pagados y no se puede deshacer.
-        </p>
-
-        <div id="msgAnulacion"
-            style="font-size:12px;color:#c00;min-height:16px;">
-        </div>
-
-        <div style="display:flex;gap:10px;margin-top:12px;">
-
-            <button id="btnConfirmarAnulacion"
-                style="flex:1;background:#c00;color:white;
-                       border:none;border-radius:8px;
-                       padding:12px;font-weight:bold;cursor:pointer;">
-                Confirmar anulación
-            </button>
-
-            <button onclick="cerrarModal()"
-                style="flex:1;background:#eee;border:none;
-                       border-radius:8px;padding:12px;cursor:pointer;">
-                Cancelar
-            </button>
-
-        </div>
-
-    `;
-
-    fondo.classList.add("activo");
-
-    document.getElementById("btnConfirmarAnulacion")
-        .addEventListener("click", () => confirmarAnulacion(id, registro));
-
-}
-
-// ===============================
-// CONFIRMAR ANULACIÓN
-// ===============================
-
-async function confirmarAnulacion(id, registro) {
-
-    const msg = document.getElementById("msgAnulacion");
-    if (msg) msg.textContent = "Anulando...";
-
-    try {
-
-        // 1. Marcar historial como anulado
-        await DB.updateHistorial(id, {
-            estado  : "Anulado",
-            detalle : (registro.detalle || "") + " | ANULADO"
-        });
-
-        // 2. Marcar cobro relacionado como anulado
-        //    Buscamos por dni + fecha + hora
-        const cobros  = await DB.getCobros();
-        const cobro   = cobros.find(c =>
-            c.dni   === registro.dni  &&
-            c.fecha === registro.fecha &&
-            c.hora  === registro.hora
-        );
-
-        if (cobro) {
-            await DB.updateCobro(cobro.id, { estado: "Anulado" });
-        }
-
-        // 3. Log del sistema
-        await DB.addLog({
-            accion  : "ANULACION",
-            detalle : `Anulación cobro: ${normalizarTexto(registro.afiliado)} | DNI: ${registro.dni} | Meses: ${registro.meses?.join(", ") || ""}`
-        });
-
-        cerrarModal();
-
-        // Recargar historial
-        await cargarHistorialFecha();
-
-        alert("Cobro anulado correctamente.");
-
-    } catch(e) {
-
-        console.error("Error anulando registro:", e);
-        if (msg) msg.textContent = "Error al anular. Intentá de nuevo.";
-
-    }
-
-}
-
-// ===============================
-// HOOK: carga al abrir sección
-// ===============================
-
-document.addEventListener("seccionAbierta", async (e) => {
-    if (e.detail === "historial") {
-        actualizarFecha();
-        await cargarHistorialFecha();
-    }
 });
 
-// Exponer globalmente
-window.imprimirRegistro   = imprimirRegistro;
-window.solicitarAnulacion = solicitarAnulacion;
-window.cargarHistorialFecha = cargarHistorialFecha;
+
+
+document
+.getElementById("montoHistorial")
+.textContent=
+"$"+total.toFixed(2);
+
+
+
+}
+
+
+
+
+
+function cambiarFecha(valor){
+
+
+fechaActual.setDate(
+fechaActual.getDate()+valor
+);
+
+
+
+cargarHistorialFecha();
+
+
+}
+
+
+
+
+
+function obtenerMonto(texto){
+
+
+if(!text)return 0;
+
+
+return Number(
+String(texto)
+.replace(/\D/g,"")
+)
+||0;
+
+
+}
+
+
+
+
+
+
+
+
+
+// ===============================
+// REGISTRAR
+// ===============================
+
+
+async function registrarHistorial(
+accion,
+afiliado,
+detalle
+){
+
+
+
+const ahora =
+new Date();
+
+
+
+const registro={
+
+
+usuario:
+window.usuarioActivo ||
+"Administrador",
+
+
+
+afiliado:
+
+(afiliado?.nombre||"")
++
+" "
++
+(afiliado?.apellido||""),
+
+
+
+dni:
+afiliado?.dni||"",
+
+
+numero:
+afiliado?.numero||"",
+
+
+fecha:
+ahora.toLocaleDateString(),
+
+
+hora:
+ahora.toLocaleTimeString(),
+
+
+accion,
+
+
+detalle:
+detalle||"",
+
+
+anio:
+ahora.getFullYear()
+
+
+
+};
+
+
+
+
+
+const ref =
+await addDoc(
+
+collection(db,"historial"),
+
+registro
+
+);
+
+
+
+
+registro.id=ref.id;
+
+
+
+BD_historial.push(registro);
+
+window.BD_historial=BD_historial;
+
+
+
+}
+
+
+
+
+
+// ===============================
+// IMPRESION
+// ===============================
+
+
+function imprimirRegistro(id){
+
+
+const registro =
+BD_historial.find(
+h=>h.id===id
+);
+
+
+
+if(!registro)return;
+
+
+
+if(
+typeof generarComprobanteCobro==="function"
+){
+
+
+
+generarComprobanteCobro(
+
+{
+
+nombre:
+registro.afiliado,
+
+dni:
+registro.dni
+
+},
+
+registro.meses||[],
+
+registro.total ||
+obtenerMonto(registro.detalle)
+
+);
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+
+
+// ===============================
+// ANULAR
+// ===============================
+
+
+function solicitarAnulacion(id){
+
+
+
+if(typeof pedirPinAdmin==="function"){
+
+
+pedirPinAdmin(()=>{
+
+anularRegistro(id);
+
+});
+
+
+}
+
+
+}
+
+
+
+
+
+
+
+async function anularRegistro(id){
+
+
+
+const registro =
+BD_historial.find(
+h=>h.id===id
+);
+
+
+
+if(!registro)return;
+
+
+
+if(registro.estado==="Anulado")
+
+return;
+
+
+
+
+
+const año =
+new Date().getFullYear();
+
+
+
+if(
+registro.anio &&
+registro.anio<año
+){
+
+alert(
+"No se puede anular un registro anterior"
+);
+
+return;
+
+}
+
+
+
+
+await updateDoc(
+
+doc(
+db,
+"historial",
+id
+),
+
+{
+
+estado:"Anulado",
+
+detalle:
+registro.detalle+
+" | ANULADO"
+
+}
+
+);
+
+
+
+
+registro.estado="Anulado";
+
+
+
+window.BD_historial=BD_historial;
+
+
+
+mostrarHistorial();
+
+
+
+alert(
+"Registro anulado"
+);
+
+
+
+}
+
+
+
+
+
+
+function imprimirHistorial(){
+
+
+if(typeof generarPDF==="function")
+
+generarPDF(historialVista);
+
+
+}
