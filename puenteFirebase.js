@@ -13,9 +13,14 @@ from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
 
 
-function getRef(){
-    return doc(window.dbFirebase, "ACDP", "BASE");
-}
+const referencia =
+doc(
+window.dbFirebase,
+"ACDP",
+"BASE"
+);
+
+
 
 
 
@@ -57,7 +62,7 @@ try{
 
 
 const snap =
-await getDoc(getRef());
+await getDoc(referencia);
 
 
 
@@ -89,8 +94,10 @@ d.cobros || BD_cobros;
 
 
 
-BD_configuracion =
-d.configuracion || {monto:0};
+// FIX IMPORTANTE: asegurar objeto + monto numérico
+BD_configuracion = {
+    monto: Number(d.configuracion?.monto || 0)
+};
 
 
 
@@ -145,7 +152,7 @@ function interceptarGuardado(){
 
 
 const original =
-window.guardarBD;
+guardarBD;
 
 
 
@@ -161,15 +168,11 @@ return;
 
 
 
-window.originalGuardarBD = original;
-
-
-
 window.guardarBD =
 function(){
 
 
-window.originalGuardarBD();
+original();
 
 
 
@@ -210,6 +213,7 @@ async function subir(){
 try{
 
 
+// FIX CRÍTICO: evitar referencia rota o undefined silencioso
 if(!window.dbFirebase){
 console.error("Firebase no inicializado");
 return;
@@ -217,9 +221,16 @@ return;
 
 
 
+// FIX: leer SIEMPRE valor actual en ejecución
+const configSeguro = {
+    monto: Number(BD_configuracion?.monto ?? 0)
+};
+
+
+
 await setDoc(
 
-getRef(),
+doc(window.dbFirebase, "ACDP", "BASE"),
 
 {
 
@@ -240,11 +251,7 @@ cobros:
 BD_cobros || [],
 
 
-configuracion:
-{
-monto: Number(BD_configuracion?.monto || 0)
-}
-
+configuracion: configSeguro
 
 }
 
@@ -288,7 +295,7 @@ function escucharCambios(){
 
 onSnapshot(
 
-getRef(),
+doc(window.dbFirebase, "ACDP", "BASE"),
 
 snap=>{
 
@@ -315,9 +322,11 @@ d.historial || [];
 BD_cobros =
 d.cobros || [];
 
-BD_configuracion =
-{
-monto: Number(d.configuracion?.monto || 0)
+
+
+// FIX: consistencia de tipo (evita que quede objeto roto)
+BD_configuracion = {
+    monto: Number(d.configuracion?.monto || 0)
 };
 
 
