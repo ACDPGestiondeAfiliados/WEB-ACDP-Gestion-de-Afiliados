@@ -481,19 +481,36 @@ function mesesPagados(dni){
 let usados=[];
 
 
+const anioActual =
+new Date().getFullYear();
+
+
+
 CACHE_COBROS.forEach(c=>{
 
-if(c.dni===dni){
+
+if(
+c.dni===dni &&
+c.anio===anioActual
+){
+
 
 (c.meses||[])
 .forEach(m=>{
 
-if(!usados.includes(m))
+
+if(!usados.includes(m)){
+
 usados.push(m);
+
+}
+
 
 });
 
+
 }
+
 
 });
 
@@ -724,6 +741,10 @@ afiliado:
 afiliado.nombre+
 " "+
 afiliado.apellido,
+
+
+anio:
+fecha.getFullYear(),
 
 
 meses,
