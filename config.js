@@ -1,50 +1,60 @@
 // ===============================
-// CONFIGURACIÓN ACDP (LIMPIO)
-// SOLO MONTO + FIRESTORE
+// CONFIGURACIÓN ACDP (FIRESTORE REAL)
+// SOLO MONTO GLOBAL
 // ===============================
+
+const CONFIG_COL = "configuracion";
+const CONFIG_ID = "global";
 
 document.addEventListener("DOMContentLoaded", () => {
-
     iniciarConfiguracion();
     cargarConfiguracion();
-
 });
 
+// ===============================
+// INICIAR EVENTOS
+// ===============================
 
-// ===============================
-// INICIAR
-// ===============================
 function iniciarConfiguracion() {
 
     const boton = document.getElementById("guardarConfiguracion");
     if (!boton) return;
 
     boton.addEventListener("click", guardarMonto);
-
 }
 
+// ===============================
+// CARGAR DESDE FIRESTORE
+// ===============================
 
-// ===============================
-// CARGAR CONFIG DESDE BD
-// ===============================
-function cargarConfiguracion() {
+async function cargarConfiguracion() {
 
     const input = document.getElementById("montoConfiguracion");
     if (!input) return;
 
-    if (!window.BD_configuracion) {
-        window.BD_configuracion = { monto: 0 };
+    try {
+
+        const ref = doc(window.db, CONFIG_COL, CONFIG_ID);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+            const data = snap.data();
+            input.value = Number(data.monto || 0);
+        } else {
+            input.value = 0;
+        }
+
+    } catch (e) {
+        console.error("Error cargando configuración:", e);
+        input.value = 0;
     }
-
-    input.value = Number(window.BD_configuracion.monto || 0);
-
 }
 
+// ===============================
+// GUARDAR EN FIRESTORE
+// ===============================
 
-// ===============================
-// GUARDAR MONTO (FIRESTORE)
-// ===============================
-function guardarMonto() {
+async function guardarMonto() {
 
     const input = document.getElementById("montoConfiguracion");
     if (!input) return;
@@ -53,13 +63,18 @@ function guardarMonto() {
 
     if (isNaN(valor) || valor < 0) return;
 
-    window.BD_configuracion = window.BD_configuracion || {};
-    window.BD_configuracion.monto = valor;
+    try {
 
-    console.log("💾 MONTO ACTUALIZADO:", valor);
+        const ref = doc(window.db, CONFIG_COL, CONFIG_ID);
 
-    if (typeof guardarBD === "function") {
-        guardarBD(); // 🔥 aquí debe subir a Firestore
+        await setDoc(ref, {
+            monto: valor,
+            updatedAt: new Date().toISOString()
+        }, { merge: true });
+
+        console.log("💾 MONTO ACTUALIZADO EN FIRESTORE:", valor);
+
+    } catch (e) {
+        console.error("Error guardando configuración:", e);
     }
-
 }
