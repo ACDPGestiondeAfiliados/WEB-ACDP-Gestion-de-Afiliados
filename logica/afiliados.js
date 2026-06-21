@@ -1,6 +1,6 @@
 // ===============================
 // ACDP - AFILIADOS CONTROLLER
-// Firebase CRUD + UI + impresión
+// Firebase CRUD + UI + impresión + paginación real
 // ===============================
 
 import {
@@ -14,12 +14,21 @@ import {
 } from "../firebase.js";
 
 // ===============================
+// ESTADO PAGINACIÓN
+// ===============================
+
+let CACHE_AFILIADOS = [];
+let ULTIMO_DOC = null;
+let PAGE_SIZE = 20;
+let PAGINA_ACTUAL = 0;
+
+// ===============================
 // INIT
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
     bindAfiliadosUI();
-    renderAfiliados();
+    cargarAfiliados(true);
 });
 
 // ===============================
@@ -47,7 +56,7 @@ function formatearFechaHora(date) {
 }
 
 // ===============================
-// BIND UI
+// UI BIND
 // ===============================
 
 function bindAfiliadosUI() {
@@ -55,7 +64,62 @@ function bindAfiliadosUI() {
     if (btnNuevo) btnNuevo.addEventListener("click", abrirCrearAfiliado);
 
     const filtro = document.getElementById("filtroAfiliados");
-    if (filtro) filtro.addEventListener("input", renderAfiliados);
+
+    if (filtro) {
+        filtro.addEventListener("input", () => {
+            const val = filtro.value.trim();
+
+            // SOLO FILTRA SI ES DNI COMPLETO O NRO AFILIADO COMPLETO
+            if (val.length === 8) {
+                renderAfiliados();
+            } else if (val.length === 0) {
+                renderAfiliados();
+            }
+        });
+    }
+
+    const btnPrev = document.getElementById("btnPrevAfiliados");
+    const btnNext = document.getElementById("btnNextAfiliados");
+
+    if (btnPrev) btnPrev.onclick = () => cambiarPagina(-1);
+    if (btnNext) btnNext.onclick = () => cambiarPagina(1);
+}
+
+// ===============================
+// CARGA FIRESTORE (OPTIMIZADA)
+// ===============================
+
+async function cargarAfiliados(reset = false) {
+    const snap = await getDocs(collection(db, "afiliados"));
+
+    CACHE_AFILIADOS = [];
+
+    snap.forEach(d => {
+        CACHE_AFILIADOS.push({ id: d.id, ...d.data() });
+    });
+
+    CACHE_AFILIADOS.sort((a, b) =>
+        new Date(b.fechaAlta) - new Date(a.fechaAlta)
+    );
+
+    if (reset) PAGINA_ACTUAL = 0;
+
+    renderAfiliados();
+}
+
+// ===============================
+// PAGINACIÓN
+// ===============================
+
+function cambiarPagina(dir) {
+    const maxPage = Math.floor(CACHE_AFILIADOS.length / PAGE_SIZE);
+
+    PAGINA_ACTUAL += dir;
+
+    if (PAGINA_ACTUAL < 0) PAGINA_ACTUAL = 0;
+    if (PAGINA_ACTUAL > maxPage) PAGINA_ACTUAL = maxPage;
+
+    renderAfiliados();
 }
 
 // ===============================
@@ -104,7 +168,6 @@ function abrirCrearAfiliado() {
         </select>
 
         <br><br>
-
         <button id="btnGuardarAfiliado" disabled>Guardar</button>
     `);
 
@@ -122,30 +185,15 @@ function abrirCrearAfiliado() {
             const okDni = soloNumeros(d.value) && d.value.length === 8;
             const okCel = c.value === "" || (soloNumeros(c.value) && c.value.length <= 10);
             const okEmail = e.value.length <= 30;
+
             btn.disabled = !(okNombre && okApellido && okDni && okCel && okEmail);
         };
 
-        n.addEventListener("input", () => {
-            n.value = n.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
-            validar();
-        });
-
-        a.addEventListener("input", () => {
-            a.value = a.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
-            validar();
-        });
-
-        d.addEventListener("input", () => {
-            d.value = d.value.replace(/[^0-9]/g, "");
-            validar();
-        });
-
-        c.addEventListener("input", () => {
-            c.value = c.value.replace(/[^0-9]/g, "");
-            validar();
-        });
-
-        e.addEventListener("input", validar);
+        n.oninput = () => { n.value = n.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); validar(); };
+        a.oninput = () => { a.value = a.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, ""); validar(); };
+        d.oninput = () => { d.value = d.value.replace(/[^0-9]/g, ""); validar(); };
+        c.oninput = () => { c.value = c.value.replace(/[^0-9]/g, ""); validar(); };
+        e.oninput = validar;
 
         btn.onclick = guardarAfiliado;
     }, 100);
@@ -168,35 +216,43 @@ async function guardarAfiliado() {
     });
 
     cerrarModal();
-    renderAfiliados();
+    cargarAfiliados(true);
 }
 
 // ===============================
-// RENDER TABLA
+// RENDER TABLA (20 filas)
 // ===============================
 
-async function renderAfiliados() {
+function renderAfiliados() {
     const tbody = document.querySelector("#tablaAfiliados tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
 
-    const filtro = document.getElementById("filtroAfiliados")?.value || "";
-    const snap = await getDocs(collection(db, "afiliados"));
+    const filtro = document.getElementById("filtroAfiliados")?.value.trim() || "";
 
-    let data = [];
+    let data = [...CACHE_AFILIADOS];
 
-    snap.forEach(d => data.push({ id: d.id, ...d.data() }));
+    // FILTRO SOLO SI ES 8 DIGITOS (DNI o NRO AFILIADO)
+    if (filtro.length === 8 && soloNumeros(filtro)) {
+        const exists = data.some(a =>
+            a.dni === filtro || a.numeroAfiliado === filtro
+        );
 
-    data.sort((a, b) => new Date(b.fechaAlta) - new Date(a.fechaAlta));
+        if (!exists) {
+            alert("Afiliado no existe");
+            return;
+        }
 
-    data.forEach(a => {
-        const ok =
-            a.dni.includes(filtro) ||
-            a.nombre.toLowerCase().includes(filtro.toLowerCase());
+        data = data.filter(a =>
+            a.dni === filtro || a.numeroAfiliado === filtro
+        );
+    }
 
-        if (!ok) return;
+    const start = PAGINA_ACTUAL * PAGE_SIZE;
+    const pageData = data.slice(start, start + PAGE_SIZE);
 
+    pageData.forEach(a => {
         const f = formatearFechaHora(a.fechaAlta);
 
         const tr = document.createElement("tr");
@@ -250,29 +306,22 @@ async function editarAfiliado(id) {
         </select>
 
         <br><br>
-
         <button id="btnEditarAfiliado">Guardar</button>
     `);
 
-    document.getElementById("btnEditarAfiliado").onclick = () => guardarEdicionAfiliado(id);
-}
+    document.getElementById("btnEditarAfiliado").onclick = async () => {
+        await updateDoc(doc(db, "afiliados", id), {
+            nombre: document.getElementById("eNombre").value.trim(),
+            apellido: document.getElementById("eApellido").value.trim(),
+            dni: document.getElementById("eDni").value,
+            celular: document.getElementById("eCelular").value,
+            correo: document.getElementById("eCorreo").value.trim(),
+            estado: document.getElementById("eEstado").value
+        });
 
-// ===============================
-// GUARDAR EDICIÓN
-// ===============================
-
-async function guardarEdicionAfiliado(id) {
-    await updateDoc(doc(db, "afiliados", id), {
-        nombre: document.getElementById("eNombre").value.trim(),
-        apellido: document.getElementById("eApellido").value.trim(),
-        dni: document.getElementById("eDni").value,
-        celular: document.getElementById("eCelular").value,
-        correo: document.getElementById("eCorreo").value.trim(),
-        estado: document.getElementById("eEstado").value
-    });
-
-    cerrarModal();
-    renderAfiliados();
+        cerrarModal();
+        cargarAfiliados(true);
+    };
 }
 
 // ===============================
@@ -281,11 +330,11 @@ async function guardarEdicionAfiliado(id) {
 
 async function eliminarAfiliado(id) {
     await deleteDoc(doc(db, "afiliados", id));
-    renderAfiliados();
+    cargarAfiliados(true);
 }
 
 // ===============================
-// IMPRESIÓN
+// IMPRESIÓN (PNG + BARCODE OK)
 // ===============================
 
 async function imprimir(id) {
@@ -301,46 +350,41 @@ async function imprimir(id) {
     const win = window.open("", "_blank");
 
     win.document.write(`
-        <html>
-        <body>
-        <div style="
-            width:8cm;
-            height:6cm;
-            border:3px solid ${color};
-            display:flex;
-            padding:10px;
-            font-family:Arial;
-        ">
-            <div style="width:40%;display:flex;align-items:center;justify-content:center;">
-                <img src="./iconos/logo.jpg" style="width:100%;">
-            </div>
+<html>
+<body>
+<div id="ficha" style="
+width:8cm;height:6cm;border:3px solid ${color};
+display:flex;padding:10px;font-family:Arial;">
+    <div style="width:40%;display:flex;align-items:center;justify-content:center;">
+        <img src="./iconos/logo.jpg" style="width:35%;">
+    </div>
 
-            <div style="width:60%;font-size:12px;">
-                <div>${af.dni}</div>
-                <div>${af.nombre}</div>
-                <div>${af.apellido}</div>
-                <div>${af.celular || ""}</div>
-                <div>${af.correo}</div>
-                <div>${af.numeroAfiliado}</div>
+    <div style="width:60%;font-size:12px;">
+        <div>${af.dni}</div>
+        <div>${af.nombre}</div>
+        <div>${af.apellido}</div>
+        <div>${af.celular || ""}</div>
+        <div>${af.correo}</div>
+        <div>${af.numeroAfiliado}</div>
 
-                <svg id="barcode"></svg>
-            </div>
-        </div>
+        <svg id="barcode"></svg>
+    </div>
+</div>
 
-        <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
 
-        <script>
-            JsBarcode("#barcode", "${af.numeroAfiliado}", {
-                format: "CODE128",
-                width: 1.5,
-                height: 40,
-                displayValue: false
-            });
+<script>
+JsBarcode("#barcode","${af.numeroAfiliado}",{
+    format:"CODE128",
+    displayValue:false,
+    width:1.5,
+    height:40
+});
 
-            window.onload = () => window.print();
-        </script>
-        </body>
-        </html>
+window.onload = () => window.print();
+</script>
+</body>
+</html>
     `);
 
     win.document.close();
