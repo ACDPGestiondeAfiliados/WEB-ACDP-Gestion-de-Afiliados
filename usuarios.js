@@ -1,7 +1,3 @@
-// ===============================
-// USUARIOS.JS - ACDP (FIXED)
-// ===============================
-
 (function () {
 
 let modoUsuario = "nuevo";
@@ -12,14 +8,6 @@ let usuarioEditandoId = null;
 // ===============================
 window.initUsuarios = function () {
 
-    const esperarBD = () => {
-        if (!window.BD_usuarios) {
-            setTimeout(esperarBD, 150);
-            return;
-        }
-        renderUsuarios();
-    };
-
     const btnNuevo = document.getElementById("btnNuevoUsuario");
 
     if (btnNuevo) {
@@ -29,8 +17,16 @@ window.initUsuarios = function () {
     esperarBD();
 };
 
+function esperarBD() {
+    if (!window.BD_usuarios) {
+        setTimeout(esperarBD, 150);
+        return;
+    }
+    renderUsuarios();
+}
+
 // ===============================
-// RENDER TABLA
+// RENDER
 // ===============================
 window.renderUsuarios = function () {
 
@@ -44,7 +40,7 @@ window.renderUsuarios = function () {
         const tr = document.createElement("tr");
 
         tr.innerHTML = `
-            <td>${u.usuario || ""}</td>
+            <td>${u.usuario}</td>
             <td>${u.tipo || u.rol || "Normal"}</td>
             <td>
                 <button onclick="editarUsuario('${u.id}')">Editar</button>
@@ -57,7 +53,7 @@ window.renderUsuarios = function () {
 };
 
 // ===============================
-// ABRIR MODAL (GLOBAL FIX)
+// MODAL
 // ===============================
 window.abrirModalUsuario = function (modo, id = null) {
 
@@ -71,69 +67,102 @@ window.abrirModalUsuario = function (modo, id = null) {
 
     fondo.classList.add("activo");
 
-    if (modo === "editar" && id) {
+    contenido.innerHTML = `
+        <h3>${modo === "editar" ? "Editar usuario" : "Nuevo usuario"}</h3>
 
-        const u = (window.BD_usuarios || []).find(x => x.id === id);
-        if (!u) return;
+        <input id="usuarioNombre" placeholder="Nombre (max 20 letras)">
+        
+        <select id="usuarioTipo">
+            <option value="Normal">Normal</option>
+            <option value="Administrador">Administrador</option>
+        </select>
 
-        contenido.innerHTML = `
-            <h3>Editar usuario</h3>
+        <input id="usuarioPin" type="password" maxlength="4" placeholder="PIN 4 dígitos">
+        <input id="usuarioPin2" type="password" maxlength="4" placeholder="Confirmar PIN">
 
-            <input id="usuarioNombre" placeholder="Usuario" value="${u.usuario || ""}">
-            <input id="usuarioRol" placeholder="Tipo" value="${u.tipo || u.rol || "NORMAL"}">
-            <input id="usuarioPin" placeholder="PIN" value="${u.pin || ""}">
+        <button id="btnGuardarUsuario" disabled>Guardar</button>
+    `;
 
-            <button onclick="guardarUsuario()">Guardar</button>
-        `;
+    setTimeout(() => {
 
-    } else {
+        const nombre = document.getElementById("usuarioNombre");
+        const tipo = document.getElementById("usuarioTipo");
+        const pin = document.getElementById("usuarioPin");
+        const pin2 = document.getElementById("usuarioPin2");
+        const btn = document.getElementById("btnGuardarUsuario");
 
-        contenido.innerHTML = `
-            <h3>Nuevo usuario</h3>
+        function validar() {
 
-            <input id="usuarioNombre" placeholder="Usuario">
-            <input id="usuarioRol" placeholder="Tipo (Normal/Administrador)" value="NORMAL">
-            <input id="usuarioPin" placeholder="PIN">
+            const nombreValido =
+                /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,20}$/.test(nombre.value.trim());
 
-            <button onclick="guardarUsuario()">Guardar</button>
-        `;
-    }
+            const pinValido =
+                /^\d{4}$/.test(pin.value) &&
+                pin.value === pin2.value;
+
+            const tipoValido = tipo.value !== "";
+
+            const ok = nombreValido && pinValido && tipoValido;
+
+            btn.disabled = !ok;
+        }
+
+        [nombre, pin, pin2, tipo].forEach(el => {
+            el.addEventListener("input", validar);
+            el.addEventListener("change", validar);
+        });
+
+        btn.onclick = guardarUsuario;
+
+    }, 50);
 };
 
 // ===============================
 // GUARDAR
 // ===============================
-window.guardarUsuario = function () {
+async function guardarUsuario() {
 
-    const nombre = getValue("usuarioNombre");
-    const rol = getValue("usuarioRol");
-    const pin = getValue("usuarioPin");
+    const nombre = document.getElementById("usuarioNombre").value.trim();
+    const tipo = document.getElementById("usuarioTipo").value;
+    const pin = document.getElementById("usuarioPin").value;
 
-    if (!nombre || !pin) return alert("Datos incompletos");
+    const data = {
+        usuario: nombre,
+        tipo,
+        pin
+    };
 
     if (modoUsuario === "nuevo") {
 
-        window.BD_usuarios.push({
-            id: crypto.randomUUID(),
-            usuario: nombre,
-            tipo: rol,
-            pin: pin
-        });
+        const id = crypto.randomUUID();
+
+        window.BD_usuarios.push({ id, ...data });
+
+        // FIREBASE
+        if (window.db) {
+            try {
+                const { doc, setDoc } = await import("./firebase.js");
+                await setDoc(doc(window.db, "usuarios", id), data);
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
     } else {
 
         const idx = window.BD_usuarios.findIndex(x => x.id === usuarioEditandoId);
 
         if (idx !== -1) {
-            window.BD_usuarios[idx].usuario = nombre;
-            window.BD_usuarios[idx].tipo = rol;
-            window.BD_usuarios[idx].pin = pin;
+            window.BD_usuarios[idx] = {
+                ...window.BD_usuarios[idx],
+                ...data
+            };
         }
     }
 
     cerrarModalUsuario();
     renderUsuarios();
-};
+}
 
 // ===============================
 // EDITAR
@@ -159,19 +188,12 @@ window.eliminarUsuario = function (id) {
 window.cerrarModalUsuario = function () {
 
     const fondo = document.getElementById("modalFondo");
+
     if (fondo) fondo.classList.remove("activo");
 };
 
 // ===============================
-// HELPERS
-// ===============================
-function getValue(id) {
-    const el = document.getElementById(id);
-    return el ? el.value.trim() : "";
-}
-
-// ===============================
-// AUTO INIT
+// INIT AUTO
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
     window.initUsuarios();
