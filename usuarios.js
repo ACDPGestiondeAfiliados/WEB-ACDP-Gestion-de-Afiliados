@@ -70,16 +70,16 @@ window.abrirModalUsuario = function (modo, id = null) {
     contenido.innerHTML = `
         <h3>${modo === "editar" ? "Editar usuario" : "Nuevo usuario"}</h3>
 
-        <input id="usuarioNombre" placeholder="Nombre (solo letras, max 20)">
-        
+        <input id="usuarioNombre" placeholder="Nombre (solo letras, max 20)" maxlength="20">
+
         <select id="usuarioTipo">
             <option value="">Tipo</option>
             <option value="Normal">Normal</option>
             <option value="Administrador">Administrador</option>
         </select>
 
-        <input id="usuarioPin" type="password" maxlength="4" placeholder="PIN 4 dígitos">
-        <input id="usuarioPin2" type="password" maxlength="4" placeholder="Confirmar PIN">
+        <input id="usuarioPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN 4 dígitos">
+        <input id="usuarioPin2" type="password" inputmode="numeric" maxlength="4" placeholder="Confirmar PIN">
 
         <button id="btnGuardarUsuario" disabled>Guardar</button>
     `;
@@ -91,6 +91,21 @@ window.abrirModalUsuario = function (modo, id = null) {
         const pin = document.getElementById("usuarioPin");
         const pin2 = document.getElementById("usuarioPin2");
         const btn = document.getElementById("btnGuardarUsuario");
+
+        // 🔥 BLOQUEO DE TECLAS (anti números en nombre)
+        nombre.addEventListener("input", () => {
+            nombre.value = nombre.value
+                .replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, "")
+                .slice(0, 20);
+        });
+
+        pin.addEventListener("input", () => {
+            pin.value = pin.value.replace(/\D/g, "").slice(0, 4);
+        });
+
+        pin2.addEventListener("input", () => {
+            pin2.value = pin2.value.replace(/\D/g, "").slice(0, 4);
+        });
 
         const validar = () => {
 
@@ -111,13 +126,13 @@ window.abrirModalUsuario = function (modo, id = null) {
             el.addEventListener("change", validar);
         });
 
-        document.getElementById("btnGuardarUsuario").onclick = guardarUsuario;
+        btn.onclick = guardarUsuario;
 
     }, 50);
 };
 
 // ===============================
-// GUARDAR
+// GUARDAR (FIREBASE REAL FIX)
 // ===============================
 async function guardarUsuario() {
 
@@ -131,42 +146,34 @@ async function guardarUsuario() {
         pin
     };
 
-    if (modoUsuario === "nuevo") {
+    try {
 
-        const id = crypto.randomUUID();
+        const { doc, setDoc, deleteDoc } = await import("./firebase.js");
 
-        window.BD_usuarios.push({ id, ...data });
+        if (modoUsuario === "nuevo") {
 
-        // FIREBASE REST FIX
-        try {
-            await fetch(
-                "https://firestore.googleapis.com/v1/projects/YOUR_PROJECT_ID/databases/(default)/documents/usuarios?documentId=" + id,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        fields: {
-                            usuario: { stringValue: nombre },
-                            tipo: { stringValue: tipo },
-                            pin: { stringValue: pin }
-                        }
-                    })
-                }
-            );
-        } catch (e) {
-            console.error(e);
+            const id = crypto.randomUUID();
+
+            window.BD_usuarios.push({ id, ...data });
+
+            await setDoc(doc(window.db, "usuarios", id), data);
+
+        } else {
+
+            const idx = window.BD_usuarios.findIndex(x => x.id === usuarioEditandoId);
+
+            if (idx !== -1) {
+                window.BD_usuarios[idx] = {
+                    ...window.BD_usuarios[idx],
+                    ...data
+                };
+
+                await setDoc(doc(window.db, "usuarios", usuarioEditandoId), data);
+            }
         }
 
-    } else {
-
-        const idx = window.BD_usuarios.findIndex(x => x.id === usuarioEditandoId);
-
-        if (idx !== -1) {
-            window.BD_usuarios[idx] = {
-                ...window.BD_usuarios[idx],
-                ...data
-            };
-        }
+    } catch (e) {
+        console.error("Firebase error:", e);
     }
 
     cerrarModalUsuario();
@@ -183,23 +190,30 @@ window.editarUsuario = function (id) {
 // ===============================
 // ELIMINAR
 // ===============================
-window.eliminarUsuario = function (id) {
+window.eliminarUsuario = async function (id) {
 
     if (!confirm("Eliminar usuario?")) return;
+
+    try {
+        const { doc, deleteDoc } = await import("./firebase.js");
+
+        await deleteDoc(doc(window.db, "usuarios", id));
+
+    } catch (e) {
+        console.error(e);
+    }
 
     window.BD_usuarios = window.BD_usuarios.filter(u => u.id !== id);
     renderUsuarios();
 };
 
 // ===============================
-// CERRAR MODAL
+// CERRAR
 // ===============================
 window.cerrarModalUsuario = function () {
     document.getElementById("modalFondo")?.classList.remove("activo");
 };
 
-// ===============================
-// INIT
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
     window.initUsuarios();
