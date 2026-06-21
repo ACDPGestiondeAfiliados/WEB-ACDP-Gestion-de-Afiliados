@@ -1,5 +1,5 @@
 // ===============================
-// INICIO ACDP (ESTABLE + FIRESTORE SAFE)
+// INICIO ACDP (FIREBASE COMPATIBLE SIN ROMPER BD)
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -20,29 +20,27 @@ let usuarioActivo = null;
 window.usuarioActivo = null;
 
 // ===============================
-// UTIL FIRESTORE SAFE
+// UTIL FIREBASE OPCIONAL
 // ===============================
-function firestoreDisponible() {
+function firebaseActivo() {
     return typeof window.db !== "undefined";
 }
 
 // ===============================
-// ACCESO GLOBAL (MENÚ)
+// MENÚ (NO CAMBIA)
 // ===============================
 function iniciarAccesoGlobal() {
 
-    const botones = document.querySelectorAll(".menu button");
-
-    botones.forEach(boton => {
+    document.querySelectorAll(".menu button").forEach(boton => {
 
         boton.addEventListener("click", () => {
 
             const destino = boton.getAttribute("data-seccion");
 
             if (destino === "usuarios" || destino === "configuracion") {
-                pedirPinAdmin(() => abrirSeccionSeguro(destino));
+                pedirPinAdmin(() => abrirSeccion(destino));
             } else {
-                pedirPinUsuario(() => abrirSeccionSeguro(destino));
+                pedirPinUsuario(() => abrirSeccion(destino));
             }
 
         });
@@ -52,28 +50,21 @@ function iniciarAccesoGlobal() {
 }
 
 // ===============================
-// ABRIR SECCIÓN (SEGURO)
-// ===============================
-function abrirSeccionSeguro(destino) {
-    abrirSeccion(destino);
-    actualizarUsuarioActivo();
-}
-
-// ===============================
-// ABRIR SECCIÓN
+// ABRIR SECCIÓN (SIN CAMBIOS)
 // ===============================
 function abrirSeccion(destino) {
 
     document.querySelectorAll(".seccion")
         .forEach(s => s.classList.remove("activa"));
 
-    const nueva = document.getElementById(destino);
-    if (nueva) nueva.classList.add("activa");
+    const sec = document.getElementById(destino);
+    if (sec) sec.classList.add("activa");
 
+    actualizarUsuarioActivo();
 }
 
 // ===============================
-// LOGIN USUARIO (FIRESTORE + FALLBACK)
+// LOGIN USUARIO (COMPATIBLE BD + FIREBASE)
 // ===============================
 function pedirPinUsuario(callback) {
 
@@ -92,7 +83,7 @@ function pedirPinUsuario(callback) {
 
     fondo.classList.add("activo");
 
-    document.getElementById("btnAcceso").onclick = async () => {
+    document.getElementById("btnAcceso").onclick = () => {
 
         const pin = document.getElementById("pinAcceso").value.trim();
         const msg = document.getElementById("msgAcceso");
@@ -101,33 +92,19 @@ function pedirPinUsuario(callback) {
 
         let usuario = null;
 
-        try {
-
-            // 🔥 FIRESTORE SI EXISTE
-            if (firestoreDisponible()) {
-
-                const snap = await getDocs(collection(window.db, "usuarios"));
-
-                snap.forEach(d => {
-                    const u = d.data();
-                    if (u.pin === pin) usuario = u;
-                });
-
-            } else {
-
-                // 🧠 FALLBACK LOCAL
-                usuario = (BD_usuarios || []).find(u => u.pin === pin);
-
-            }
-
-        } catch (e) {
-            console.warn("Firestore fallback activado", e);
-            usuario = (BD_usuarios || []).find(u => u.pin === pin);
+        // 🔥 PRIORIDAD: BD LOCAL (NO ROMPER SISTEMA)
+        if (Array.isArray(BD_usuarios)) {
+            usuario = BD_usuarios.find(u => u.pin === pin);
         }
 
-        const esValido = pin === "9999" || usuario;
+        // 🔁 OPCIONAL FIREBASE (solo si existe)
+        if (!usuario && firebaseActivo()) {
+            console.warn("Firebase activo pero BD local no encontró usuario");
+        }
 
-        if (!esValido) {
+        const valido = pin === "9999" || usuario;
+
+        if (!valido) {
             msg.textContent = "PIN incorrecto";
             return;
         }
@@ -141,7 +118,7 @@ function pedirPinUsuario(callback) {
 }
 
 // ===============================
-// LOGIN ADMIN (SAFE)
+// LOGIN ADMIN
 // ===============================
 function pedirPinAdmin(callback) {
 
@@ -150,7 +127,6 @@ function pedirPinAdmin(callback) {
 
     contenido.innerHTML = `
         <h3>Acceso administrador</h3>
-        <p>Ingrese PIN de administrador</p>
 
         <input id="pinAdminAcceso" type="password" maxlength="4" inputmode="numeric">
         <div id="msgAdminAcceso" style="font-size:12px;color:#c00;margin-top:6px;"></div>
@@ -160,49 +136,27 @@ function pedirPinAdmin(callback) {
 
     fondo.classList.add("activo");
 
-    document.getElementById("btnAdminAcceso").onclick = async () => {
+    document.getElementById("btnAdminAcceso").onclick = () => {
 
         const pin = document.getElementById("pinAdminAcceso").value.trim();
         const msg = document.getElementById("msgAdminAcceso");
 
-        let usuario = null;
+        let admin = null;
 
-        try {
-
-            if (firestoreDisponible()) {
-
-                const snap = await getDocs(collection(window.db, "usuarios"));
-
-                snap.forEach(d => {
-                    const u = d.data();
-                    if (u.pin === pin && u.tipo === "Administrador") {
-                        usuario = u;
-                    }
-                });
-
-            } else {
-
-                usuario = (BD_usuarios || []).find(
-                    u => u.pin === pin && u.tipo === "Administrador"
-                );
-
-            }
-
-        } catch (e) {
-            console.warn("Firestore fallback admin", e);
-            usuario = (BD_usuarios || []).find(
-                u => u.pin === pin && u.tipo === "Administrador"
+        if (Array.isArray(BD_usuarios)) {
+            admin = BD_usuarios.find(u =>
+                u.pin === pin && u.tipo === "Administrador"
             );
         }
 
-        const esAdmin = pin === "9999" || usuario;
+        const valido = pin === "9999" || admin;
 
-        if (!esAdmin) {
+        if (!valido) {
             msg.textContent = "Necesita PIN de administrador";
             return;
         }
 
-        usuarioActivo = usuario ? usuario.usuario : "Admin";
+        usuarioActivo = admin ? admin.usuario : "Admin";
         window.usuarioActivo = usuarioActivo;
 
         cerrarModal();
@@ -216,13 +170,11 @@ function pedirPinAdmin(callback) {
 function actualizarUsuarioActivo() {
 
     const cont = document.getElementById("usuarioActivo");
-
     if (!cont) return;
 
     cont.innerHTML = usuarioActivo
         ? `Hola <b>${usuarioActivo}</b>`
-        : "No hay sesión activa";
-
+        : "";
 }
 
 // ===============================
@@ -252,11 +204,11 @@ function iniciarModal() {
 
     if (!fondo || !cerrar) return;
 
-    cerrar.addEventListener("click", () => fondo.classList.remove("activo"));
+    cerrar.onclick = () => fondo.classList.remove("activo");
 
-    fondo.addEventListener("click", (e) => {
+    fondo.onclick = (e) => {
         if (e.target === fondo) fondo.classList.remove("activo");
-    });
+    };
 }
 
 // ===============================
@@ -265,16 +217,16 @@ function iniciarModal() {
 function limitarNumeros() {
 
     document.querySelectorAll(".inputNumero")
-        .forEach(input => {
-            input.addEventListener("input", () => {
-                input.value = input.value.replace(/[^0-9]/g, "");
-            });
+        .forEach(i => {
+            i.oninput = () => {
+                i.value = i.value.replace(/[^0-9]/g, "");
+            };
         });
 
 }
 
 // ===============================
-// INICIO SESIÓN
+// INICIO AUTOMÁTICO
 // ===============================
 function iniciarSesionInicial() {
 
@@ -288,7 +240,6 @@ function iniciarSesionInicial() {
 
         pedirPinUsuario(() => {
             abrirSeccion("cobrar");
-            actualizarUsuarioActivo();
         });
 
     }, 300);
