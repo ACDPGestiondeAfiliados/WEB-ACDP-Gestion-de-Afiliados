@@ -83,7 +83,7 @@ window.BD_usuarios=[];
 snap.forEach(d=>{
 
 
-BD_usuarios.push({
+window.BD_usuarios.push({
 
 id:d.id,
 
@@ -124,10 +124,12 @@ document.getElementById(
 
 
 
-if(nuevo)
+if(nuevo){
 
 nuevo.onclick =
 abrirNuevoUsuario;
+
+}
 
 
 }
@@ -163,7 +165,8 @@ cuerpo.innerHTML="";
 
 
 
-BD_usuarios.forEach((u,index)=>{
+(window.BD_usuarios || [])
+.forEach((u,index)=>{
 
 
 cuerpo.innerHTML+=`
@@ -369,7 +372,6 @@ msg.textContent="";
 }
 
 
-
 }
 
 
@@ -435,35 +437,62 @@ validar();
 
 
 boton.onclick =
-async()=>{
+guardarUsuario;
 
 
-const nombre =
-usuario.value.trim();
+validar();
 
 
-const clave =
-pin.value.trim();
+}
 
 
-const confirmar =
-pin2.value.trim();
+
+
+
+
+
+
+
+// ===============================
+// GUARDAR USUARIO
+// ===============================
+
+
+async function guardarUsuario(){
+
+
+const usuario =
+document
+.getElementById("usuarioNuevo")
+.value.trim();
+
+
+const pin =
+document
+.getElementById("pinNuevo")
+.value.trim();
+
+
+const pin2 =
+document
+.getElementById("pinConfirmar")
+.value.trim();
 
 
 const tipo =
-document.getElementById("tipoNuevo")
+document
+.getElementById("tipoNuevo")
 .value;
 
 
 
-if(
-nombre.length < 4 ||
-clave.length !== 4 ||
-clave !== confirmar
-){
 
-msg.textContent =
-"Datos inválidos";
+
+if(
+usuario.length<4 ||
+pin.length!==4 ||
+pin!==pin2
+){
 
 return;
 
@@ -480,26 +509,18 @@ u=>
 
 u.usuario.toLowerCase()
 ===
-nombre.toLowerCase()
+usuario.toLowerCase()
 
 );
 
 
 
-if(existe){
-
-msg.textContent =
-"Usuario ya existe";
+if(existe)
 
 return;
 
-}
 
 
-
-
-
-try{
 
 
 const ref =
@@ -509,11 +530,11 @@ collection(db,"usuarios"),
 
 {
 
-usuario:nombre,
+usuario,
 
-pin:clave,
+pin,
 
-tipo:tipo
+tipo
 
 }
 
@@ -522,17 +543,20 @@ tipo:tipo
 
 
 
+
 window.BD_usuarios.push({
 
 id:ref.id,
 
-usuario:nombre,
+usuario,
 
-pin:clave,
+pin,
 
-tipo:tipo
+tipo
 
 });
+
+
 
 
 
@@ -543,39 +567,15 @@ cargarUsuarios();
 
 
 
-if(typeof escribirConsola==="function")
-
-escribirConsola(
-"Usuario creado: "+nombre
-);
-
-
-
-}catch(error){
-
-
-console.error(
-"ERROR CREANDO USUARIO",
-error
-);
-
-
-alert(
-"Error guardando usuario"
-);
-
-
 }
 
 
-};
 
 
 
-validar();
 
 
-}
+
 
 // ===============================
 // ELIMINAR
@@ -586,7 +586,11 @@ async function eliminarUsuario(index){
 
 
 const u =
-BD_usuarios[index];
+(window.BD_usuarios || [])[index];
+
+
+
+if(!u)return;
 
 
 
@@ -614,7 +618,7 @@ u.id
 
 
 
-BD_usuarios.splice(index,1);
+window.BD_usuarios.splice(index,1);
 
 
 
@@ -640,7 +644,11 @@ function abrirEditarUsuario(index){
 
 
 const u =
-BD_usuarios[index];
+(window.BD_usuarios || [])[index];
+
+
+
+if(!u)return;
 
 
 
@@ -707,7 +715,7 @@ fondo.classList.add("activo");
 
 document
 .getElementById("btnGuardarEdit")
-.onclick=
+.onclick =
 async()=>{
 
 
@@ -722,13 +730,13 @@ u.id
 {
 
 usuario:
-editUsuario.value,
+document.getElementById("editUsuario").value,
 
 pin:
-editPin.value,
+document.getElementById("editPin").value,
 
 tipo:
-editTipo.value
+document.getElementById("editTipo").value
 
 }
 
@@ -736,7 +744,8 @@ editTipo.value
 
 
 
-cargarUsuariosFirebase();
+await cargarUsuariosFirebase();
+
 
 cerrarModal();
 
@@ -776,3 +785,11 @@ abrirEditarUsuario;
 
 window.eliminarUsuario =
 eliminarUsuario;
+
+
+window.guardarUsuario =
+guardarUsuario;
+
+
+window.abrirNuevoUsuario =
+abrirNuevoUsuario;
