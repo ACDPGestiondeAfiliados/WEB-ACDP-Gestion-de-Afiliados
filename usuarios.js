@@ -8,10 +8,10 @@ let usuarioEditandoId = null;
 // ===============================
 window.initUsuarios = function () {
 
-    const btnNuevo = document.getElementById("btnNuevoUsuario");
+    const btn = document.getElementById("btnNuevoUsuario");
 
-    if (btnNuevo) {
-        btnNuevo.onclick = () => abrirModalUsuario("nuevo");
+    if (btn) {
+        btn.onclick = () => abrirModalUsuario("nuevo");
     }
 
     esperarBD();
@@ -22,13 +22,13 @@ function esperarBD() {
         setTimeout(esperarBD, 150);
         return;
     }
-    renderUsuarios();
+    render();
 }
 
 // ===============================
 // RENDER
 // ===============================
-window.renderUsuarios = function () {
+function render() {
 
     const cont = document.querySelector("#tablaUsuarios tbody");
     if (!cont) return;
@@ -41,7 +41,7 @@ window.renderUsuarios = function () {
 
         tr.innerHTML = `
             <td>${u.usuario || ""}</td>
-            <td>${u.tipo || u.rol || "Normal"}</td>
+            <td>${u.tipo || "Normal"}</td>
             <td>
                 <button onclick="editarUsuario('${u.id}')">Editar</button>
                 <button onclick="eliminarUsuario('${u.id}')">Eliminar</button>
@@ -50,7 +50,7 @@ window.renderUsuarios = function () {
 
         cont.appendChild(tr);
     });
-};
+}
 
 // ===============================
 // MODAL
@@ -70,16 +70,15 @@ window.abrirModalUsuario = function (modo, id = null) {
     contenido.innerHTML = `
         <h3>${modo === "editar" ? "Editar usuario" : "Nuevo usuario"}</h3>
 
-        <input id="usuarioNombre" placeholder="Nombre (solo letras, max 20)" maxlength="20">
+        <input id="usuarioNombre" placeholder="Nombre" maxlength="20">
 
         <select id="usuarioTipo">
-            <option value="">Tipo</option>
             <option value="Normal">Normal</option>
             <option value="Administrador">Administrador</option>
         </select>
 
-        <input id="usuarioPin" type="password" inputmode="numeric" maxlength="4" placeholder="PIN 4 dígitos">
-        <input id="usuarioPin2" type="password" inputmode="numeric" maxlength="4" placeholder="Confirmar PIN">
+        <input id="usuarioPin" type="password" maxlength="4" placeholder="PIN">
+        <input id="usuarioPin2" type="password" maxlength="4" placeholder="Confirmar PIN">
 
         <button id="btnGuardarUsuario" disabled>Guardar</button>
     `;
@@ -92,47 +91,29 @@ window.abrirModalUsuario = function (modo, id = null) {
         const pin2 = document.getElementById("usuarioPin2");
         const btn = document.getElementById("btnGuardarUsuario");
 
-        // 🔥 BLOQUEO DE TECLAS (anti números en nombre)
-        nombre.addEventListener("input", () => {
-            nombre.value = nombre.value
-                .replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, "")
-                .slice(0, 20);
-        });
-
-        pin.addEventListener("input", () => {
-            pin.value = pin.value.replace(/\D/g, "").slice(0, 4);
-        });
-
-        pin2.addEventListener("input", () => {
-            pin2.value = pin2.value.replace(/\D/g, "").slice(0, 4);
-        });
-
         const validar = () => {
 
             const nombreValido =
                 /^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]{1,20}$/.test(nombre.value.trim());
 
-            const tipoValido = tipo.value !== "";
-
             const pinValido =
                 /^\d{4}$/.test(pin.value) &&
                 pin.value === pin2.value;
 
-            btn.disabled = !(nombreValido && tipoValido && pinValido);
+            btn.disabled = !(nombreValido && tipo.value && pinValido);
         };
 
         [nombre, tipo, pin, pin2].forEach(el => {
             el.addEventListener("input", validar);
-            el.addEventListener("change", validar);
         });
 
         btn.onclick = guardarUsuario;
 
-    }, 50);
+    }, 80);
 };
 
 // ===============================
-// GUARDAR (FIREBASE REAL FIX)
+// GUARDAR (FIX REAL FIREBASE)
 // ===============================
 async function guardarUsuario() {
 
@@ -140,15 +121,13 @@ async function guardarUsuario() {
     const tipo = document.getElementById("usuarioTipo").value;
     const pin = document.getElementById("usuarioPin").value;
 
-    const data = {
-        usuario: nombre,
-        tipo,
-        pin
-    };
+    if (!nombre || !tipo || !pin) return;
+
+    const data = { usuario: nombre, tipo, pin };
 
     try {
 
-        const { doc, setDoc, deleteDoc } = await import("./firebase.js");
+        const { doc, setDoc } = await import("./firebase.js");
 
         if (modoUsuario === "nuevo") {
 
@@ -163,56 +142,45 @@ async function guardarUsuario() {
             const idx = window.BD_usuarios.findIndex(x => x.id === usuarioEditandoId);
 
             if (idx !== -1) {
-                window.BD_usuarios[idx] = {
-                    ...window.BD_usuarios[idx],
-                    ...data
-                };
-
+                window.BD_usuarios[idx] = { id: usuarioEditandoId, ...data };
                 await setDoc(doc(window.db, "usuarios", usuarioEditandoId), data);
             }
         }
 
     } catch (e) {
-        console.error("Firebase error:", e);
+        console.error("FIREBASE ERROR:", e);
     }
 
-    cerrarModalUsuario();
-    renderUsuarios();
+    cerrar();
+    render();
 }
 
 // ===============================
-// EDITAR
+// EDITAR / ELIMINAR
 // ===============================
 window.editarUsuario = function (id) {
     abrirModalUsuario("editar", id);
 };
 
-// ===============================
-// ELIMINAR
-// ===============================
 window.eliminarUsuario = async function (id) {
-
-    if (!confirm("Eliminar usuario?")) return;
 
     try {
         const { doc, deleteDoc } = await import("./firebase.js");
-
         await deleteDoc(doc(window.db, "usuarios", id));
-
     } catch (e) {
         console.error(e);
     }
 
     window.BD_usuarios = window.BD_usuarios.filter(u => u.id !== id);
-    renderUsuarios();
+    render();
 };
 
 // ===============================
 // CERRAR
 // ===============================
-window.cerrarModalUsuario = function () {
+function cerrar() {
     document.getElementById("modalFondo")?.classList.remove("activo");
-};
+}
 
 // ===============================
 document.addEventListener("DOMContentLoaded", () => {
