@@ -148,8 +148,6 @@ const val=filtro.value.trim();
 if(val.length===8 || val.length===0){
 
 renderAfiliados();
-
-actualizarResumenAfiliados();
     
 }
 
@@ -223,7 +221,7 @@ PAGINA_ACTUAL=0;
 
 
 renderAfiliados();
-
+actualizarResumenAfiliados();
 
 }
 
@@ -957,6 +955,11 @@ win.document.close();
 
 
 function actualizarResumenAfiliados(){
+
+
+if(
+!document.getElementById("contadorActivos")
+)return;
 
 
 const grupos = {
