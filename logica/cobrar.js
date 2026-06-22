@@ -808,21 +808,26 @@ await window.HISTORIAL.registrar(
 
 {
 
-
 afiliado:
 afiliado.nombre+
 " "+
 afiliado.apellido,
 
-
 dni:
 afiliado.dni,
 
-
 numeroAfiliado:
-afiliado.numeroAfiliado+
-"<br>"+
-codigo
+afiliado.numeroAfiliado,
+
+meses,
+
+total,
+
+codigoComprobante:
+codigo,
+
+medioPago:
+medio
 
 
 },
