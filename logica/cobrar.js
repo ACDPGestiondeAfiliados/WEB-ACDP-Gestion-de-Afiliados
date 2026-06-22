@@ -922,7 +922,9 @@ afiliado,
 meses,
 total,
 medio,
-codigo
+codigo,
+fechaGuardada="",
+horaGuardada=""
 ){
 
 
