@@ -593,12 +593,14 @@ if(!registro)return;
 
 if(
 !confirm(
-"¿Anular registro?"
+"¿Anular pago?"
 )
 
 )return;
 
 
+
+// ANULA HISTORIAL
 
 await updateDoc(
 
@@ -627,13 +629,77 @@ registro.estado="Anulado";
 
 
 
-mostrarHistorial();
 
+// SI ES COBRO LIBERA MESES
+
+if(registro.accion==="Cobro"){
+
+
+const snap =
+await getDocs(
+collection(db,"cobros")
+);
+
+
+
+snap.forEach(async d=>{
+
+
+const cobro = d.data();
+
+
+
+if(
+cobro.codigoComprobante === 
+registro.codigoComprobante
+){
+
+
+const nuevosMeses =
+
+(cobro.meses || [])
+.filter(m =>
+
+!(registro.meses || [])
+.includes(m)
+
+);
+
+
+
+await updateDoc(
+
+doc(
+db,
+"cobros",
+d.id
+),
+
+{
+
+meses:
+nuevosMeses
+
+}
+
+);
 
 
 }
 
 
+});
+
+
+}
+
+
+
+mostrarHistorial();
+
+
+
+}
 
 // ===============================
 // IMPRIMIR
