@@ -151,11 +151,10 @@ cargarHistorialFecha();
 
 if(imprimirBtn){
 
-imprimirBtn.onclick=()=>{
-
-imprimirTablaActual();
-
-};
+imprimirBtn.addEventListener(
+"click",
+imprimirTablaActual
+);
 
 }
 
@@ -505,6 +504,19 @@ function cambiarFecha(valor){
 fechaActual.setDate(
 fechaActual.getDate()+valor
 );
+
+
+
+const picker =
+document.getElementById("fechaHistorial");
+
+
+if(picker){
+
+picker.value =
+formatearInputFecha(fechaActual);
+
+}
 
 
 
