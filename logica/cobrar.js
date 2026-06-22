@@ -804,8 +804,7 @@ if(window.HISTORIAL?.registrar){
 
 await window.HISTORIAL.registrar(
 
-"Cobro",
-
+"",
 
 {
 
@@ -821,41 +820,56 @@ afiliado.dni,
 
 
 numeroAfiliado:
-afiliado.numeroAfiliado,
-
-
-meses,
-
-
-total,
-
-
-codigoComprobante:
-codigo,
-
-
-medioPago:
-medio
-
+afiliado.numeroAfiliado+
+"<br>"+
+codigo
 
 
 },
 
 
-"Pago realizado | "+
+""+
 meses.join(", ")+
 " | $"+
 total+
 " | "+
-medio+
-" | Codigo: "+
-codigo
+medio
 
 
 );
 
 
 }
+
+
+
+
+CACHE_COBROS.push(cobro);
+
+
+
+cerrarModal();
+
+
+
+generarTicket(
+
+afiliado,
+
+meses,
+
+total,
+
+medio,
+
+codigo
+
+);
+
+
+
+}
+
 
 
 // ===============================
