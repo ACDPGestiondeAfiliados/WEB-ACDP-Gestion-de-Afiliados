@@ -341,7 +341,10 @@ dato("datoCorreo",a.correo);
 
 dato("datoEstado",a.estado);
 
-dato("datoFechaAlta",a.fechaAlta);
+dato(
+"datoFechaAlta",
+formatearFechaHora(a.fechaAlta)
+);
 
 
 
@@ -404,6 +407,52 @@ function dato(id,texto){
 document
 .getElementById(id)
 .textContent=texto||"";
+
+}
+
+
+
+
+// ===============================
+// FORMATO FECHA
+// ===============================
+
+
+function formatearFechaHora(valor){
+
+
+const fecha =
+new Date(valor);
+
+
+
+const dia =
+String(fecha.getDate())
+.padStart(2,"0");
+
+
+const mes =
+String(fecha.getMonth()+1)
+.padStart(2,"0");
+
+
+const año =
+fecha.getFullYear();
+
+
+
+const hora =
+String(fecha.getHours())
+.padStart(2,"0");
+
+
+const minutos =
+String(fecha.getMinutes())
+.padStart(2,"0");
+
+
+
+return `${dia}/${mes}/${año} ${hora}:${minutos}`;
 
 }
 
