@@ -576,126 +576,59 @@ cargarHistorialFecha();
 
 async function anular(id){
 
-
 const registro =
-CACHE_HISTORIAL.find(
-h=>h.id===id
-);
+CACHE_HISTORIAL.find(h=>h.id===id);
 
+if(!registro) return;
 
-
-if(!registro)return;
-
-
-
-if(
-!confirm(
-"¿Anular pago?"
-)
-
-)return;
-
-
+if(!confirm("¿Anular pago?")) return;
 
 await updateDoc(
-
-doc(
-db,
-"historial",
-id
-),
-
+doc(db,"historial",id),
 {
-
-estado:"Anulado",
-
-detalleHistorial:
-
-registro.detalleHistorial+
-" | ANULADO"
-
+    estado:"Anulado",
+    detalleHistorial:
+        registro.detalleHistorial + " | ANULADO"
 }
-
 );
-
-
 
 registro.estado="Anulado";
 
 
-
-
-
-if(registro.accion==="Cobro"){
-
+// revertir cobros si era Cobro
+if(registro.accion === "Cobro"){
 
 const snap =
-await getDocs(
-collection(db,"cobros")
-);
-
-
+await getDocs(collection(db,"cobros"));
 
 snap.forEach(async d=>{
 
-
 const cobro = d.data();
 
-
-
-if(
-cobro.codigoComprobante === 
-registro.codigoComprobante
-){
-
+if(cobro.codigoComprobante === registro.codigoComprobante){
 
 const nuevosMeses =
-
-(cobro.meses || [])
-.filter(m =>
-
-!(registro.meses || [])
-.includes(m)
-
+(cobro.meses || []).filter(m =>
+    !(registro.meses || []).includes(m)
 );
-
-
 
 await updateDoc(
-
-doc(
-db,
-"cobros",
-d.id
-),
-
-{
-
-meses:
-nuevosMeses
-
-}
-
+doc(db,"cobros", d.id),
+{ meses: nuevosMeses }
 );
 
-
 }
-
-
 });
 
-
 }
 
-
+// 🔥 SYNC COBRAR (IMPORTANTE)
+if(window.COBRAR?.recargarCobros){
+    await window.COBRAR.recargarCobros();
+}
 
 mostrarHistorial();
-
-
-
 }
-
-
 
 
 // ===============================
@@ -704,134 +637,63 @@ mostrarHistorial();
 
 function imprimir(id){
 
-
 const h =
-CACHE_HISTORIAL.find(
-x=>x.id===id
+CACHE_HISTORIAL.find(x=>x.id===id);
+
+if(!h) return;
+
+// si existe COBRAR, usar ticket real
+if(window.COBRAR?.generarTicket && h.accion === "Cobro"){
+
+window.COBRAR.generarTicket(
+{
+    nombre: h.afiliado || "",
+    apellido: "",
+    dni: h.dni || ""
+},
+h.meses || [],
+h.total || 0,
+h.medioPago || "",
+h.codigoComprobante || ""
 );
 
-
-
-if(!h)return;
-
-
+return;
+}
 
 const win =
-window.open(
-"",
-"_blank",
-"width=300,height=400"
-);
-
-
+window.open("","_blank","width=300,height=400");
 
 win.document.write(`
-
 <html>
+<body style="font-family:Arial;text-align:center;font-size:12px;">
 
-<body style="
-font-family:Arial;
-text-align:center;
-font-size:12px;
-">
-
-
-<div style="
-width:5cm;
-border:2px solid #A602AB;
-padding:8px;
-margin:auto;
-border-radius:6px;
-">
-
+<div style="width:5cm;border:2px solid #A602AB;padding:8px;margin:auto;border-radius:6px;">
 
 <h3>ACDP</h3>
-
 <b>COMPROBANTE DE PAGO</b>
-
-
 <hr>
 
+<p>${h.afiliado || ""}</p>
+<p>DNI: ${h.dni || ""}</p>
 
-<p>
+<p>${(h.meses||[]).join(" - ")}</p>
 
-${h.afiliado}
+<b>TOTAL: $${h.total || 0}</b>
 
-</p>
+<p>Código: ${h.codigoComprobante || ""}</p>
 
-
-<p>
-
-DNI:
-${h.dni}
-
-</p>
-
-
-
-<p>
-
-${(h.meses||[]).join(" - ")}
-
-</p>
-
-
-
-<b>
-
-TOTAL:
-$${h.total || 0}
-
-</b>
-
-
-
-<p>
-
-Código:
-
-${h.codigoComprobante || ""}
-
-</p>
-
-
-
-<p>
-
-${h.fecha}
-
-<br>
-
-${h.hora}
-
-</p>
-
+<p>${h.fecha || ""}<br>${h.hora || ""}</p>
 
 </div>
 
-
-<script>
-
-window.print();
-
-</script>
-
+<script>window.print();</script>
 
 </body>
-
 </html>
-
 `);
 
-
-
 win.document.close();
-
-
 }
-
-
-
 
 
 // ===============================
@@ -839,21 +701,9 @@ win.document.close();
 // ===============================
 
 window.HISTORIAL = {
-
-registrar: registrar,
-
-imprimir: function(id){
-
-    imprimir(id);
-
-},
-
-anular: function(id){
-
-    anular(id);
-
-}
-
+    registrar,
+    imprimir,
+    anular
 };
 
 
