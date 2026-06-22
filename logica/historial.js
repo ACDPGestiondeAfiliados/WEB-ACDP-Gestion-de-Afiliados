@@ -480,7 +480,6 @@ detalle=""
 ){
 
 
-
 const ahora =
 new Date();
 
@@ -525,6 +524,24 @@ detalleHistorial:
 detalle,
 
 
+// DATOS EXTRA PARA COBROS
+
+meses:
+datos.meses ||
+[],
+
+
+total:
+datos.total ||
+0,
+
+
+codigoComprobante:
+datos.codigoComprobante ||
+"",
+
+
+
 anio:
 ahora.getFullYear(),
 
@@ -555,8 +572,6 @@ cargarHistorialFecha();
 
 
 }
-
-
 
 // ===============================
 // ANULAR
