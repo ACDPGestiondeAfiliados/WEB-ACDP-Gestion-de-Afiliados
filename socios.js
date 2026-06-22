@@ -360,14 +360,13 @@ document
 
 
 const config =
-localStorage.getItem("montoCuota")
-||0;
+window.BD_configuracion?.monto || 0;
 
 
 
 document
 .getElementById("valorCuota")
-.textContent=
+.textContent =
 "$"+config;
 
 
