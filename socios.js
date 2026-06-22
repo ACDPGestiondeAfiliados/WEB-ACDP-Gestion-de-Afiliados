@@ -12,7 +12,7 @@ getDocs,
 updateDoc,
 doc
 
-} from "../firebase.js";
+} from "./firebase.js";
 
 
 
