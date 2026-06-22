@@ -221,11 +221,10 @@ PAGINA_ACTUAL=0;
 
 
 renderAfiliados();
+
 actualizarResumenAfiliados();
 
 }
-
-
 
 // ===============================
 // PAGINACION
@@ -948,7 +947,6 @@ win.document.close();
 
 }
 
-
 // ===============================
 // VERIFICACIÓN DE DATOS REPETIDOS Y CONTEO
 // ===============================
@@ -957,40 +955,27 @@ win.document.close();
 function actualizarResumenAfiliados(){
 
 
-if(
-!document.getElementById("contadorActivos")
-)return;
+const activos =
+CACHE_AFILIADOS.filter(a=>
+a.estado==="ACTIVO"
+).length;
 
 
-const grupos = {
+
+const adherentes =
+CACHE_AFILIADOS.filter(a=>
+a.estado==="ADHERENTE"
+).length;
 
 
-correo:{},
-dni:{},
-celular:{}
+
+const obtenerRepetidos=(campo)=>{
 
 
-};
-
-
-let activos=0;
-let adherentes=0;
-
+const mapa={};
 
 
 CACHE_AFILIADOS.forEach(a=>{
-
-
-if(a.estado==="ACTIVO")
-activos++;
-
-
-if(a.estado==="ADHERENTE")
-adherentes++;
-
-
-
-["correo","dni","celular"].forEach(campo=>{
 
 
 const valor =
@@ -1000,70 +985,97 @@ a[campo]?.trim();
 if(!valor)return;
 
 
-if(!grupos[campo][valor])
-grupos[campo][valor]=[];
+if(!mapa[valor])
+mapa[valor]=[];
 
 
-grupos[campo][valor].push(a);
-
-
-
-});
+mapa[valor].push(a);
 
 
 });
 
 
-
-const repetidosCorreo =
-Object.values(grupos.correo)
+return Object.values(mapa)
 .filter(x=>x.length>1)
 .flat();
 
 
-const repetidosDni =
-Object.values(grupos.dni)
-.filter(x=>x.length>1)
-.flat();
-
-
-const repetidosCelular =
-Object.values(grupos.celular)
-.filter(x=>x.length>1)
-.flat();
+};
 
 
 
-
-document.querySelector("#contadorActivos span").textContent=activos;
-
-
-document.querySelector("#contadorAdherentes span").textContent=adherentes;
+const correos =
+obtenerRepetidos("correo");
 
 
-document.querySelector("#contadorCorreosRepetidos span").textContent=repetidosCorreo.length;
+const dnis =
+obtenerRepetidos("dni");
 
 
-document.querySelector("#contadorDniRepetidos span").textContent=repetidosDni.length;
+const celulares =
+obtenerRepetidos("celular");
 
 
-document.querySelector("#contadorCelularesRepetidos span").textContent=repetidosCelular.length;
+
+
+const setTexto=(id,valor)=>{
+
+
+const el =
+document.querySelector(id+" span");
+
+
+if(el)
+el.textContent=valor;
+
+
+};
+
+
+
+setTexto("#contadorActivos",activos);
+
+
+setTexto("#contadorAdherentes",adherentes);
+
+
+setTexto("#contadorCorreosRepetidos",correos.length);
+
+
+setTexto("#contadorDniRepetidos",dnis.length);
+
+
+setTexto("#contadorCelularesRepetidos",celulares.length);
+
+
+
+
+document
+.getElementById("contadorActivos")
+.onclick=null;
+
+
+document
+.getElementById("contadorAdherentes")
+.onclick=null;
 
 
 
 document
 .getElementById("contadorCorreosRepetidos")
-.onclick=()=>mostrarListaTemporal(repetidosCorreo);
+.onclick=()=>mostrarSoloRepetidos(correos);
+
 
 
 document
 .getElementById("contadorDniRepetidos")
-.onclick=()=>mostrarListaTemporal(repetidosDni);
+.onclick=()=>mostrarSoloRepetidos(dnis);
+
 
 
 document
 .getElementById("contadorCelularesRepetidos")
-.onclick=()=>mostrarListaTemporal(repetidosCelular);
+.onclick=()=>mostrarSoloRepetidos(celulares);
 
 
 
@@ -1071,7 +1083,7 @@ document
 
 
 
-function mostrarListaTemporal(lista){
+function mostrarSoloRepetidos(lista){
 
 
 const tbody =
@@ -1118,9 +1130,24 @@ tbody.innerHTML+=`
 
 <td>
 
+
 <button onclick="AFILIADOS.editarAfiliado('${a.id}')">
 
 Editar
+
+</button>
+
+
+<button onclick="AFILIADOS.imprimir('${a.id}')">
+
+Imprimir
+
+</button>
+
+
+<button onclick="AFILIADOS.eliminarAfiliado('${a.id}')">
+
+Eliminar
 
 </button>
 
@@ -1136,7 +1163,6 @@ Editar
 
 
 }
-
 
 // ===============================
 // EXPORT
