@@ -10,7 +10,8 @@ db,
 collection,
 getDocs,
 updateDoc,
-doc
+doc,
+getDoc
 
 } from "./firebase.js";
 
@@ -359,15 +360,32 @@ document
 
 
 
-const config =
-window.BD_configuracion?.monto || 0;
+const configRef =
+doc(
+db,
+"configuracion",
+"general"
+);
+
+
+const configSnap =
+await getDoc(configRef);
+
+
+
+const monto =
+configSnap.exists()
+?
+configSnap.data().monto
+:
+0;
 
 
 
 document
 .getElementById("valorCuota")
 .textContent =
-"$"+config;
+"$"+monto;
 
 
 
