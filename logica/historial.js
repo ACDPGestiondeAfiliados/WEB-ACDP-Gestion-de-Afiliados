@@ -739,32 +739,78 @@ font-size:12px;
 ">
 
 
+<div style="
+width:5cm;
+border:2px solid #A602AB;
+padding:8px;
+margin:auto;
+border-radius:6px;
+">
+
+
 <h3>ACDP</h3>
 
-<h4>Registro</h4>
+<b>COMPROBANTE DE PAGO</b>
+
+
+<hr>
 
 
 <p>
+
 ${h.afiliado}
+
 </p>
 
 
 <p>
+
 DNI:
 ${h.dni}
+
 </p>
 
 
+
 <p>
-${h.detalleHistorial}
+
+${(h.meses||[]).join(" - ")}
+
 </p>
 
 
+
+<b>
+
+TOTAL:
+$${h.total || 0}
+
+</b>
+
+
+
 <p>
+
+Código:
+
+${h.codigoComprobante || ""}
+
+</p>
+
+
+
+<p>
+
 ${h.fecha}
+
+<br>
+
 ${h.hora}
+
 </p>
 
+
+</div>
 
 
 <script>
