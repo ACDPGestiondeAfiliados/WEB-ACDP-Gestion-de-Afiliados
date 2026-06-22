@@ -149,6 +149,8 @@ if(val.length===8 || val.length===0){
 
 renderAfiliados();
 
+actualizarResumenAfiliados();
+    
 }
 
 };
@@ -949,7 +951,188 @@ win.document.close();
 }
 
 
+// ===============================
+// VERIFICACIÓN DE DATOS REPETIDOS Y CONTEO
+// ===============================
 
+
+function actualizarResumenAfiliados(){
+
+
+const grupos = {
+
+
+correo:{},
+dni:{},
+celular:{}
+
+
+};
+
+
+let activos=0;
+let adherentes=0;
+
+
+
+CACHE_AFILIADOS.forEach(a=>{
+
+
+if(a.estado==="ACTIVO")
+activos++;
+
+
+if(a.estado==="ADHERENTE")
+adherentes++;
+
+
+
+["correo","dni","celular"].forEach(campo=>{
+
+
+const valor =
+a[campo]?.trim();
+
+
+if(!valor)return;
+
+
+if(!grupos[campo][valor])
+grupos[campo][valor]=[];
+
+
+grupos[campo][valor].push(a);
+
+
+
+});
+
+
+});
+
+
+
+const repetidosCorreo =
+Object.values(grupos.correo)
+.filter(x=>x.length>1)
+.flat();
+
+
+const repetidosDni =
+Object.values(grupos.dni)
+.filter(x=>x.length>1)
+.flat();
+
+
+const repetidosCelular =
+Object.values(grupos.celular)
+.filter(x=>x.length>1)
+.flat();
+
+
+
+
+document.querySelector("#contadorActivos span").textContent=activos;
+
+
+document.querySelector("#contadorAdherentes span").textContent=adherentes;
+
+
+document.querySelector("#contadorCorreosRepetidos span").textContent=repetidosCorreo.length;
+
+
+document.querySelector("#contadorDniRepetidos span").textContent=repetidosDni.length;
+
+
+document.querySelector("#contadorCelularesRepetidos span").textContent=repetidosCelular.length;
+
+
+
+document
+.getElementById("contadorCorreosRepetidos")
+.onclick=()=>mostrarListaTemporal(repetidosCorreo);
+
+
+document
+.getElementById("contadorDniRepetidos")
+.onclick=()=>mostrarListaTemporal(repetidosDni);
+
+
+document
+.getElementById("contadorCelularesRepetidos")
+.onclick=()=>mostrarListaTemporal(repetidosCelular);
+
+
+
+}
+
+
+
+function mostrarListaTemporal(lista){
+
+
+const tbody =
+document.querySelector("#tablaAfiliados tbody");
+
+
+if(!tbody)return;
+
+
+tbody.innerHTML="";
+
+
+
+lista.forEach(a=>{
+
+
+const f =
+formatearFechaHora(a.fechaAlta);
+
+
+
+tbody.innerHTML+=`
+
+
+<tr>
+
+
+<td>${a.numeroAfiliado||""}</td>
+
+<td>${a.dni||""}</td>
+
+<td>${a.nombre||""}</td>
+
+<td>${a.apellido||""}</td>
+
+<td>${a.celular||""}</td>
+
+<td>${a.correo||""}</td>
+
+<td>${a.estado||""}</td>
+
+<td>${f.fecha} ${f.hora}</td>
+
+
+<td>
+
+<button onclick="AFILIADOS.editarAfiliado('${a.id}')">
+
+Editar
+
+</button>
+
+
+</td>
+
+
+</tr>
+
+`;
+
+});
+
+
+}
 
 
 // ===============================
