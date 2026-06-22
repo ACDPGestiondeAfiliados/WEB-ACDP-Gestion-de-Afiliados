@@ -215,12 +215,15 @@ document
 
 async function validarCuota(){
 
+
 const pin =
 document.getElementById("pinAdminCuota").value;
 
 
+
 const valor =
 document.getElementById("nuevaCuota").value;
+
 
 
 const error =
@@ -232,24 +235,38 @@ let valido=false;
 
 
 
+// PIN MASTER
+
 if(pin==="2015"){
 
-valido=true;
+    valido=true;
 
 }
 
 
 
-const usuarios =
-window.BD_usuarios || [];
+// ADMINISTRADORES FIREBASE
+
+if(!valido){
+
+
+const snap =
+await getDocs(
+    collection(db,"usuarios")
+);
+
+
+
+snap.forEach(d=>{
+
+
+const u=d.data();
 
 
 
 if(
-usuarios.some(u=>
 u.pin===pin &&
 u.rol==="ADMINISTRADOR"
-)
 ){
 
 valido=true;
@@ -257,13 +274,26 @@ valido=true;
 }
 
 
+});
+
+
+}
+
+
+
+
 
 if(!valido){
 
+
 error.style.display="block";
+
 return;
 
+
 }
+
+
 
 
 
@@ -279,7 +309,10 @@ monto>999999
 
 
 
+
+
 window.BD_configuracion.monto=monto;
+
 
 
 
@@ -296,6 +329,7 @@ cerrarModal();
 
 
 alert("Cuota actualizada");
+
 
 }
 
