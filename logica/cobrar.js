@@ -1,6 +1,6 @@
 // ===============================
 // ACDP - COBRAR CONTROLLER
-// Firebase + Cuota + Historial
+// Firebase + Cuota + Historial prep
 // ===============================
 
 import {
@@ -34,7 +34,7 @@ let CACHE_COBROS = [];
 // INIT
 // ===============================
 
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", () => {
 
     iniciarCobrar();
     bindCuotaButton();
@@ -71,7 +71,7 @@ async function iniciarCobrar(){
 
 
 // ===============================
-// CONFIG
+// CONFIG FIREBASE
 // ===============================
 
 async function cargarConfiguracion(){
@@ -98,7 +98,7 @@ async function cargarConfiguracion(){
 
 
 // ===============================
-// COBROS
+// COBROS CACHE
 // ===============================
 
 async function cargarCobros(){
@@ -113,10 +113,8 @@ async function cargarCobros(){
     snap.forEach(d=>{
 
         CACHE_COBROS.push({
-
             id:d.id,
             ...d.data()
-
         });
 
     });
@@ -125,7 +123,7 @@ async function cargarCobros(){
 
 
 // ===============================
-// CUOTA
+// BOTON CUOTA
 // ===============================
 
 function bindCuotaButton(){
@@ -143,11 +141,16 @@ function bindCuotaButton(){
 
 
 
+// ===============================
+// MODAL CUOTA
+// ===============================
+
 function abrirModalCuota(){
 
 abrirModal(`
 
 <h3>Cambiar cuota mensual</h3>
+
 
 <p>
 Valor actual:
@@ -156,25 +159,37 @@ $${window.BD_configuracion.monto}
 </b>
 </p>
 
-<input id="nuevaCuota"
+
+<input
+id="nuevaCuota"
 type="number"
 min="0"
 max="999999"
-placeholder="Nuevo valor">
+placeholder="Nuevo valor"
+>
+
 
 <br><br>
 
-<input id="pinAdminCuota"
+
+<input
+id="pinAdminCuota"
 type="password"
 maxlength="4"
-placeholder="PIN administrador">
+placeholder="PIN administrador"
+>
 
-<p id="errorPin"
-style="color:red;display:none;">
-PIN incorrecto
+
+<p
+id="errorPin"
+style="color:red;display:none;"
+>
+PIN incorrecto ¡Cuidado!
 </p>
 
+
 <br>
+
 
 <button id="guardarCuota">
 Guardar
@@ -194,6 +209,10 @@ document
 
 
 
+// ===============================
+// VALIDAR CUOTA
+// ===============================
+
 async function validarCuota(){
 
 const pin =
@@ -202,6 +221,11 @@ document.getElementById("pinAdminCuota").value;
 
 const valor =
 document.getElementById("nuevaCuota").value;
+
+
+const error =
+document.getElementById("errorPin");
+
 
 
 let valido=false;
@@ -236,10 +260,7 @@ valido=true;
 
 if(!valido){
 
-document
-.getElementById("errorPin")
-.style.display="block";
-
+error.style.display="block";
 return;
 
 }
@@ -263,30 +284,25 @@ window.BD_configuracion.monto=monto;
 
 
 await setDoc(
-
-doc(
-db,
-"configuracion",
-"general"
-),
-
+doc(db,"configuracion","general"),
 {
 monto
 }
-
 );
 
 
 
 cerrarModal();
 
+
 alert("Cuota actualizada");
 
 }
 
 
+
 // ===============================
-// MODAL
+// MODAL BASE
 // ===============================
 
 function abrirModal(html){
@@ -323,6 +339,7 @@ document
 }
 
 
+
 // ===============================
 // AFILIADOS
 // ===============================
@@ -330,9 +347,7 @@ document
 async function cargarAfiliados(){
 
 const snap =
-await getDocs(
-collection(db,"afiliados")
-);
+await getDocs(collection(db,"afiliados"));
 
 
 CACHE_AFILIADOS=[];
@@ -341,10 +356,8 @@ CACHE_AFILIADOS=[];
 snap.forEach(d=>{
 
 CACHE_AFILIADOS.push({
-
 id:d.id,
 ...d.data()
-
 });
 
 });
@@ -353,35 +366,31 @@ id:d.id,
 mostrarCobros(CACHE_AFILIADOS);
 
 }
+
+
+
 // ===============================
 // BUSCAR
 // ===============================
 
 function buscarParaCobrar(valor){
 
-valor =
-valor.trim();
-
+valor=valor.trim();
 
 
 if(!valor){
 
 mostrarCobros(CACHE_AFILIADOS);
-
 return;
 
 }
-
 
 
 mostrarCobros(
 
 CACHE_AFILIADOS.filter(a=>
 
-a.dni?.includes(valor)
-
-||
-
+a.dni?.includes(valor) ||
 a.numeroAfiliado?.includes(valor)
 
 )
@@ -389,6 +398,7 @@ a.numeroAfiliado?.includes(valor)
 );
 
 }
+
 
 
 // ===============================
@@ -444,27 +454,23 @@ COBRAR
 }
 
 
+
 // ===============================
-// ABRIR COBRO
+// COBRAR
 // ===============================
 
 function cobrarAfiliado(id){
 
 const afiliado =
-CACHE_AFILIADOS.find(
-a=>a.id===id
-);
-
+CACHE_AFILIADOS.find(a=>a.id===id);
 
 
 if(!afiliado)return;
 
 
-
 crearModalCobro(afiliado);
 
 }
-
 
 // ===============================
 // MESES PAGADOS
@@ -514,6 +520,7 @@ return usados;
 }
 
 
+
 // ===============================
 // MODAL COBRO
 // ===============================
@@ -522,33 +529,18 @@ function crearModalCobro(afiliado){
 
 
 const meses=[
-
-"Enero",
-"Febrero",
-"Marzo",
-"Abril",
-"Mayo",
-"Junio",
-"Julio",
-"Agosto",
-"Septiembre",
-"Octubre",
-"Noviembre",
-"Diciembre"
-
+"Enero","Febrero","Marzo","Abril",
+"Mayo","Junio","Julio","Agosto",
+"Septiembre","Octubre","Noviembre","Diciembre"
 ];
 
 
-
 const pagados =
-mesesPagados(
-afiliado.dni
-);
+mesesPagados(afiliado.dni);
 
 
 
 let html="";
-
 
 
 meses.forEach(m=>{
@@ -556,7 +548,6 @@ meses.forEach(m=>{
 
 const bloqueado =
 pagados.includes(m);
-
 
 
 html+=`
@@ -591,7 +582,6 @@ ${bloqueado?" (Pagado)":""}
 
 abrirModal(`
 
-
 <div class="modalCobro">
 
 
@@ -599,21 +589,14 @@ abrirModal(`
 
 
 <h4>
-
 ${afiliado.nombre}
-
 ${afiliado.apellido}
-
 </h4>
 
 
 <p>
-
-DNI:
-${afiliado.dni}
-
+DNI: ${afiliado.dni}
 </p>
-
 
 
 <div class="listaMeses">
@@ -623,32 +606,24 @@ ${html}
 </div>
 
 
-
 <br>
-
 
 
 <select id="medioPago">
 
 
 <option value="EFECTIVO">
-
 EFECTIVO
-
 </option>
 
 
 <option value="TRANSFERENCIA">
-
 TRANSFERENCIA
-
 </option>
 
 
 <option value="OTRO">
-
 OTRO
-
 </option>
 
 
@@ -677,24 +652,20 @@ Cancelar
 
 </div>
 
-
 `);
 
 }
 
 
+
 // ===============================
-// CONFIRMAR COBRO
+// CONFIRMAR
 // ===============================
 
 async function confirmarCobro(id){
 
-
 const afiliado =
-CACHE_AFILIADOS.find(
-a=>a.id===id
-);
-
+CACHE_AFILIADOS.find(a=>a.id===id);
 
 
 if(!afiliado)return;
@@ -742,8 +713,7 @@ window.BD_configuracion.monto;
 
 
 
-const fecha =
-new Date();
+const fecha=new Date();
 
 
 
@@ -752,13 +722,11 @@ generarCodigoComprobante();
 
 
 
-
 const cobro={
 
 
 usuario:
-window.ACDP?.usuario ||
-"Sistema",
+window.ACDP?.usuario || "Sistema",
 
 
 dni:
@@ -798,19 +766,110 @@ fecha.toLocaleDateString(),
 
 
 hora:
-fecha.toLocaleTimeString()
-.slice(0,5)
+fecha.toLocaleTimeString().slice(0,5),
+
+
+detalleHistorial:
+
+"Cobro | "+
+meses.join(", ")+
+" | $"+
+total+
+" | "+
+medio+
+" | Codigo: "+
+codigo
+
 
 };
 
 
+
+
+
 await addDoc(
-
 collection(db,"cobros"),
-
 cobro
+);
+
+
+
+
+// ===============================
+// HISTORIAL
+// ===============================
+
+if(window.HISTORIAL?.registrar){
+
+
+await window.HISTORIAL.registrar(
+
+"",
+
+{
+
+
+afiliado:
+afiliado.nombre+
+" "+
+afiliado.apellido,
+
+
+dni:
+afiliado.dni,
+
+
+numeroAfiliado:
+afiliado.numeroAfiliado+
+"<br>"+
+codigo
+
+
+},
+
+
+""+
+meses.join(", ")+
+" | $"+
+total+
+" | "+
+medio
+
 
 );
+
+
+}
+
+
+
+
+CACHE_COBROS.push(cobro);
+
+
+
+cerrarModal();
+
+
+
+generarTicket(
+
+afiliado,
+
+meses,
+
+total,
+
+medio,
+
+codigo
+
+);
+
+
+
+}
+
 
 
 // ===============================
@@ -819,19 +878,26 @@ cobro
 
 function generarCodigoComprobante(){
 
+
 const letras =
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 
 let codigo="";
 
 
+
 for(let i=0;i<9;i++){
 
+
 codigo += letras.charAt(
+
 Math.floor(
 Math.random()*letras.length
 )
+
 );
+
 
 }
 
@@ -859,12 +925,15 @@ const fecha =
 new Date();
 
 
+
 const fechaTexto =
 fecha.toLocaleDateString();
 
 
+
 const horaTexto =
 fecha.toLocaleTimeString().slice(0,5);
+
 
 
 
@@ -943,15 +1012,6 @@ DNI: ${afiliado.dni}
 
 
 
-<p style="margin:3px;">
-
-N° Afiliado:
-${afiliado.numeroAfiliado}
-
-</p>
-
-
-
 <hr>
 
 
@@ -985,6 +1045,7 @@ ${medio}
 <p style="margin:3px;">
 
 ${fechaTexto}
+
 ${horaTexto}
 
 </p>
