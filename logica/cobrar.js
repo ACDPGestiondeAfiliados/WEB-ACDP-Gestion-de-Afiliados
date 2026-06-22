@@ -928,18 +928,14 @@ horaGuardada=""
 ){
 
 
-const fecha =
-new Date();
-
-
-
 const fechaTexto =
-fecha.toLocaleDateString();
-
+fechaGuardada ||
+new Date().toLocaleDateString();
 
 
 const horaTexto =
-fecha.toLocaleTimeString().slice(0,5);
+horaGuardada ||
+new Date().toLocaleTimeString().slice(0,5);
 
 
 
