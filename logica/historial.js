@@ -71,7 +71,12 @@ document.getElementById("historialAnterior");
 
 const siguiente =
 document.getElementById("historialSiguiente");
+const fechaPicker =
+document.getElementById("fechaHistorial");
 
+
+const imprimirBtn =
+document.getElementById("imprimirHistorial");
 
 
 if(filtro){
@@ -110,7 +115,49 @@ if(siguiente){
 
 }
 
+if(fechaPicker){
 
+
+fechaPicker.value =
+formatearInputFecha(fechaActual);
+
+
+
+fechaPicker.onchange=()=>{
+
+
+const partes =
+fechaPicker.value.split("-");
+
+
+fechaActual =
+new Date(
+partes[0],
+partes[1]-1,
+partes[2]
+);
+
+
+
+cargarHistorialFecha();
+
+
+};
+
+
+}
+
+
+
+if(imprimirBtn){
+
+imprimirBtn.onclick=()=>{
+
+imprimirTablaActual();
+
+};
+
+}
 
 }
 
@@ -695,6 +742,114 @@ return;
 
 }
 
+// ===============================
+// FECHA INPUT
+// ===============================
+
+function formatearInputFecha(fecha){
+
+
+const anio =
+fecha.getFullYear();
+
+
+const mes =
+String(fecha.getMonth()+1).padStart(2,"0");
+
+
+const dia =
+String(fecha.getDate()).padStart(2,"0");
+
+
+return `${anio}-${mes}-${dia}`;
+
+}
+
+
+
+
+// ===============================
+// IMPRIMIR TABLA ACTUAL
+// ===============================
+
+function imprimirTablaActual(){
+
+
+const tabla =
+document.getElementById("tablaHistorial");
+
+
+if(!tabla)return;
+
+
+
+const ventana =
+window.open(
+"",
+"_blank",
+"width=900,height=600"
+);
+
+
+
+ventana.document.write(`
+
+<html>
+
+<head>
+
+<title>Historial ACDP</title>
+
+<style>
+
+body{
+font-family:Arial;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #000;
+padding:5px;
+}
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<h2>ACDP - Historial</h2>
+
+
+${tabla.outerHTML}
+
+
+<script>
+
+window.print();
+
+</script>
+
+
+</body>
+
+
+</html>
+
+`);
+
+
+ventana.document.close();
+
+
+}
 
 // ===============================
 // EXPORT
