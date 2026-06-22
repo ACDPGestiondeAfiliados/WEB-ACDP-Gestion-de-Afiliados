@@ -148,9 +148,7 @@ id:d.id,
 });
 
 
-
 cargarHistorialFecha();
-
 
 
 }
@@ -298,15 +296,17 @@ historialVista.forEach(h=>{
 
 
 if(
-h.detalleHistorial?.startsWith("Pago realizado") &&
+h.accion==="Cobro" &&
 h.estado!=="Anulado"
 ){
 
 const monto =
-h.detalleHistorial.match(/\$(\d+)/);
+h.detalleHistorial?.match(/\$(\d+)/);
 
 if(monto){
-    total += Number(monto[1]);
+
+total += Number(monto[1]);
+
 }
 
 }
@@ -374,7 +374,7 @@ ${h.hora||""}
 
 
 ${
-h.detalleHistorial?.startsWith("Pago realizado") &&
+h.accion==="Cobro" &&
 h.estado!=="Anulado"
 
 ?
@@ -433,10 +433,8 @@ ${h.detalleHistorial||h.detalle||""}
 });
 
 
-
 const monto =
 document.getElementById("montoHistorial");
-
 
 
 if(monto){
@@ -467,7 +465,6 @@ cargarHistorialFecha();
 
 
 }
-
 
 // ===============================
 // REGISTRAR
@@ -524,8 +521,6 @@ detalleHistorial:
 detalle,
 
 
-// DATOS EXTRA PARA COBROS
-
 meses:
 datos.meses ||
 [],
@@ -573,6 +568,8 @@ cargarHistorialFecha();
 
 }
 
+
+
 // ===============================
 // ANULAR
 // ===============================
@@ -599,8 +596,6 @@ if(
 )return;
 
 
-
-// ANULA HISTORIAL
 
 await updateDoc(
 
@@ -630,7 +625,6 @@ registro.estado="Anulado";
 
 
 
-// SI ES COBRO LIBERA MESES
 
 if(registro.accion==="Cobro"){
 
@@ -700,6 +694,9 @@ mostrarHistorial();
 
 
 }
+
+
+
 
 // ===============================
 // IMPRIMIR
