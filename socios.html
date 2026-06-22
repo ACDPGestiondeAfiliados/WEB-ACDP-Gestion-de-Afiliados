@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>ACDP - Portal Asociados</title>
+
+
+<link rel="stylesheet" href="./styles/socios.css">
+
+
+</head>
+
+
+<body>
+
+
+
+<header class="socios-header">
+
+
+<img
+src="./iconos/logo.jpg"
+alt="ACDP"
+>
+
+
+<h2>
+Portal de Asociados ACDP
+</h2>
+
+
+</header>
+
+
+
+
+
+
+<main class="socios-main">
+
+
+
+
+
+
+<section id="loginSocio" class="tarjeta">
+
+
+
+<h2>
+Ingreso de asociado
+</h2>
+
+
+
+<p>
+Ingrese DNI o número de afiliado
+</p>
+
+
+
+<input
+
+id="loginNumero"
+
+class="inputNumero"
+
+maxlength="8"
+
+inputmode="numeric"
+
+placeholder="DNI / Nº afiliado"
+
+>
+
+
+
+<input
+
+id="loginPin"
+
+type="password"
+
+maxlength="4"
+
+inputmode="numeric"
+
+placeholder="PIN"
+
+>
+
+
+
+<button id="btnLoginSocio">
+
+Ingresar
+
+</button>
+
+
+
+
+<p id="mensajeLogin"></p>
+
+
+
+</section>
+
+
+
+
+
+
+
+
+
+<section id="perfilSocio" class="tarjeta oculto">
+
+
+
+<h2>
+
+Mi perfil
+
+</h2>
+
+
+
+
+<div class="datosSocio">
+
+
+
+<div>
+
+<label>
+Número afiliado
+</label>
+
+<span id="datoNumeroAfiliado"></span>
+
+</div>
+
+
+
+<div>
+
+<label>
+DNI
+</label>
+
+<span id="datoDni"></span>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+Nombre
+</label>
+
+<span id="datoNombre"></span>
+
+</div>
+
+
+
+<div>
+
+<label>
+Apellido
+</label>
+
+<span id="datoApellido"></span>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+Celular
+</label>
+
+<span id="datoCelular"></span>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+Correo
+</label>
+
+<span id="datoCorreo"></span>
+
+</div>
+
+
+
+
+<div>
+
+<label>
+Estado
+</label>
+
+<span id="datoEstado"></span>
+
+</div>
+
+
+
+<div>
+
+<label>
+Fecha alta
+</label>
+
+<span id="datoFechaAlta"></span>
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<h3>
+Modificar datos
+</h3>
+
+
+
+<div class="form-edicion">
+
+
+<input
+
+id="nuevoCelular"
+
+maxlength="10"
+
+inputmode="numeric"
+
+placeholder="Nuevo celular"
+
+>
+
+
+
+<input
+
+id="nuevoCorreo"
+
+placeholder="Nuevo correo"
+
+maxlength="50"
+
+>
+
+
+
+<button id="btnGuardarDatos">
+
+Guardar cambios
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<h3>
+Cambiar PIN
+</h3>
+
+
+
+
+<div class="form-edicion">
+
+
+
+<input
+
+id="nuevoPin"
+
+type="password"
+
+maxlength="4"
+
+inputmode="numeric"
+
+placeholder="Nuevo PIN"
+
+>
+
+
+
+<input
+
+id="confirmarPin"
+
+type="password"
+
+maxlength="4"
+
+inputmode="numeric"
+
+placeholder="Confirmar PIN"
+
+>
+
+
+
+
+<button id="btnCambiarPin">
+
+Cambiar PIN
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+<h3>
+Estado de cuotas
+</h3>
+
+
+
+
+<div id="cuotasSocio">
+
+
+</div>
+
+
+
+
+
+
+<div class="cuotaActual">
+
+
+Cuota actual:
+
+<strong id="valorCuota">
+
+$0
+
+</strong>
+
+
+
+</div>
+
+
+
+
+
+
+
+
+<button id="btnCerrarSesion">
+
+Cerrar sesión
+
+</button>
+
+
+
+
+</section>
+
+
+
+
+
+</main>
+
+
+
+
+
+
+<script type="module" src="socios.js"></script>
+
+
+</body>
+
+</html>
