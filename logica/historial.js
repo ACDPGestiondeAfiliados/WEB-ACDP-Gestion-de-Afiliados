@@ -838,13 +838,21 @@ win.document.close();
 // EXPORT
 // ===============================
 
-window.HISTORIAL={
+window.HISTORIAL = {
 
-registrar,
+registrar: registrar,
 
-imprimir,
+imprimir: function(id){
 
-anular
+    imprimir(id);
+
+},
+
+anular: function(id){
+
+    anular(id);
+
+}
 
 };
 
