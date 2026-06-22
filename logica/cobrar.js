@@ -1120,3 +1120,25 @@ cerrarModal
 
 
 };
+
+// ===============================
+// RELOAD COBROS (IMPORTANTE)
+// ===============================
+
+async function recargarCobros(){
+    await cargarCobros();
+    await cargarAfiliados();
+}
+
+
+// ===============================
+// EXPORT FIX
+// ===============================
+
+window.COBRAR = {
+    cobrarAfiliado,
+    confirmarCobro,
+    cerrarModal,
+    generarTicket,     // 👈 para reimprimir
+    recargarCobros     // 👈 para sync desde historial
+};
