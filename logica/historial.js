@@ -298,11 +298,16 @@ historialVista.forEach(h=>{
 
 
 if(
-h.accion==="Cobro" &&
+h.detalleHistorial?.startsWith("Pago realizado") &&
 h.estado!=="Anulado"
 ){
 
-total += Number(h.total)||0;
+const monto =
+h.detalleHistorial.match(/\$(\d+)/);
+
+if(monto){
+    total += Number(monto[1]);
+}
 
 }
 
@@ -369,7 +374,7 @@ ${h.hora||""}
 
 
 ${
-h.accion==="Cobro" &&
+h.detalleHistorial?.startsWith("Pago realizado") &&
 h.estado!=="Anulado"
 
 ?
@@ -387,7 +392,6 @@ onclick="HISTORIAL.imprimir('${h.id}')"
 >
 
 
-
 <img
 
 src="./iconos/delete.png"
@@ -401,9 +405,7 @@ onclick="HISTORIAL.anular('${h.id}')"
 `
 
 :
-
 ""
-
 }
 
 
