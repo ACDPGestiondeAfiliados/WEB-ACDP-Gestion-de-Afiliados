@@ -707,6 +707,10 @@ window.HISTORIAL = {
 };
 
 
+window.imprimirHistorial = imprimir;
+window.anularHistorial = anular;
+
+
 // PUENTE GLOBAL PARA OTROS MODULOS
 
 window.registrarHistorial = registrar;
