@@ -387,7 +387,7 @@ src="./iconos/print.png"
 
 class="iconoHistorial"
 
-onclick="HISTORIAL.imprimir('${h.id}')"
+onclick="imprimirHistorial('${h.id}')"
 
 >
 
@@ -398,7 +398,7 @@ src="./iconos/delete.png"
 
 class="iconoHistorial"
 
-onclick="HISTORIAL.anular('${h.id}')"
+onclick="anularHistorial('${h.id}')"
 
 >
 
@@ -535,7 +535,9 @@ codigoComprobante:
 datos.codigoComprobante ||
 "",
 
-
+medioPago:
+datos.medioPago ||
+"",
 
 anio:
 ahora.getFullYear(),
