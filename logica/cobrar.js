@@ -804,7 +804,7 @@ if(window.HISTORIAL?.registrar){
 
 await window.HISTORIAL.registrar(
 
-"",
+"Cobro",
 
 {
 
