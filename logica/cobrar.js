@@ -830,12 +830,13 @@ meses,
 total,
 
 
-medioPago:
-medio,
-
-
 codigoComprobante:
-codigo
+codigo,
+
+
+medioPago:
+medio
+
 
 
 },
@@ -855,31 +856,6 @@ codigo
 
 
 }
-
-
-
-
-CACHE_COBROS.push(cobro);
-
-
-
-cerrarModal();
-
-
-
-generarTicket(
-
-afiliado,
-
-meses,
-
-total,
-
-medio,
-
-codigo
-
-);
 
 
 // ===============================
