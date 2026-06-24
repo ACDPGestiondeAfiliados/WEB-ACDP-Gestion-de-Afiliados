@@ -982,9 +982,9 @@ border-radius:15px;
 
 flex:1;
 
-text-align:right;
+text-align:left;
 
-font-size:11px;
+font-size:10px;
 
 line-height:14px;
 
@@ -994,7 +994,7 @@ padding-left:8px;
 
 
 
-<b style="font-size:14px;">
+<b style="font-size:12px;">
 
 ${af.nombre}
 ${af.apellido}
@@ -1004,11 +1004,11 @@ ${af.apellido}
 
 <br>
 
-${af.dni || ""}
+DNI: ${af.dni || ""}
 
 <br>
 
-${af.celular || ""}
+Celular: ${af.celular || ""}
 
 <br>
 
@@ -1016,15 +1016,11 @@ ${af.correo || ""}
 
 <br>
 
-${af.estado || ""}
+Correo: ${af.estado || ""}
 
 <br>
 
-${fecha.fecha}
-
-<br>
-
-${af.numeroAfiliado}
+Fecha alta: ${fecha.fecha}
 
 
 
@@ -1058,22 +1054,22 @@ margin:auto;
 
 >
 
+<br>
 
 
 
 
-
-<div style="
+<p style="
 
 font-size:9px;
 
-letter-spacing:2px;
+letter-spacing:5px;
 
 ">
 
 ${af.numeroAfiliado}
 
-</div>
+</p>
 
 
 
