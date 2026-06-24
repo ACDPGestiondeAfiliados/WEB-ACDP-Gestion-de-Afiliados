@@ -570,12 +570,11 @@ document
 
 
 
-
 function cerrar(id){
 
 document
 .getElementById(id)
-.classList.add("oculto");
+.classList.remove("activo");
 
 }
 
