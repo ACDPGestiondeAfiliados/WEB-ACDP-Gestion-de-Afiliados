@@ -57,30 +57,6 @@ document
 
 
 
-document
-.getElementById("guardarCurso")
-.onclick=guardarCurso;
-
-
-
-document
-.getElementById("cancelarCurso")
-.onclick=()=>cerrar("modalCursos");
-
-
-
-document
-.getElementById("guardarNotificacion")
-.onclick=guardarNotificacion;
-
-
-
-document
-.getElementById("cancelarNotificacion")
-.onclick=()=>cerrar("modalNotificacion");
-
-
-
 mostrarCursos();
 
 
@@ -99,48 +75,96 @@ mostrarCursos();
 // ===============================
 
 
-async function function nuevoCurso(){
+function nuevoCurso(){
 
 
 cursoEditando=null;
 
 
 document
-.getElementById("tituloModalCurso")
-.textContent=
-"Nuevo Curso";
+.getElementById("modalContenido")
+.innerHTML=`
+
+<h3>
+Nuevo Curso
+</h3>
+
+
+<input
+
+id="cursoTitulo"
+
+maxlength="100"
+
+placeholder="Titulo"
+
+
+>
+
+
+<br><br>
+
+
+<input
+
+id="cursoInicio"
+
+type="date"
+
+
+>
+
+
+<br><br>
+
+
+<input
+
+id="cursoCierre"
+
+type="date"
+
+
+>
+
+
+<br><br>
+
+
+<button id="guardarCurso">
+
+Guardar
+
+</button>
+
+
+<button id="cancelarCurso">
+
+Cancelar
+
+</button>
+
+
+`;
 
 
 
-limpiarCurso();
-
-
-
-abrir("modalCursos");
-
-
-}){
-
-
-cursoEditando=null;
 
 
 document
-.getElementById("tituloModalCurso")
-.textContent=
-"Nuevo Curso";
+.getElementById("guardarCurso")
+.onclick=guardarCurso;
 
 
 
-limpiarCurso();
+document
+.getElementById("cancelarCurso")
+.onclick=()=>cerrar("modalFondo");
 
 
 
-mostrarCursos();
+abrir("modalFondo");
 
-
-
-abrir("modalCursos");
 
 
 }
@@ -366,7 +390,9 @@ datos
 
 
 
-cerrar("modalCursos");
+cerrar("modalFondo");
+
+
 
 mostrarCursos();
 
@@ -414,29 +440,102 @@ cursoEditando=id;
 
 
 document
-.getElementById("tituloModalCurso")
-.textContent=
-"Editar Curso";
+.getElementById("modalContenido")
+.innerHTML=`
+
+<h3>
+
+Editar Curso
+
+</h3>
+
+
+
+<input
+
+id="cursoTitulo"
+
+maxlength="100"
+
+value="${c.titulo}"
+
+
+>
+
+
+
+<br><br>
+
+
+<input
+
+id="cursoInicio"
+
+type="date"
+
+value="${c.fechaInicio}"
+
+
+>
+
+
+
+<br><br>
+
+
+<input
+
+id="cursoCierre"
+
+type="date"
+
+value="${c.fechaCierre}"
+
+
+>
+
+
+
+<br><br>
+
+
+
+<button id="guardarCurso">
+
+Guardar
+
+</button>
+
+
+
+<button id="cancelarCurso">
+
+Cancelar
+
+</button>
+
+
+`;
+
+
 
 
 
 document
-.getElementById("cursoTitulo")
-.value=c.titulo;
+.getElementById("guardarCurso")
+.onclick=guardarCurso;
+
 
 
 document
-.getElementById("cursoInicio")
-.value=c.fechaInicio;
-
-
-document
-.getElementById("cursoCierre")
-.value=c.fechaCierre;
+.getElementById("cancelarCurso")
+.onclick=()=>cerrar("modalFondo");
 
 
 
-abrir("modalCursos");
+abrir("modalFondo");
+
+
 
 }
 
@@ -516,13 +615,67 @@ function abrirNotificacion(){
 
 
 document
-.getElementById("textoNotificacion")
-.value="";
+.getElementById("modalContenido")
+.innerHTML=`
+
+<h3>
+
+Nueva Notificación
+
+</h3>
 
 
-abrir(
-"modalNotificacion"
-);
+
+<textarea
+
+id="textoNotificacion"
+
+maxlength="1000"
+
+placeholder="Mensaje"
+
+></textarea>
+
+
+
+<br><br>
+
+
+
+<button id="guardarNotificacion">
+
+Enviar
+
+</button>
+
+
+
+<button id="cancelarNotificacion">
+
+Cancelar
+
+</button>
+
+
+`;
+
+
+
+
+
+document
+.getElementById("guardarNotificacion")
+.onclick=guardarNotificacion;
+
+
+
+document
+.getElementById("cancelarNotificacion")
+.onclick=()=>cerrar("modalFondo");
+
+
+
+abrir("modalFondo");
 
 
 }
@@ -568,7 +721,7 @@ fecha:new Date().toISOString()
 
 
 cerrar(
-"modalNotificacion"
+"modalFondo"
 );
 
 
@@ -609,30 +762,6 @@ function cerrar(id){
 document
 .getElementById(id)
 .classList.remove("activo");
-
-}
-
-
-
-
-
-function limpiarCurso(){
-
-
-document
-.getElementById("cursoTitulo")
-.value="";
-
-
-document
-.getElementById("cursoInicio")
-.value="";
-
-
-document
-.getElementById("cursoCierre")
-.value="";
-
 
 }
 
