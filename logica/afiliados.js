@@ -871,77 +871,331 @@ cargarAfiliados(true);
 
 
 // ===============================
-// IMPRIMIR
+// IMPRIMIR FICHA
 // ===============================
 
 async function imprimir(id){
-
 
 const af =
 CACHE_AFILIADOS.find(
 a=>a.id===id
 );
 
-
-
 if(!af)return;
-
 
 
 const win =
 window.open(
 "",
 "_blank",
-"width=300,height=400"
+"width=400,height=300"
 );
-
 
 
 win.document.write(`
 
+<!DOCTYPE html>
+
 <html>
 
-<body style="font-family:Arial;text-align:center">
+<head>
+
+<style>
 
 
-<h3>ACDP</h3>
+@page{
+
+size:8cm 6cm;
+margin:0;
+
+}
 
 
-<p>
-${af.nombre}
-${af.apellido}
-</p>
+
+body{
+
+margin:0;
+
+width:8cm;
+height:6cm;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+font-family:Arial,sans-serif;
+
+}
 
 
-<p>
-DNI:
+
+.ficha{
+
+
+width:8cm;
+height:6cm;
+
+box-sizing:border-box;
+
+border:3px solid #BC00C9;
+
+border-radius:25px;
+
+padding:8px;
+
+display:flex;
+
+flex-direction:column;
+
+overflow:hidden;
+
+}
+
+
+
+.superior{
+
+
+display:flex;
+
+align-items:flex-start;
+
+height:110px;
+
+}
+
+
+
+.logo{
+
+
+width:100px;
+
+height:100px;
+
+object-fit:cover;
+
+border-radius:15px;
+
+flex-shrink:0;
+
+}
+
+
+
+.datos{
+
+
+flex:1;
+
+height:100px;
+
+display:flex;
+
+flex-direction:column;
+
+justify-content:center;
+
+align-items:flex-end;
+
+text-align:right;
+
+padding-left:8px;
+
+font-size:12px;
+
+line-height:14px;
+
+overflow:hidden;
+
+}
+
+
+
+.nombre{
+
+
+font-size:14px;
+
+font-weight:bold;
+
+line-height:16px;
+
+margin-bottom:3px;
+
+}
+
+
+
+.barcode{
+
+
+margin-top:auto;
+
+text-align:center;
+
+}
+
+
+
+.barcode img{
+
+
+width:160px;
+
+height:35px;
+
+}
+
+
+
+.numero{
+
+
+text-align:center;
+
+font-size:10px;
+
+letter-spacing:2px;
+
+}
+
+
+
+</style>
+
+</head>
+
+
+
+<body>
+
+
+<div class="ficha">
+
+
+<div class="superior">
+
+
+<img
+
+class="logo"
+
+src="./iconos/logo.jpg"
+
+>
+
+
+
+<div class="datos">
+
+
+<div class="nombre">
+
+${af.nombre} ${af.apellido}
+
+</div>
+
+
+<div>
+
 ${af.dni}
-</p>
+
+</div>
 
 
-<p>
-N°:
+<div>
+
+${af.celular || ""}
+
+</div>
+
+
+<div>
+
+${af.correo || ""}
+
+</div>
+
+
+<div>
+
+${af.estado || ""}
+
+</div>
+
+
+<div>
+
+${formatearFechaHora(af.fechaAlta)}
+
+</div>
+
+
+<div>
+
 ${af.numeroAfiliado}
-</p>
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="barcode">
+
+
+<img
+
+src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.numeroAfiliado}&scale=2&height=10"
+
+>
+
+
+</div>
+
+
+<div class="numero">
+
+${af.numeroAfiliado}
+
+</div>
+
+
+</div>
+
 
 
 <script>
 
+
+window.onload=()=>{
+
 window.print();
 
+window.close();
+
+}
+
+
 </script>
+
 
 
 </body>
 
 </html>
 
+
 `);
 
 
-
 win.document.close();
-
 
 }
 
