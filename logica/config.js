@@ -28,6 +28,11 @@ let cursoEditando=null;
 
 
 
+// ===============================
+// INIT
+// ===============================
+
+
 document.addEventListener(
 "DOMContentLoaded",
 ()=>{
@@ -41,23 +46,39 @@ iniciarConfig();
 
 
 
-
 function iniciarConfig(){
 
 
-document
-.getElementById("btnGestionCursos")
-.onclick=nuevoCurso;
+const btnCursos =
+document.getElementById("btnGestionCursos");
 
 
 
-document
-.getElementById("btnEnviarNotificacion")
-.onclick=abrirNotificacion;
+const btnNotif =
+document.getElementById("btnEnviarNotificacion");
+
+
+
+
+
+if(btnCursos){
+
+btnCursos.onclick=nuevoCurso;
+
+}
+
+
+
+if(btnNotif){
+
+btnNotif.onclick=abrirNotificacion;
+
+}
 
 
 
 mostrarCursos();
+
 
 
 }
@@ -71,7 +92,7 @@ mostrarCursos();
 
 
 // ===============================
-// CURSOS
+// MODAL CURSO NUEVO
 // ===============================
 
 
@@ -79,6 +100,7 @@ function nuevoCurso(){
 
 
 cursoEditando=null;
+
 
 
 document
@@ -98,8 +120,8 @@ maxlength="100"
 
 placeholder="Titulo"
 
-
 >
+
 
 
 <br><br>
@@ -111,8 +133,8 @@ id="cursoInicio"
 
 type="date"
 
-
 >
+
 
 
 <br><br>
@@ -124,8 +146,8 @@ id="cursoCierre"
 
 type="date"
 
-
 >
+
 
 
 <br><br>
@@ -175,11 +197,18 @@ abrir("modalFondo");
 
 
 
+
+
+// ===============================
+// LISTAR CURSOS
+// ===============================
+
+
 async function mostrarCursos(){
 
 
 
-let contenedor =
+const contenedor =
 document.getElementById("listaCursosConfig");
 
 
@@ -189,6 +218,7 @@ if(!contenedor)return;
 
 
 contenedor.innerHTML="";
+
 
 
 
@@ -204,18 +234,68 @@ let cursos=[];
 
 
 
-snap.forEach(d=>{
+const hoy =
+new Date()
+.toISOString()
+.split("T")[0];
 
 
-cursos.push({
+
+
+
+for(const d of snap.docs){
+
+
+
+let curso={
 
 id:d.id,
 ...d.data()
 
-});
+};
 
 
-});
+
+
+
+if(
+
+curso.fechaCierre &&
+curso.fechaCierre < hoy
+
+){
+
+
+
+await deleteDoc(
+
+doc(
+db,
+"cursos",
+curso.id
+
+)
+
+);
+
+
+
+continue;
+
+
+}
+
+
+
+
+cursos.push(curso);
+
+
+
+}
+
+
+
 
 
 
@@ -223,8 +303,11 @@ id:d.id,
 cursos.sort(
 
 (a,b)=>
+
 new Date(b.fechaInicio)
+
 -
+
 new Date(a.fechaInicio)
 
 );
@@ -234,14 +317,16 @@ new Date(a.fechaInicio)
 
 
 
+cursos =
+cursos.slice(0,10);
+
+
+
+
+
+
+
 cursos.forEach(c=>{
-
-
-
-let estado =
-calcularEstado(c);
-
-
 
 
 contenedor.innerHTML+=`
@@ -249,24 +334,30 @@ contenedor.innerHTML+=`
 <div class="filaCurso">
 
 
+
 <div>
+
 ${c.titulo}
+
 </div>
 
 
+
 <div>
+
 ${formato(c.fechaInicio)}
+
 </div>
 
 
+
 <div>
+
 ${formato(c.fechaCierre)}
+
 </div>
 
 
-<div>
-${estado}
-</div>
 
 
 
@@ -278,6 +369,7 @@ Editar
 
 
 
+
 <button onclick="borrarCurso('${c.id}')">
 
 Eliminar
@@ -285,14 +377,16 @@ Eliminar
 </button>
 
 
+
 </div>
+
 
 `;
 
 
 
-
 });
+
 
 
 }
@@ -302,6 +396,12 @@ Eliminar
 
 
 
+
+
+
+// ===============================
+// GUARDAR CURSO
+// ===============================
 
 
 async function guardarCurso(){
@@ -331,9 +431,20 @@ document
 
 
 
-if(!titulo || !inicio || !cierre){
 
-alert("Complete todos los campos");
+if(
+
+!titulo ||
+!inicio ||
+!cierre
+
+){
+
+
+alert(
+"Complete todos los campos"
+);
+
 
 return;
 
@@ -342,13 +453,23 @@ return;
 
 
 
+
+
+
 let datos={
 
+
 titulo,
+
 fechaInicio:inicio,
+
 fechaCierre:cierre
 
+
 };
+
+
+
 
 
 
@@ -358,12 +479,17 @@ fechaCierre:cierre
 if(cursoEditando){
 
 
+
 await updateDoc(
 
 doc(
+
 db,
+
 "cursos",
+
 cursoEditando
+
 ),
 
 datos
@@ -372,7 +498,9 @@ datos
 
 
 
+
 }else{
+
 
 
 await addDoc(
@@ -386,6 +514,9 @@ datos
 
 
 }
+
+
+
 
 
 
@@ -408,7 +539,14 @@ mostrarCursos();
 
 
 
-window.editarCurso=
+
+
+// ===============================
+// EDITAR CURSO
+// ===============================
+
+
+window.editarCurso =
 async function(id){
 
 
@@ -417,8 +555,11 @@ const snap =
 await getDoc(
 
 doc(
+
 db,
+
 "cursos",
+
 id
 
 )
@@ -427,15 +568,24 @@ id
 
 
 
-if(!snap.exists())return;
+
+if(!snap.exists())
+return;
 
 
 
-const c=snap.data();
+
+
+const c =
+snap.data();
+
 
 
 
 cursoEditando=id;
+
+
+
 
 
 
@@ -444,9 +594,7 @@ document
 .innerHTML=`
 
 <h3>
-
 Editar Curso
-
 </h3>
 
 
@@ -459,12 +607,12 @@ maxlength="100"
 
 value="${c.titulo}"
 
-
 >
 
 
 
 <br><br>
+
 
 
 <input
@@ -475,12 +623,12 @@ type="date"
 
 value="${c.fechaInicio}"
 
-
 >
 
 
 
 <br><br>
+
 
 
 <input
@@ -490,7 +638,6 @@ id="cursoCierre"
 type="date"
 
 value="${c.fechaCierre}"
-
 
 >
 
@@ -521,9 +668,12 @@ Cancelar
 
 
 
+
+
 document
 .getElementById("guardarCurso")
 .onclick=guardarCurso;
+
 
 
 
@@ -533,11 +683,12 @@ document
 
 
 
+
 abrir("modalFondo");
 
 
 
-}
+};
 
 
 
@@ -546,20 +697,35 @@ abrir("modalFondo");
 
 
 
-window.borrarCurso=
+
+// ===============================
+// ELIMINAR CURSO
+// ===============================
+
+
+window.borrarCurso =
 async function(id){
 
 
-if(!confirm("Eliminar curso?"))
+
+if(
+!confirm("Eliminar curso?")
+)
+
 return;
+
+
 
 
 
 await deleteDoc(
 
 doc(
+
 db,
+
 "cursos",
+
 id
 
 )
@@ -568,37 +734,15 @@ id
 
 
 
+
+
 mostrarCursos();
 
 
-}
+
+};
 
 
-
-
-
-
-
-
-
-function calcularEstado(c){
-
-
-const hoy =
-new Date()
-.toISOString()
-.split("T")[0];
-
-
-
-return hoy<=c.fechaCierre
-?
-"Abierto"
-:
-"Cerrado";
-
-
-}
 
 
 
@@ -614,14 +758,13 @@ return hoy<=c.fechaCierre
 function abrirNotificacion(){
 
 
+
 document
 .getElementById("modalContenido")
 .innerHTML=`
 
 <h3>
-
 Nueva Notificación
-
 </h3>
 
 
@@ -638,7 +781,9 @@ placeholder="Mensaje"
 
 
 
+
 <br><br>
+
 
 
 
@@ -663,9 +808,12 @@ Cancelar
 
 
 
+
 document
 .getElementById("guardarNotificacion")
 .onclick=guardarNotificacion;
+
+
 
 
 
@@ -675,10 +823,15 @@ document
 
 
 
+
+
 abrir("modalFondo");
 
 
+
 }
+
+
 
 
 
@@ -696,23 +849,38 @@ document
 
 
 
-if(!texto)return;
+
+
+if(!texto)
+return;
+
+
+
 
 
 
 await setDoc(
 
 doc(
+
 db,
+
 "notificaciones",
+
 "principal"
 
 ),
 
 {
 
+
 mensaje:texto,
-fecha:new Date().toISOString()
+
+
+fecha:new Date()
+.toISOString()
+
+
 
 }
 
@@ -720,9 +888,11 @@ fecha:new Date().toISOString()
 
 
 
-cerrar(
-"modalFondo"
-);
+
+
+
+cerrar("modalFondo");
+
 
 
 
@@ -749,21 +919,49 @@ alert(
 
 function abrir(id){
 
-document
-.getElementById(id)
-.classList.add("activo");
+
+
+const elemento =
+document.getElementById(id);
+
+
+
+if(elemento){
+
+elemento.classList.add("activo");
 
 }
+
+
+
+}
+
+
+
+
 
 
 
 function cerrar(id){
 
-document
-.getElementById(id)
-.classList.remove("activo");
+
+
+const elemento =
+document.getElementById(id);
+
+
+
+if(elemento){
+
+elemento.classList.remove("activo");
 
 }
+
+
+
+}
+
+
 
 
 
@@ -771,23 +969,45 @@ document
 
 function formato(v){
 
-if(!v)return "";
+
+
+if(!v)
+return "";
+
+
 
 const d =
-new Date(v+"T00:00:00");
+new Date(
+v+"T00:00:00"
+);
+
+
 
 
 return (
 
 String(d.getDate())
 .padStart(2,"0")
-+"/"+
+
++
+
+"/"
+
++
+
 String(d.getMonth()+1)
 .padStart(2,"0")
-+"/"+
+
++
+
+"/"
+
++
+
 d.getFullYear()
 
 );
+
 
 
 }
