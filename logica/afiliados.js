@@ -876,221 +876,99 @@ cargarAfiliados(true);
 
 async function imprimir(id){
 
+
 const af =
 CACHE_AFILIADOS.find(
 a=>a.id===id
 );
 
+
 if(!af)return;
 
 
+
 const fecha =
-formatearFechaHora(af.fechaAlta);
+formatearFechaHora(
+af.fechaAlta
+);
 
 
 
 const win =
 window.open(
 "",
-"_blank"
+"_blank",
+"width=300,height=250"
 );
 
 
 
 win.document.write(`
 
-<!DOCTYPE html>
 
 <html>
 
-<head>
 
-<style>
-
-
-@page{
-
-size:80mm 60mm;
-margin:0;
-
-}
+<body style="
+font-family:Arial;
+text-align:center;
+padding:5px;
+font-size:10px;
+">
 
 
 
-html,body{
+<div style="
 
-margin:0;
-padding:0;
+width:8cm;
+height:6cm;
 
-width:80mm;
-height:60mm;
-
-overflow:hidden;
-
-}
-
-
-
-body{
-
-font-family:Arial,sans-serif;
-
-}
-
-
-
-.ficha{
-
-
-width:80mm;
-height:60mm;
-
-box-sizing:border-box;
-
-border:3px solid #BC00C9;
+border:3px solid #A602AB;
 
 border-radius:25px;
 
-padding:5px;
+padding:6px;
+
+box-sizing:border-box;
 
 display:flex;
 
 flex-direction:column;
 
-}
+">
 
 
 
-.superior{
 
 
-height:38mm;
+<div style="
 
 display:flex;
 
 align-items:center;
 
-}
+height:100px;
+
+">
 
 
 
-.logo{
 
+
+<img
+
+src="./iconos/logo.jpg"
+
+style="
 
 width:100px;
-
 height:100px;
 
 object-fit:cover;
 
 border-radius:15px;
 
-margin-left:2px;
-
-}
-
-
-
-.datos{
-
-
-flex:1;
-
-height:100px;
-
-display:flex;
-
-flex-direction:column;
-
-justify-content:center;
-
-align-items:flex-end;
-
-text-align:right;
-
-font-size:11px;
-
-line-height:13px;
-
-padding-right:4px;
-
-}
-
-
-
-.nombre{
-
-
-font-size:14px;
-
-font-weight:bold;
-
-line-height:16px;
-
-}
-
-
-
-.barcode{
-
-
-margin-top:auto;
-
-text-align:center;
-
-height:12mm;
-
-}
-
-
-
-.barcode img{
-
-
-width:45mm;
-
-height:10mm;
-
-}
-
-
-
-.numero{
-
-
-font-size:10px;
-
-text-align:center;
-
-letter-spacing:2px;
-
-}
-
-
-
-</style>
-
-</head>
-
-
-
-<body>
-
-
-
-<div class="ficha">
-
-
-
-<div class="superior">
-
-
-
-<img
-
-class="logo"
-
-src="./iconos/logo.jpg"
+"
 
 
 
@@ -1098,84 +976,100 @@ src="./iconos/logo.jpg"
 
 
 
-<div class="datos">
+
+
+<div style="
+
+flex:1;
+
+text-align:right;
+
+font-size:11px;
+
+line-height:14px;
+
+padding-left:8px;
+
+">
 
 
 
-<div class="nombre">
+<b style="font-size:14px;">
 
-${af.nombre} ${af.apellido}
+${af.nombre}
+${af.apellido}
 
-</div>
+</b>
 
 
-<div>
+<br>
 
 ${af.dni || ""}
 
-</div>
-
-
-<div>
+<br>
 
 ${af.celular || ""}
 
-</div>
-
-
-<div>
+<br>
 
 ${af.correo || ""}
 
-</div>
-
-
-<div>
+<br>
 
 ${af.estado || ""}
 
-</div>
-
-
-<div>
+<br>
 
 ${fecha.fecha}
 
-</div>
-
-
-<div>
+<br>
 
 ${af.numeroAfiliado}
 
-</div>
-
-
-
-</div>
-
 
 
 </div>
 
 
 
-<div class="barcode">
+</div>
+
+
+
+
+
 
 
 <img
 
 src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.numeroAfiliado}&scale=2&height=10"
 
+style="
+
+width:150px;
+
+height:35px;
+
+margin:auto;
+
+"
+
+
 
 >
 
 
-</div>
 
 
 
-<div class="numero">
+
+<div style="
+
+font-size:9px;
+
+letter-spacing:2px;
+
+">
 
 ${af.numeroAfiliado}
 
@@ -1187,8 +1081,8 @@ ${af.numeroAfiliado}
 
 
 
-<script>
 
+<script>
 
 window.onload=()=>{
 
@@ -1198,8 +1092,8 @@ window.close();
 
 }
 
-
 </script>
+
 
 
 </body>
@@ -1211,7 +1105,9 @@ window.close();
 `);
 
 
+
 win.document.close();
+
 
 }
 
