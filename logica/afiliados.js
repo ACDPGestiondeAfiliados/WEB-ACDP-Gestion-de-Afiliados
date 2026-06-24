@@ -884,12 +884,17 @@ a=>a.id===id
 if(!af)return;
 
 
+const fecha =
+formatearFechaHora(af.fechaAlta);
+
+
+
 const win =
 window.open(
 "",
-"_blank",
-"width=400,height=300"
+"_blank"
 );
+
 
 
 win.document.write(`
@@ -905,23 +910,28 @@ win.document.write(`
 
 @page{
 
-size:8cm 6cm;
+size:80mm 60mm;
 margin:0;
 
 }
 
 
 
-body{
+html,body{
 
 margin:0;
+padding:0;
 
-width:8cm;
-height:6cm;
+width:80mm;
+height:60mm;
 
-display:flex;
-justify-content:center;
-align-items:center;
+overflow:hidden;
+
+}
+
+
+
+body{
 
 font-family:Arial,sans-serif;
 
@@ -932,8 +942,8 @@ font-family:Arial,sans-serif;
 .ficha{
 
 
-width:8cm;
-height:6cm;
+width:80mm;
+height:60mm;
 
 box-sizing:border-box;
 
@@ -941,13 +951,11 @@ border:3px solid #BC00C9;
 
 border-radius:25px;
 
-padding:8px;
+padding:5px;
 
 display:flex;
 
 flex-direction:column;
-
-overflow:hidden;
 
 }
 
@@ -956,11 +964,11 @@ overflow:hidden;
 .superior{
 
 
+height:38mm;
+
 display:flex;
 
-align-items:flex-start;
-
-height:110px;
+align-items:center;
 
 }
 
@@ -977,7 +985,7 @@ object-fit:cover;
 
 border-radius:15px;
 
-flex-shrink:0;
+margin-left:2px;
 
 }
 
@@ -1000,13 +1008,11 @@ align-items:flex-end;
 
 text-align:right;
 
-padding-left:8px;
+font-size:11px;
 
-font-size:12px;
+line-height:13px;
 
-line-height:14px;
-
-overflow:hidden;
+padding-right:4px;
 
 }
 
@@ -1021,8 +1027,6 @@ font-weight:bold;
 
 line-height:16px;
 
-margin-bottom:3px;
-
 }
 
 
@@ -1034,6 +1038,8 @@ margin-top:auto;
 
 text-align:center;
 
+height:12mm;
+
 }
 
 
@@ -1041,9 +1047,9 @@ text-align:center;
 .barcode img{
 
 
-width:160px;
+width:45mm;
 
-height:35px;
+height:10mm;
 
 }
 
@@ -1052,9 +1058,9 @@ height:35px;
 .numero{
 
 
-text-align:center;
-
 font-size:10px;
+
+text-align:center;
 
 letter-spacing:2px;
 
@@ -1071,10 +1077,13 @@ letter-spacing:2px;
 <body>
 
 
+
 <div class="ficha">
 
 
+
 <div class="superior">
+
 
 
 <img
@@ -1083,11 +1092,14 @@ class="logo"
 
 src="./iconos/logo.jpg"
 
+
+
 >
 
 
 
 <div class="datos">
+
 
 
 <div class="nombre">
@@ -1099,7 +1111,7 @@ ${af.nombre} ${af.apellido}
 
 <div>
 
-${af.dni}
+${af.dni || ""}
 
 </div>
 
@@ -1127,7 +1139,7 @@ ${af.estado || ""}
 
 <div>
 
-${formatearFechaHora(af.fechaAlta)}
+${fecha.fecha}
 
 </div>
 
@@ -1143,6 +1155,7 @@ ${af.numeroAfiliado}
 </div>
 
 
+
 </div>
 
 
@@ -1154,10 +1167,12 @@ ${af.numeroAfiliado}
 
 src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.numeroAfiliado}&scale=2&height=10"
 
+
 >
 
 
 </div>
+
 
 
 <div class="numero">
@@ -1165,6 +1180,7 @@ src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.numeroAfiliado}&sc
 ${af.numeroAfiliado}
 
 </div>
+
 
 
 </div>
@@ -1186,8 +1202,8 @@ window.close();
 </script>
 
 
-
 </body>
+
 
 </html>
 
