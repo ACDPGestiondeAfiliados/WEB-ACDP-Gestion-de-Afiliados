@@ -397,11 +397,19 @@ document
 
 
 
-cursoTitulo.value=c.titulo;
+document
+.getElementById("cursoTitulo")
+.value=c.titulo;
 
-cursoInicio.value=c.fechaInicio;
 
-cursoCierre.value=c.fechaCierre;
+document
+.getElementById("cursoInicio")
+.value=c.fechaInicio;
+
+
+document
+.getElementById("cursoCierre")
+.value=c.fechaCierre;
 
 
 
@@ -484,7 +492,10 @@ return hoy<=c.fechaCierre
 function abrirNotificacion(){
 
 
-textoNotificacion.value="";
+document
+.getElementById("textoNotificacion")
+.value="";
+
 
 abrir(
 "modalNotificacion"
@@ -585,9 +596,19 @@ document
 function limpiarCurso(){
 
 
-cursoTitulo.value="";
-cursoInicio.value="";
-cursoCierre.value="";
+document
+.getElementById("cursoTitulo")
+.value="";
+
+
+document
+.getElementById("cursoInicio")
+.value="";
+
+
+document
+.getElementById("cursoCierre")
+.value="";
 
 
 }
