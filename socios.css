@@ -278,27 +278,28 @@ display:none;
 
 .modal{
 
-display:none;
-
 position:fixed;
 
 inset:0;
 
 background:rgba(0,0,0,.55);
 
-z-index:9999;
+display:flex;
 
 justify-content:center;
 
 align-items:center;
 
+z-index:9999;
+
 }
 
 
 
-.modal:not(.oculto){
 
-display:flex;
+.modal.oculto{
+
+display:none;
 
 }
 
@@ -315,19 +316,18 @@ max-width:90%;
 
 padding:25px;
 
-border-radius:12px;
+border-radius:15px;
 
-box-shadow:0 10px 40px rgba(0,0,0,.3);
-
-animation:aparecer .2s ease;
+box-shadow:0 5px 25px rgba(0,0,0,.3);
 
 }
 
 
 
+
 .modal-contenido h3{
 
-margin-top:0;
+text-align:center;
 
 color:#A602AB;
 
@@ -338,11 +338,11 @@ color:#A602AB;
 
 .cursoCard{
 
-background:#faf7fb;
+background:#f8f2fa;
 
-border:1px solid #e6d7e8;
+border:1px solid #e0bfe3;
 
-border-radius:10px;
+border-radius:12px;
 
 padding:15px;
 
@@ -352,9 +352,10 @@ margin:10px 0;
 
 
 
+
 .cursoCard h3{
 
-margin:0 0 10px 0;
+margin:0 0 10px;
 
 color:#A602AB;
 
@@ -369,30 +370,8 @@ font-size:18px;
 
 line-height:1.5;
 
-padding:20px;
+padding:15px;
 
-}
-
-
-
-
-@keyframes aparecer{
-
-from{
-
-transform:scale(.9);
-
-opacity:0;
-
-}
-
-
-to{
-
-transform:scale(1);
-
-opacity:1;
-
-}
+text-align:center;
 
 }
