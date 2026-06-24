@@ -4,12 +4,6 @@
 // ===============================
 
 
-// ===============================
-// ACDP CONFIGURACION
-// Cursos + Notificaciones
-// ===============================
-
-
 import {
 
 db,
@@ -32,6 +26,8 @@ let cursoEditando=null;
 
 
 
+
+
 // ===============================
 // INIT
 // ===============================
@@ -42,10 +38,6 @@ iniciarConfig();
 
 
 function iniciarConfig(){
-
-
-console.log("CONFIG JS CARGADO");
-
 
 
 const btnCursos =
@@ -60,41 +52,19 @@ document.getElementById("btnEnviarNotificacion");
 
 
 
-console.log(
-"BOTONES",
-btnCursos,
-btnNotif
-);
+if(btnCursos){
 
-
-
-
-
-if(!btnCursos || !btnNotif){
-
-console.log(
-"No se encontraron botones CONFIG"
-);
-
-return;
+btnCursos.onclick=nuevoCurso;
 
 }
 
 
 
+if(btnNotif){
 
+btnNotif.onclick=abrirNotificacion;
 
-btnCursos.addEventListener(
-"click",
-nuevoCurso
-);
-
-
-
-btnNotif.addEventListener(
-"click",
-abrirNotificacion
-);
+}
 
 
 
@@ -106,8 +76,14 @@ mostrarCursos();
 
 
 
+
+
+
+
+
+
 // ===============================
-// MODAL CURSO NUEVO
+// NUEVO CURSO
 // ===============================
 
 
@@ -138,7 +114,6 @@ placeholder="Titulo"
 >
 
 
-
 <br><br>
 
 
@@ -151,7 +126,6 @@ type="date"
 >
 
 
-
 <br><br>
 
 
@@ -162,7 +136,6 @@ id="cursoCierre"
 type="date"
 
 >
-
 
 
 <br><br>
@@ -215,7 +188,7 @@ abrir("modalFondo");
 
 
 // ===============================
-// LISTAR CURSOS
+// TABLA CURSOS
 // ===============================
 
 
@@ -233,7 +206,6 @@ if(!contenedor)return;
 
 
 contenedor.innerHTML="";
-
 
 
 
@@ -281,7 +253,6 @@ curso.fechaCierre < hoy
 ){
 
 
-
 await deleteDoc(
 
 doc(
@@ -294,12 +265,10 @@ curso.id
 );
 
 
-
 continue;
 
 
 }
-
 
 
 
@@ -308,7 +277,6 @@ cursos.push(curso);
 
 
 }
-
 
 
 
@@ -331,10 +299,8 @@ new Date(a.fechaInicio)
 
 
 
-
 cursos =
 cursos.slice(0,10);
-
 
 
 
@@ -373,7 +339,6 @@ ${formato(c.fechaCierre)}
 
 
 
-
 <td>
 
 
@@ -395,57 +360,8 @@ Eliminar
 </td>
 
 
+
 </tr>
-
-`;
-
-
-
-<div>
-
-${c.titulo}
-
-</div>
-
-
-
-<div>
-
-${formato(c.fechaInicio)}
-
-</div>
-
-
-
-<div>
-
-${formato(c.fechaCierre)}
-
-</div>
-
-
-
-
-
-<button onclick="editarCurso('${c.id}')">
-
-Editar
-
-</button>
-
-
-
-
-<button onclick="borrarCurso('${c.id}')">
-
-Eliminar
-
-</button>
-
-
-
-</div>
-
 
 `;
 
@@ -497,20 +413,15 @@ document
 
 
 
-
 if(
-
 !titulo ||
 !inicio ||
 !cierre
-
 ){
-
 
 alert(
 "Complete todos los campos"
 );
-
 
 return;
 
@@ -521,8 +432,7 @@ return;
 
 
 
-
-let datos={
+const datos={
 
 
 titulo,
@@ -533,8 +443,6 @@ fechaCierre:cierre
 
 
 };
-
-
 
 
 
@@ -561,7 +469,6 @@ cursoEditando
 datos
 
 );
-
 
 
 
@@ -605,10 +512,8 @@ mostrarCursos();
 
 
 
-
-
 // ===============================
-// EDITAR CURSO
+// EDITAR
 // ===============================
 
 
@@ -631,7 +536,6 @@ id
 )
 
 );
-
 
 
 
@@ -735,7 +639,6 @@ Cancelar
 
 
 
-
 document
 .getElementById("guardarCurso")
 .onclick=guardarCurso;
@@ -765,7 +668,7 @@ abrir("modalFondo");
 
 
 // ===============================
-// ELIMINAR CURSO
+// ELIMINAR
 // ===============================
 
 
@@ -852,7 +755,6 @@ placeholder="Mensaje"
 
 
 
-
 <button id="guardarNotificacion">
 
 Enviar
@@ -874,19 +776,15 @@ Cancelar
 
 
 
-
 document
 .getElementById("guardarNotificacion")
 .onclick=guardarNotificacion;
 
 
 
-
-
 document
 .getElementById("cancelarNotificacion")
 .onclick=()=>cerrar("modalFondo");
-
 
 
 
@@ -925,6 +823,7 @@ return;
 
 
 
+
 await setDoc(
 
 doc(
@@ -939,14 +838,10 @@ db,
 
 {
 
-
 mensaje:texto,
-
 
 fecha:new Date()
 .toISOString()
-
-
 
 }
 
@@ -956,9 +851,7 @@ fecha:new Date()
 
 
 
-
 cerrar("modalFondo");
-
 
 
 
@@ -1046,6 +939,7 @@ const d =
 new Date(
 v+"T00:00:00"
 );
+
 
 
 
