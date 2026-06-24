@@ -22,7 +22,7 @@ doc,
 setDoc,
 getDoc
 
-} from "./firebase.js";
+} from "../firebase.js";
 
 
 
