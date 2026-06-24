@@ -564,7 +564,7 @@ function abrir(id){
 
 document
 .getElementById(id)
-.classList.remove("oculto");
+.classList.add("activo");
 
 }
 
