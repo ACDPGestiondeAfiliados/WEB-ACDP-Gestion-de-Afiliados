@@ -346,7 +346,58 @@ cursos.forEach(c=>{
 
 contenedor.innerHTML+=`
 
-<div class="filaCurso">
+<tr>
+
+
+<td>
+
+${c.titulo}
+
+</td>
+
+
+
+<td>
+
+${formato(c.fechaInicio)}
+
+</td>
+
+
+
+<td>
+
+${formato(c.fechaCierre)}
+
+</td>
+
+
+
+
+<td>
+
+
+<button onclick="editarCurso('${c.id}')">
+
+Editar
+
+</button>
+
+
+
+<button onclick="borrarCurso('${c.id}')">
+
+Eliminar
+
+</button>
+
+
+</td>
+
+
+</tr>
+
+`;
 
 
 
