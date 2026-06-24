@@ -553,23 +553,21 @@ ${f.hora}
 
 <button onclick="AFILIADOS.editarAfiliado('${a.id}')">
 
-Editar
+<img src="./iconos/edit.png">
 
 </button>
 
 
 
 <button onclick="AFILIADOS.imprimir('${a.id}')">
-
-Imprimir
-
+<img src="./iconos/print.png">
 </button>
 
 
 
 <button onclick="AFILIADOS.eliminarAfiliado('${a.id}')">
 
-Eliminar
+<img src="./iconos/delete.png">
 
 </button>
 
