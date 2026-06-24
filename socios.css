@@ -270,3 +270,129 @@ margin:20px;
 display:none;
 
 }
+
+/* ===============================
+   MODALES SOCIOS
+=============================== */
+
+
+.modal{
+
+display:none;
+
+position:fixed;
+
+inset:0;
+
+background:rgba(0,0,0,.55);
+
+z-index:9999;
+
+justify-content:center;
+
+align-items:center;
+
+}
+
+
+
+.modal:not(.oculto){
+
+display:flex;
+
+}
+
+
+
+
+.modal-contenido{
+
+background:white;
+
+width:500px;
+
+max-width:90%;
+
+padding:25px;
+
+border-radius:12px;
+
+box-shadow:0 10px 40px rgba(0,0,0,.3);
+
+animation:aparecer .2s ease;
+
+}
+
+
+
+.modal-contenido h3{
+
+margin-top:0;
+
+color:#A602AB;
+
+}
+
+
+
+
+.cursoCard{
+
+background:#faf7fb;
+
+border:1px solid #e6d7e8;
+
+border-radius:10px;
+
+padding:15px;
+
+margin:10px 0;
+
+}
+
+
+
+.cursoCard h3{
+
+margin:0 0 10px 0;
+
+color:#A602AB;
+
+}
+
+
+
+
+#textoNotificacionSocio{
+
+font-size:18px;
+
+line-height:1.5;
+
+padding:20px;
+
+}
+
+
+
+
+@keyframes aparecer{
+
+from{
+
+transform:scale(.9);
+
+opacity:0;
+
+}
+
+
+to{
+
+transform:scale(1);
+
+opacity:1;
+
+}
+
+}
