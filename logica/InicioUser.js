@@ -390,8 +390,8 @@ async function renderUsuariosTable() {
                 <td>${u.nombre}</td>
                 <td>${String(u.rol).toUpperCase()}</td>
                 <td>
-                    <button onclick="ACDP_user.editarUsuario('${d.id}')">Editar</button>
-                    <button onclick="ACDP_user.eliminarUsuario('${d.id}')">Eliminar</button>
+                    <button onclick="ACDP_user.editarUsuario('${d.id}')"><img src="./iconos/edit.png"></button>
+                    <button onclick="ACDP_user.eliminarUsuario('${d.id}')"><img src="./iconos/delete.png"></button>
                 </td>
             </tr>
         `;
