@@ -47,7 +47,7 @@ function iniciarConfig(){
 
 document
 .getElementById("btnGestionCursos")
-.onclick=abrirCursos;
+.onclick=nuevoCurso;
 
 
 
@@ -81,6 +81,9 @@ document
 
 
 
+mostrarCursos();
+
+
 }
 
 
@@ -96,7 +99,27 @@ document
 // ===============================
 
 
-async function abrirCursos(){
+async function function nuevoCurso(){
+
+
+cursoEditando=null;
+
+
+document
+.getElementById("tituloModalCurso")
+.textContent=
+"Nuevo Curso";
+
+
+
+limpiarCurso();
+
+
+
+abrir("modalCursos");
+
+
+}){
 
 
 cursoEditando=null;
