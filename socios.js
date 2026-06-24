@@ -1,6 +1,6 @@
 // ===============================
 // ACDP - PORTAL SOCIOS
-// Firebase + consulta afiliado
+// Firebase + Cursos + Notificaciones
 // ===============================
 
 
@@ -24,6 +24,10 @@ getDoc
 
 
 let socioActual=null;
+
+let cursos=[];
+
+let mesCursosActual=new Date();
 
 const PIN_MASTER="2015";
 
@@ -75,8 +79,38 @@ document
 
 
 
-activarNumericos();
+document
+.getElementById("btnVerCursos")
+.onclick=abrirCursos;
 
+
+
+document
+.getElementById("cursoAnterior")
+.onclick=()=>cambiarMes(-1);
+
+
+
+document
+.getElementById("cursoSiguiente")
+.onclick=()=>cambiarMes(1);
+
+
+
+document
+.getElementById("cerrarNotificacionSocio")
+.onclick=()=>{
+
+document
+.getElementById("modalNotificacionSocio")
+.classList.add("oculto");
+
+};
+
+
+
+
+activarNumericos();
 
 
 }
@@ -130,6 +164,9 @@ el.value.replace(/\D/g,"");
 
 
 
+
+
+
 // ===============================
 // LOGIN
 // ===============================
@@ -170,6 +207,7 @@ return;
 
 
 
+
 const snap =
 await getDocs(
 collection(db,"afiliados")
@@ -188,7 +226,6 @@ const a={
 id:d.id,
 ...d.data()
 };
-
 
 
 if(
@@ -215,11 +252,10 @@ if(!encontrado){
 mensaje.textContent=
 "Afiliado inexistente";
 
+
 return;
 
-
 }
-
 
 
 
@@ -249,7 +285,6 @@ encontrado.pinAsociado ||
 
 
 
-
 if(
 
 pin!==pinCorrecto &&
@@ -261,24 +296,11 @@ pin!==PIN_MASTER
 mensaje.textContent=
 "PIN incorrecto";
 
-
 return;
 
 
 }
 
-
-
-
-
-
-if(pin===PIN_MASTER){
-
-alert(
-"Acceso administrador"
-);
-
-}
 
 
 
@@ -301,12 +323,14 @@ mostrarPerfil();
 
 
 
+
 // ===============================
 // PERFIL
 // ===============================
 
 
 async function mostrarPerfil(){
+
 
 
 const a=socioActual;
@@ -350,15 +374,10 @@ formatearFechaHora(a.fechaAlta)
 
 
 
-document
-.getElementById("nuevoCelular")
-.value=a.celular||"";
+nuevoCelular.value=a.celular||"";
 
+nuevoCorreo.value=a.correo||"";
 
-
-document
-.getElementById("nuevoCorreo")
-.value=a.correo||"";
 
 
 
@@ -369,6 +388,7 @@ db,
 "configuracion",
 "general"
 );
+
 
 
 const configSnap =
@@ -385,10 +405,9 @@ configSnap.data().monto
 
 
 
-document
-.getElementById("valorCuota")
-.textContent =
+valorCuota.textContent=
 "$"+monto;
+
 
 
 
@@ -396,7 +415,19 @@ mostrarCuotas();
 
 
 
+cargarCursos();
+
+
+
+mostrarNotificacion();
+
+
+
 }
+
+
+
+
 
 
 
@@ -409,6 +440,372 @@ document
 .textContent=texto||"";
 
 }
+
+
+
+
+
+
+
+
+
+// ===============================
+// NOTIFICACION
+// ===============================
+
+
+async function mostrarNotificacion(){
+
+
+const snap =
+await getDoc(
+
+doc(
+db,
+"notificaciones",
+"principal"
+
+)
+
+);
+
+
+
+if(!snap.exists())
+return;
+
+
+
+const data =
+snap.data();
+
+
+
+textoNotificacionSocio.textContent =
+data.mensaje;
+
+
+
+modalNotificacionSocio
+.classList.remove("oculto");
+
+
+
+}
+
+
+
+
+
+
+
+
+
+// ===============================
+// CURSOS
+// ===============================
+
+
+async function cargarCursos(){
+
+
+
+cursos=[];
+
+
+
+const snap =
+await getDocs(
+collection(db,"cursos")
+);
+
+
+
+
+snap.forEach(d=>{
+
+
+cursos.push({
+
+id:d.id,
+...d.data()
+
+});
+
+
+});
+
+
+
+
+
+cursos.sort(
+
+(a,b)=>
+new Date(b.fechaInicio)
+-
+new Date(a.fechaInicio)
+
+);
+
+
+
+cursos=
+cursos.slice(0,10);
+
+
+
+renderCursos();
+
+
+}
+
+
+
+
+
+
+
+
+
+function abrirCursos(){
+
+
+document
+.getElementById("cuotasSocio")
+.classList.add("oculto");
+
+
+
+document
+.getElementById("cursosSocio")
+.classList.remove("oculto");
+
+
+
+renderCursos();
+
+
+}
+
+
+
+
+
+
+
+
+function cambiarMes(valor){
+
+
+mesCursosActual.setMonth(
+
+mesCursosActual.getMonth()+valor
+
+);
+
+
+renderCursos();
+
+
+}
+
+
+
+
+
+
+
+
+function renderCursos(){
+
+
+
+const lista =
+document
+.getElementById("listaCursos");
+
+
+
+if(!lista)return;
+
+
+
+lista.innerHTML="";
+
+
+
+
+const mes =
+mesCursosActual.getMonth();
+
+
+
+const año =
+mesCursosActual.getFullYear();
+
+
+
+
+
+mesCursos.textContent =
+
+new Intl.DateTimeFormat(
+"es",
+{
+month:"long",
+year:"numeric"
+}
+
+).format(mesCursosActual);
+
+
+
+
+
+
+
+let encontrados =
+cursos.filter(c=>{
+
+
+let ini =
+new Date(c.fechaInicio+"T00:00:00");
+
+let fin =
+new Date(c.fechaCierre+"T00:00:00");
+
+
+
+let inicioMes =
+new Date(año,mes,1);
+
+
+
+let finMes =
+new Date(año,mes+1,0);
+
+
+
+return ini<=finMes &&
+fin>=inicioMes;
+
+
+});
+
+
+
+
+
+
+if(encontrados.length===0){
+
+
+lista.innerHTML=
+
+`
+<p>
+No existen cursos/jornadas o diplomaturas para inscripción este mes,
+por favor, mirá el mes anterior, o esperá al próximo mes
+</p>
+`;
+
+return;
+
+
+}
+
+
+
+
+
+
+
+
+encontrados.forEach(c=>{
+
+
+let estado =
+new Date()<=
+new Date(c.fechaCierre+"T00:00:00")
+?
+"Abierto"
+:
+"Cerrado";
+
+
+
+lista.innerHTML+=`
+
+<div class="cursoCard">
+
+
+<h3>
+${c.titulo}
+</h3>
+
+
+<p>
+Estado: ${estado}
+</p>
+
+
+<p>
+Fecha de apertura:
+${formatearSimple(c.fechaInicio)}
+</p>
+
+
+<p>
+Fecha de cierre:
+${formatearSimple(c.fechaCierre)}
+</p>
+
+
+</div>
+
+`;
+
+
+
+});
+
+
+}
+
+
+
+
+
+
+
+
+
+function formatearSimple(v){
+
+
+let d =
+new Date(v+"T00:00:00");
+
+
+return (
+
+String(d.getDate())
+.padStart(2,"0")
++"/"+
+String(d.getMonth()+1)
+.padStart(2,"0")
++"/"+
+d.getFullYear()
+
+);
+
+}
+
+
+
+
+
 
 
 
@@ -426,35 +823,27 @@ new Date(valor);
 
 
 
-const dia =
+return (
+
 String(fecha.getDate())
-.padStart(2,"0");
-
-
-const mes =
+.padStart(2,"0")
++"/"+
 String(fecha.getMonth()+1)
-.padStart(2,"0");
-
-
-const año =
-fecha.getFullYear();
-
-
-
-const hora =
+.padStart(2,"0")
++"/"+
+fecha.getFullYear()
++" "+
 String(fecha.getHours())
-.padStart(2,"0");
-
-
-const minutos =
+.padStart(2,"0")
++":"+
 String(fecha.getMinutes())
-.padStart(2,"0");
+.padStart(2,"0")
 
+);
 
-
-return `${dia}/${mes}/${año} ${hora}:${minutos}`;
 
 }
+
 
 
 
@@ -476,16 +865,12 @@ if(!socioActual)return;
 
 
 const celular =
-document
-.getElementById("nuevoCelular")
-.value.trim();
+nuevoCelular.value.trim();
 
 
 
 const correo =
-document
-.getElementById("nuevoCorreo")
-.value.trim();
+nuevoCorreo.value.trim();
 
 
 
@@ -511,6 +896,7 @@ correo
 
 
 socioActual.celular=celular;
+
 socioActual.correo=correo;
 
 
@@ -548,16 +934,12 @@ if(!socioActual)return;
 
 
 const nuevo =
-document
-.getElementById("nuevoPin")
-.value.trim();
+nuevoPin.value.trim();
 
 
 
 const confirmar =
-document
-.getElementById("confirmarPin")
-.value.trim();
+confirmarPin.value.trim();
 
 
 
@@ -570,14 +952,11 @@ nuevo!==confirmar
 
 ){
 
-
 alert(
 "PIN inválido"
 );
 
-
 return;
-
 
 }
 
@@ -585,16 +964,14 @@ return;
 
 
 
-if(nuevo===PIN_MASTER){
 
+if(nuevo===PIN_MASTER){
 
 alert(
 "PIN reservado"
 );
 
-
 return;
-
 
 }
 
@@ -620,24 +997,15 @@ pinAsociado:nuevo
 
 
 
-socioActual.pinAsociado=nuevo;
-
-
-
 alert(
 "PIN cambiado"
 );
 
 
 
-document
-.getElementById("nuevoPin")
-.value="";
+nuevoPin.value="";
 
-
-document
-.getElementById("confirmarPin")
-.value="";
+confirmarPin.value="";
 
 
 
@@ -693,8 +1061,8 @@ new Date()
 
 
 
-
 let pagados=[];
+
 
 
 
@@ -807,16 +1175,6 @@ document
 .getElementById("loginSocio")
 .classList.remove("oculto");
 
-
-
-document
-.getElementById("loginNumero")
-.value="";
-
-
-document
-.getElementById("loginPin")
-.value="";
 
 
 }
