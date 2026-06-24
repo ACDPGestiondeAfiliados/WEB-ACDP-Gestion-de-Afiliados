@@ -223,3 +223,19 @@ display:none;
 .modal-fondo.activo{
 display:flex;
 }
+
+/* ===============================
+   ICONOS PNG
+=============================== */
+
+img[src$=".png"]{
+
+width:20px;
+
+height:20px;
+
+object-fit:contain;
+
+vertical-align:middle;
+
+}
