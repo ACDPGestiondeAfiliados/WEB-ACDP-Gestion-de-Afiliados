@@ -4,6 +4,12 @@
 // ===============================
 
 
+// ===============================
+// ACDP CONFIGURACION
+// Cursos + Notificaciones
+// ===============================
+
+
 import {
 
 db,
@@ -26,27 +32,20 @@ let cursoEditando=null;
 
 
 
-
-
 // ===============================
 // INIT
 // ===============================
 
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
 iniciarConfig();
-
-});
-
-
-
 
 
 
 function iniciarConfig(){
+
+
+console.log("CONFIG JS CARGADO");
+
 
 
 const btnCursos =
@@ -61,19 +60,41 @@ document.getElementById("btnEnviarNotificacion");
 
 
 
-if(btnCursos){
+console.log(
+"BOTONES",
+btnCursos,
+btnNotif
+);
 
-btnCursos.onclick=nuevoCurso;
+
+
+
+
+if(!btnCursos || !btnNotif){
+
+console.log(
+"No se encontraron botones CONFIG"
+);
+
+return;
 
 }
 
 
 
-if(btnNotif){
 
-btnNotif.onclick=abrirNotificacion;
 
-}
+btnCursos.addEventListener(
+"click",
+nuevoCurso
+);
+
+
+
+btnNotif.addEventListener(
+"click",
+abrirNotificacion
+);
 
 
 
@@ -82,12 +103,6 @@ mostrarCursos();
 
 
 }
-
-
-
-
-
-
 
 
 
