@@ -1035,6 +1035,19 @@ Fecha alta: ${fecha.fecha}
 
 
 
+<p style="
+
+font-size:9px;text-align: center;
+
+letter-spacing:5px;
+
+">
+
+${af.numeroAfiliado}
+
+</p>
+
+<br>
 
 <img
 
@@ -1053,23 +1066,6 @@ margin:auto;
 
 
 >
-
-<br>
-
-
-
-
-<p style="
-
-font-size:9px;
-
-letter-spacing:5px;
-
-">
-
-${af.numeroAfiliado}
-
-</p>
 
 
 
