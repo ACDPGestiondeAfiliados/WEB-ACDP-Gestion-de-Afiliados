@@ -10,6 +10,7 @@ db,
 collection,
 getDocs,
 updateDoc,
+deleteDoc,
 doc,
 getDoc
 
@@ -26,8 +27,6 @@ getDoc
 let socioActual=null;
 
 let cursos=[];
-
-let mesCursosActual=new Date();
 
 const PIN_MASTER="2015";
 
@@ -86,14 +85,14 @@ document
 
 
 document
-.getElementById("cursoAnterior")
-.onclick=()=>cambiarMes(-1);
-
-
+.getElementById("cerrarCursosSocio")
+.onclick=()=>{
 
 document
-.getElementById("cursoSiguiente")
-.onclick=()=>cambiarMes(1);
+.getElementById("modalCursosSocio")
+.classList.add("oculto");
+
+};
 
 
 
@@ -106,7 +105,6 @@ document
 .classList.add("oculto");
 
 };
-
 
 
 
@@ -415,7 +413,7 @@ mostrarCuotas();
 
 
 
-cargarCursos();
+await cargarCursos();
 
 
 
@@ -481,12 +479,15 @@ snap.data();
 
 
 
-textoNotificacionSocio.textContent =
+document
+.getElementById("textoNotificacionSocio")
+.textContent =
 data.mensaje;
 
 
 
-modalNotificacionSocio
+document
+.getElementById("modalNotificacionSocio")
 .classList.remove("oculto");
 
 
@@ -509,9 +510,7 @@ modalNotificacionSocio
 async function cargarCursos(){
 
 
-
 cursos=[];
-
 
 
 const snap =
@@ -521,41 +520,73 @@ collection(db,"cursos")
 
 
 
+const hoy =
+new Date()
+.toISOString()
+.split("T")[0];
 
-snap.forEach(d=>{
 
 
-cursos.push({
+for(const d of snap.docs){
+
+
+const c={
 
 id:d.id,
 ...d.data()
 
-});
+};
 
 
-});
+
+if(
+c.fechaCierre &&
+c.fechaCierre < hoy
+
+){
 
 
+await deleteDoc(
+
+doc(
+db,
+"cursos",
+c.id
+
+)
+
+);
+
+
+continue;
+
+}
+
+
+
+cursos.push(c);
+
+
+}
 
 
 
 cursos.sort(
 
 (a,b)=>
+
 new Date(b.fechaInicio)
+
 -
+
 new Date(a.fechaInicio)
 
 );
 
 
 
-cursos=
+cursos =
 cursos.slice(0,10);
-
-
-
-renderCursos();
 
 
 }
@@ -571,63 +602,16 @@ renderCursos();
 function abrirCursos(){
 
 
+
+const modal =
 document
-.getElementById("cuotasSocio")
-.classList.add("oculto");
-
-
-
-document
-.getElementById("cursosSocio")
-.classList.remove("oculto");
-
-
-
-renderCursos();
-
-
-}
-
-
-
-
-
-
-
-
-function cambiarMes(valor){
-
-
-mesCursosActual.setMonth(
-
-mesCursosActual.getMonth()+valor
-
-);
-
-
-renderCursos();
-
-
-}
-
-
-
-
-
-
-
-
-function renderCursos(){
+.getElementById("modalCursosSocio");
 
 
 
 const lista =
 document
-.getElementById("listaCursos");
-
-
-
-if(!lista)return;
+.getElementById("listaCursosSocio");
 
 
 
@@ -636,103 +620,27 @@ lista.innerHTML="";
 
 
 
-const mes =
-mesCursosActual.getMonth();
+if(cursos.length===0){
 
 
+lista.innerHTML=`
 
-const año =
-mesCursosActual.getFullYear();
-
-
-
-
-
-mesCursos.textContent =
-
-new Intl.DateTimeFormat(
-"es",
-{
-month:"long",
-year:"numeric"
-}
-
-).format(mesCursosActual);
-
-
-
-
-
-
-
-let encontrados =
-cursos.filter(c=>{
-
-
-let ini =
-new Date(c.fechaInicio+"T00:00:00");
-
-let fin =
-new Date(c.fechaCierre+"T00:00:00");
-
-
-
-let inicioMes =
-new Date(año,mes,1);
-
-
-
-let finMes =
-new Date(año,mes+1,0);
-
-
-
-return ini<=finMes &&
-fin>=inicioMes;
-
-
-});
-
-
-
-
-
-
-if(encontrados.length===0){
-
-
-lista.innerHTML=
-
-`
 <p>
-No existen cursos/jornadas o diplomaturas para inscripción este mes,
-por favor, mirá el mes anterior, o esperá al próximo mes
+
+Sin cursos disponibles por el momento,
+se le avisará cuando surjan jornadas/cursos o diplomaturas.
+
 </p>
+
 `;
 
-return;
 
 
-}
-
-
+}else{
 
 
 
-
-
-
-encontrados.forEach(c=>{
-
-
-let estado =
-new Date()<=
-new Date(c.fechaCierre+"T00:00:00")
-?
-"Abierto"
-:
-"Cerrado";
-
+cursos.forEach(c=>{
 
 
 lista.innerHTML+=`
@@ -741,24 +649,25 @@ lista.innerHTML+=`
 
 
 <h3>
+
 ${c.titulo}
+
 </h3>
 
 
 <p>
-Estado: ${estado}
-</p>
 
-
-<p>
-Fecha de apertura:
+Inicio:
 ${formatearSimple(c.fechaInicio)}
+
 </p>
 
 
 <p>
-Fecha de cierre:
+
+Cierre:
 ${formatearSimple(c.fechaCierre)}
+
 </p>
 
 
@@ -769,6 +678,14 @@ ${formatearSimple(c.fechaCierre)}
 
 
 });
+
+
+
+}
+
+
+
+modal.classList.remove("oculto");
 
 
 }
@@ -784,8 +701,14 @@ ${formatearSimple(c.fechaCierre)}
 function formatearSimple(v){
 
 
-let d =
-new Date(v+"T00:00:00");
+if(!v)return "";
+
+
+const d =
+new Date(
+v+"T00:00:00"
+);
+
 
 
 return (
@@ -799,6 +722,7 @@ String(d.getMonth()+1)
 d.getFullYear()
 
 );
+
 
 }
 
@@ -1028,7 +952,8 @@ async function mostrarCuotas(){
 
 
 const caja =
-document.getElementById("cuotasSocio");
+document
+.getElementById("cuotasSocio");
 
 
 
