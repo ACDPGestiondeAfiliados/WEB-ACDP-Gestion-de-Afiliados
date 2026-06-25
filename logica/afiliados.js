@@ -921,7 +921,7 @@ font-size:10px;
 <div style="
 
 width:8cm;
-height:6cm;
+height:4.5cm;
 
 border:3px solid #A602AB;
 
