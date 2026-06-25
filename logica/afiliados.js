@@ -1036,38 +1036,23 @@ Fecha alta: ${fecha.fecha}
 
 
 <p style="
-
-font-size:9px;text-align: center;
-
+font-size:9px;
+text-align:center;
 letter-spacing:5px;
-
+margin:0;
+line-height:10px;
 ">
-
 ${af.numeroAfiliado}
-
 </p>
 
-<br>
-
-<img
-
+<img 
 src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.numeroAfiliado}&scale=2&height=10"
-
 style="
-
 width:150px;
-
 height:35px;
-
-margin:auto;
-
-"
-
-
-
->
-
-
+margin:2px auto 0 auto;
+display:block;
+">
 
 </div>
 
