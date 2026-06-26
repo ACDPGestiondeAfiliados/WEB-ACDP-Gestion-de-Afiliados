@@ -239,3 +239,19 @@ object-fit:contain;
 vertical-align:middle;
 
 }
+
+#modal{
+    max-height:85vh;
+    overflow:hidden;
+}
+
+
+#modalContenido{
+
+    max-height:75vh;
+
+    overflow-y:auto;
+
+    padding-right:10px;
+
+}
