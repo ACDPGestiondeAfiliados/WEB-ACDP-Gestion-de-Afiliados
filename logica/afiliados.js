@@ -1601,7 +1601,7 @@ if(!af)return;
 abrirModal(`
 
 
-<h3>Eliminar Afiliado</h3>
+<h3>Eliminar Afiliado: Describí un motivo válido, porfavor</h3>
 
 
 
