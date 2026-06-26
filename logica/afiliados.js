@@ -768,7 +768,7 @@ e.target.checked;
 
 
 });
-
+renderAfiliados();
 
 };
 
@@ -888,7 +888,7 @@ maxlength="15"
 
 
 
-<select id="aProvincia">
+<p>Provincia</p><br><select id="aProvincia">
 
 
 <option>OTRO</option>
@@ -939,7 +939,7 @@ maxlength="15"
 <br><br>
 
 
-
+<p>Fecha de Nacimiento</p><br>
 <input
 
 type="date"
@@ -953,7 +953,7 @@ id="aNacimiento"
 <br><br>
 
 
-
+<p>Estado Civil</p><br>
 <select id="aEstadoCivil">
 
 
@@ -971,7 +971,7 @@ id="aNacimiento"
 <br><br>
 
 
-
+<p>Situación</p><br>
 <select id="aEstado">
 
 
@@ -1225,53 +1225,53 @@ if(!af)return;
 abrirModal(`
 
 
-<h3>Editar Afiliado</h3>
+<h3>Editar Afiliado</h3><br>
 
 
-
+<p>Nombre</p><br>
 <input id="eNombre" value="${af.nombre||""}">
 
 
 <br><br>
 
-
+<p>Apellido</p><br>
 <input id="eApellido" value="${af.apellido||""}">
 
 
 <br><br>
 
-
+<p>DNI</p><br>
 <input id="eDni" value="${af.dni||""}">
 
 
 <br><br>
 
-
+<p>Celular</p><br>
 <input id="eCelular" value="${af.celular||""}">
 
 
 <br><br>
 
-
+<p>Correo</p><br>
 <input id="eCorreo" value="${af.correo||""}">
 
 
 <br><br>
 
-
+<p>Dirección</p><br>
 <input id="eDireccion" value="${af.direccion||""}">
 
 
 <br><br>
 
-
+<p>Cargo</p><br>
 <input id="eCargo" value="${af.cargo||""}">
 
 
 <br><br>
 
 
-
+<p>Provincia</p><br>
 <select id="eProvincia">
 
 
@@ -1307,7 +1307,7 @@ Santa Fe
 <br><br>
 
 
-
+<p>Localidad</p><br>
 <input
 
 id="eLocalidad"
@@ -1321,7 +1321,7 @@ value="${af.localidad||""}"
 <br><br>
 
 
-
+<p>Fecha de Nacimiento</p><br>
 <input
 
 type="date"
@@ -1339,7 +1339,7 @@ af.fechaNacimiento
 <br><br>
 
 
-
+<p>Estado Civil</p><br>
 <select id="eEstadoCivil">
 
 
@@ -1372,7 +1372,7 @@ Concubino/a
 
 
 
-
+<p>Situación</p><br>
 <select id="eEstado">
 
 
