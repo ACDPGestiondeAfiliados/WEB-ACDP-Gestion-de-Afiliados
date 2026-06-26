@@ -2235,39 +2235,36 @@ cerrarModal();
 // ===============================
 
 
-function imprimir(id){
+// ===============================
+// IMPRIMIR FICHA
+// ===============================
 
+async function imprimir(id){
 
 
 const af =
-
 CACHE_AFILIADOS.find(
-
 a=>a.id===id
-
 );
-
 
 
 if(!af)return;
 
 
 
-
-
-const win =
-
-window.open(
-
-"",
-
-"_blank",
-
-"width=400,height=400"
-
+const fecha =
+formatearFechaHora(
+af.fechaAlta
 );
 
 
+
+const win =
+window.open(
+"",
+"_blank",
+"width=300,height=250"
+);
 
 
 
@@ -2276,80 +2273,153 @@ win.document.write(`
 
 <html>
 
-<body style="font-family:Arial;text-align:center">
+
+<body style="
+font-family:Arial;
+text-align:center;
+padding:5px;
+font-size:10px;
+">
 
 
 
-<h3>ACDP</h3>
+<div style="
 
+width:8cm;
+height:4.5cm;
 
-<h2>
+border:3px solid #A602AB;
 
-${af.nombre}
+border-radius:25px;
 
-${af.apellido}
+padding:6px;
 
-</h2>
+box-sizing:border-box;
 
+display:flex;
 
+flex-direction:column;
 
-<p>
-
-DNI:
-${af.dni}
-
-</p>
-
-
-<p>
-
-N° Afiliado:
-
-${af.numeroAfiliado}
-
-</p>
+">
 
 
 
-<p>
-
-Estado:
-
-${af.estado}
-
-</p>
 
 
+<div style="
 
-<p>
+display:flex;
 
-Provincia:
+align-items:center;
 
-${af.provincia||""}
+height:100px;
 
-</p>
+">
 
 
-
-<p>
-
-Cargo:
-
-${af.cargo||""}
-
-</p>
 
 
 
 <img
 
-src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.numeroAfiliado}"
+src="./iconos/logo.jpg"
 
-width="180"
+style="
+
+width:100px;
+height:100px;
+
+object-fit:cover;
+
+border-radius:15px;
+
+"
 
 
 
 >
+
+
+
+
+
+<div style="
+
+flex:1;
+
+text-align:left;
+
+font-size:10px;
+
+line-height:14px;
+
+padding-left:8px;
+
+">
+
+
+
+<b style="font-size:12px;">
+
+${af.nombre}
+${af.apellido}
+
+</b>
+
+
+<br>
+
+DNI: ${af.dni || ""}
+
+<br>
+
+Celular: ${af.celular || ""}
+
+<br>
+
+${af.correo || ""}
+
+<br>
+
+Correo: ${af.estado || ""}
+
+<br>
+
+Fecha alta: ${fecha.fecha}
+
+
+
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<p style="
+font-size:9px;
+text-align:center;
+letter-spacing:5px;
+margin:0;
+line-height:10px;
+">
+${af.numeroAfiliado}
+</p>
+
+<img 
+src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.numeroAfiliado}&scale=2&height=10"
+style="
+width:150px;
+height:35px;
+margin:2px auto 0 auto;
+display:block;
+">
+
+</div>
 
 
 
@@ -2370,6 +2440,7 @@ window.close();
 
 </body>
 
+
 </html>
 
 
@@ -2377,16 +2448,10 @@ window.close();
 
 
 
-
 win.document.close();
 
 
-
 }
-
-
-
-
 
 
 
