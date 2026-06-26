@@ -1,12 +1,63 @@
 /* ===============================
-   PORTAL ASOCIADOS ACDP
-   Estilos independientes
+   PORTAL SOCIOS ACDP
 =============================== */
 
 
-.asociados-main{
+body{
+
+background:#f2f2f2;
+
+font-family:Arial, sans-serif;
+
+margin:0;
+
+}
+
+
+
+/* HEADER */
+
+.socios-header{
+
+text-align:center;
+
+background:white;
+
+padding:20px;
+
+box-shadow:
+0 3px 12px rgba(0,0,0,.15);
+
+}
+
+
+
+.socios-header img{
+
+width:70px;
+
+border-radius:50%;
+
+}
+
+
+
+.socios-header h2{
+
+margin:10px 0 0;
+
+}
+
+
+
+
+
+/* CONTENEDOR */
+
+.socios-main{
 
 width:90%;
+
 max-width:900px;
 
 margin:30px auto;
@@ -16,17 +67,10 @@ margin:30px auto;
 
 
 
-.asociados-header{
 
-text-align:center;
+/* TARJETAS */
 
-}
-
-
-
-
-
-.asociados-card{
+.tarjeta{
 
 background:white;
 
@@ -37,56 +81,46 @@ padding:25px;
 margin-bottom:25px;
 
 box-shadow:
-0 5px 20px rgba(0,0,0,0.15);
+0 5px 20px rgba(0,0,0,.15);
 
 animation:
+
 aparecer .3s ease;
 
 }
 
 
 
-
-
-.asociados-card h2{
+.tarjeta h2,
+.tarjeta h3{
 
 text-align:center;
 
-margin-bottom:15px;
-
 }
 
 
 
 
 
-.asociados-form{
+/* FORMULARIOS */
 
-display:flex;
+.inputNumero,
+.form-edicion input,
+#loginPin{
 
-flex-direction:column;
+width:100%;
 
-gap:15px;
-
-max-width:350px;
-
-margin:auto;
-
-}
-
-
-
-
-
-.asociados-form input{
+box-sizing:border-box;
 
 padding:12px;
+
+margin:8px 0;
 
 border-radius:10px;
 
 border:1px solid #aaa;
 
-font-size:18px;
+font-size:17px;
 
 text-align:center;
 
@@ -96,10 +130,9 @@ text-align:center;
 
 
 
-.asociados-form button,
-#btnCerrarSesionAsociado{
+button{
 
-padding:12px;
+padding:12px 20px;
 
 border:none;
 
@@ -109,19 +142,32 @@ cursor:pointer;
 
 font-weight:bold;
 
+background:#222;
+
+color:white;
+
+}
+
+
+
+button:hover{
+
+opacity:.85;
+
 }
 
 
 
 
 
-.mensajeAsociado{
+#btnLoginSocio,
+#btnGuardarDatos,
+#btnCambiarPin,
+#btnCerrarSesion{
 
-text-align:center;
+width:100%;
 
-font-weight:bold;
-
-margin-top:15px;
+margin-top:10px;
 
 }
 
@@ -129,11 +175,14 @@ margin-top:15px;
 
 
 
-.datosAsociado{
+/* DATOS */
+
+.datosSocio{
 
 display:grid;
 
-grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
 
 gap:15px;
 
@@ -143,8 +192,7 @@ margin-top:20px;
 
 
 
-
-.datosAsociado div{
+.datosSocio div{
 
 background:#f3f3f3;
 
@@ -156,8 +204,7 @@ border-radius:12px;
 
 
 
-
-.datosAsociado label{
+.datosSocio label{
 
 display:block;
 
@@ -169,8 +216,7 @@ font-size:14px;
 
 
 
-
-.datosAsociado span{
+.datosSocio span{
 
 font-size:18px;
 
@@ -179,7 +225,36 @@ font-size:18px;
 
 
 
-#cuotasAsociado{
+
+.form-edicion{
+
+display:flex;
+
+flex-direction:column;
+
+gap:10px;
+
+}
+
+
+
+
+
+.accionesSocio{
+
+text-align:center;
+
+margin:20px;
+
+}
+
+
+
+
+
+/* CUOTAS */
+
+#cuotasSocio{
 
 display:grid;
 
@@ -191,8 +266,6 @@ gap:10px;
 margin:20px 0;
 
 }
-
-
 
 
 
@@ -212,14 +285,11 @@ background:#eee;
 
 
 
-
-
 .cuotaPagada{
 
 background:#b9e7b9;
 
 }
-
 
 
 
@@ -240,6 +310,50 @@ text-align:center;
 font-size:22px;
 
 margin:20px;
+
+}
+
+
+
+
+
+/* MODALES */
+
+.modal{
+
+position:fixed;
+
+inset:0;
+
+background:
+rgba(0,0,0,.45);
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+z-index:999;
+
+}
+
+
+
+.modal-contenido{
+
+background:white;
+
+padding:25px;
+
+border-radius:15px;
+
+width:90%;
+
+max-width:450px;
+
+box-shadow:
+0 10px 30px rgba(0,0,0,.3);
 
 }
 
