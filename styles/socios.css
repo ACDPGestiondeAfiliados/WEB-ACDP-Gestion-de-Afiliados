@@ -1,6 +1,7 @@
 /* ===============================
    PORTAL SOCIOS ACDP
    Diseño institucional
+   Colores oficiales ACDP
 =============================== */
 
 
@@ -23,11 +24,11 @@ sans-serif;
 background:
 linear-gradient(
 135deg,
-#eef5ff,
+#fff2ff,
 #ffffff
 );
 
-color:#243447;
+color:#3a2040;
 
 }
 
@@ -53,14 +54,14 @@ gap:18px;
 background:
 linear-gradient(
 135deg,
-#004aad,
-#006ee6
+#A602AB,
+#F600FF
 );
 
 color:white;
 
 box-shadow:
-0 6px 20px rgba(0,0,0,.25);
+0 6px 20px rgba(166,2,171,.35);
 
 }
 
@@ -126,7 +127,7 @@ margin:35px auto;
 .tarjeta{
 
 background:
-rgba(255,255,255,.92);
+rgba(255,255,255,.94);
 
 border-radius:22px;
 
@@ -134,11 +135,11 @@ padding:30px;
 
 box-shadow:
 
-0 15px 35px rgba(0,74,173,.18);
+0 15px 35px rgba(166,2,171,.18);
 
 border:
 
-1px solid rgba(0,74,173,.08);
+1px solid rgba(166,2,171,.12);
 
 animation:
 
@@ -152,7 +153,7 @@ aparecer .35s ease;
 
 .tarjeta h2{
 
-color:#004aad;
+color:#A602AB;
 
 margin-top:0;
 
@@ -164,11 +165,11 @@ margin-top:0;
 
 margin-top:30px;
 
-color:#0057c8;
+color:#A602AB;
 
 border-bottom:
 
-2px solid #e7efff;
+2px solid #f6d7ff;
 
 padding-bottom:8px;
 
@@ -196,7 +197,7 @@ border-radius:14px;
 
 border:
 
-1px solid #ccd8ea;
+1px solid #e0c7e6;
 
 font-size:16px;
 
@@ -215,11 +216,11 @@ transition:.2s;
 
 outline:none;
 
-border-color:#006ee6;
+border-color:#F600FF;
 
 box-shadow:
 
-0 0 0 4px rgba(0,110,230,.15);
+0 0 0 4px rgba(246,0,255,.15);
 
 }
 
@@ -250,15 +251,15 @@ background:
 
 linear-gradient(
 135deg,
-#004aad,
-#0077ff
+#A602AB,
+#F600FF
 );
 
 color:white;
 
 box-shadow:
 
-0 6px 15px rgba(0,74,173,.25);
+0 6px 15px rgba(166,2,171,.28);
 
 transition:.2s;
 
@@ -272,7 +273,7 @@ transform:translateY(-2px);
 
 box-shadow:
 
-0 10px 20px rgba(0,74,173,.35);
+0 10px 20px rgba(246,0,255,.35);
 
 }
 
@@ -325,8 +326,8 @@ background:
 
 linear-gradient(
 135deg,
-#f8fbff,
-#edf5ff
+#fff8ff,
+#fcecff
 );
 
 padding:18px;
@@ -335,11 +336,11 @@ border-radius:16px;
 
 border-left:
 
-5px solid #006ee6;
+5px solid #A602AB;
 
 box-shadow:
 
-0 5px 15px rgba(0,0,0,.06);
+0 5px 15px rgba(166,2,171,.10);
 
 }
 
@@ -353,7 +354,7 @@ font-size:13px;
 
 font-weight:bold;
 
-color:#667;
+color:#765;
 
 margin-bottom:5px;
 
@@ -426,11 +427,11 @@ font-weight:bold;
 
 text-align:center;
 
-background:#f1f4f8;
+background:#faf5fb;
 
 box-shadow:
 
-0 4px 12px rgba(0,0,0,.08);
+0 4px 12px rgba(166,2,171,.12);
 
 }
 
@@ -478,7 +479,7 @@ text-align:center;
 
 font-size:24px;
 
-color:#004aad;
+color:#A602AB;
 
 }
 
@@ -522,7 +523,7 @@ justify-content:center;
 
 background:
 
-rgba(0,0,0,.45);
+rgba(70,0,80,.45);
 
 backdrop-filter:
 
@@ -548,7 +549,7 @@ border-radius:22px;
 
 box-shadow:
 
-0 20px 50px rgba(0,0,0,.35);
+0 20px 50px rgba(166,2,171,.35);
 
 animation:
 
