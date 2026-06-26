@@ -1,32 +1,66 @@
 /* ===============================
    PORTAL SOCIOS ACDP
+   Diseño institucional
 =============================== */
+
+
+*{
+box-sizing:border-box;
+}
 
 
 body{
 
-background:#f2f2f2;
-
-font-family:Arial, sans-serif;
-
 margin:0;
+
+min-height:100vh;
+
+font-family:
+"Segoe UI",
+Arial,
+sans-serif;
+
+background:
+linear-gradient(
+135deg,
+#eef5ff,
+#ffffff
+);
+
+color:#243447;
 
 }
 
 
 
-/* HEADER */
+/* ===============================
+ HEADER
+=============================== */
+
 
 .socios-header{
 
-text-align:center;
+height:95px;
 
-background:white;
+display:flex;
 
-padding:20px;
+align-items:center;
+
+justify-content:center;
+
+gap:18px;
+
+background:
+linear-gradient(
+135deg,
+#004aad,
+#006ee6
+);
+
+color:white;
 
 box-shadow:
-0 3px 12px rgba(0,0,0,.15);
+0 6px 20px rgba(0,0,0,.25);
 
 }
 
@@ -34,9 +68,18 @@ box-shadow:
 
 .socios-header img{
 
-width:70px;
+width:65px;
+
+height:65px;
+
+object-fit:cover;
 
 border-radius:50%;
+
+border:3px solid white;
+
+box-shadow:
+0 4px 12px rgba(0,0,0,.3);
 
 }
 
@@ -44,7 +87,11 @@ border-radius:50%;
 
 .socios-header h2{
 
-margin:10px 0 0;
+margin:0;
+
+font-weight:600;
+
+letter-spacing:.5px;
 
 }
 
@@ -52,7 +99,10 @@ margin:10px 0 0;
 
 
 
-/* CONTENEDOR */
+/* ===============================
+ CONTENEDOR
+=============================== */
+
 
 .socios-main{
 
@@ -60,7 +110,7 @@ width:90%;
 
 max-width:900px;
 
-margin:30px auto;
+margin:35px auto;
 
 }
 
@@ -68,33 +118,59 @@ margin:30px auto;
 
 
 
-/* TARJETAS */
+/* ===============================
+ TARJETAS
+=============================== */
+
 
 .tarjeta{
 
-background:white;
+background:
+rgba(255,255,255,.92);
 
-border-radius:15px;
+border-radius:22px;
 
-padding:25px;
-
-margin-bottom:25px;
+padding:30px;
 
 box-shadow:
-0 5px 20px rgba(0,0,0,.15);
+
+0 15px 35px rgba(0,74,173,.18);
+
+border:
+
+1px solid rgba(0,74,173,.08);
 
 animation:
 
-aparecer .3s ease;
+aparecer .35s ease;
 
 }
 
 
 
-.tarjeta h2,
+
+
+.tarjeta h2{
+
+color:#004aad;
+
+margin-top:0;
+
+}
+
+
+
 .tarjeta h3{
 
-text-align:center;
+margin-top:30px;
+
+color:#0057c8;
+
+border-bottom:
+
+2px solid #e7efff;
+
+padding-bottom:8px;
 
 }
 
@@ -102,49 +178,89 @@ text-align:center;
 
 
 
-/* FORMULARIOS */
+/* ===============================
+ INPUTS
+=============================== */
+
 
 .inputNumero,
-.form-edicion input,
-#loginPin{
+#loginPin,
+.form-edicion input{
+
 
 width:100%;
 
-box-sizing:border-box;
+padding:14px;
 
-padding:12px;
+border-radius:14px;
 
-margin:8px 0;
+border:
 
-border-radius:10px;
+1px solid #ccd8ea;
 
-border:1px solid #aaa;
+font-size:16px;
 
-font-size:17px;
+background:white;
 
-text-align:center;
+transition:.2s;
 
 }
 
 
 
+.inputNumero:focus,
+#loginPin:focus,
+.form-edicion input:focus{
+
+
+outline:none;
+
+border-color:#006ee6;
+
+box-shadow:
+
+0 0 0 4px rgba(0,110,230,.15);
+
+}
+
+
+
+
+
+/* ===============================
+ BOTONES
+=============================== */
 
 
 button{
 
-padding:12px 20px;
-
 border:none;
 
-border-radius:10px;
+border-radius:14px;
+
+padding:13px 20px;
 
 cursor:pointer;
 
-font-weight:bold;
+font-weight:600;
 
-background:#222;
+font-size:15px;
+
+background:
+
+linear-gradient(
+135deg,
+#004aad,
+#0077ff
+);
 
 color:white;
+
+box-shadow:
+
+0 6px 15px rgba(0,74,173,.25);
+
+transition:.2s;
 
 }
 
@@ -152,7 +268,11 @@ color:white;
 
 button:hover{
 
-opacity:.85;
+transform:translateY(-2px);
+
+box-shadow:
+
+0 10px 20px rgba(0,74,173,.35);
 
 }
 
@@ -167,7 +287,7 @@ opacity:.85;
 
 width:100%;
 
-margin-top:10px;
+margin-top:12px;
 
 }
 
@@ -175,16 +295,23 @@ margin-top:10px;
 
 
 
-/* DATOS */
+/* ===============================
+ DATOS
+=============================== */
+
 
 .datosSocio{
 
 display:grid;
 
 grid-template-columns:
-repeat(auto-fit,minmax(220px,1fr));
 
-gap:15px;
+repeat(
+auto-fit,
+minmax(220px,1fr)
+);
+
+gap:18px;
 
 margin-top:20px;
 
@@ -194,11 +321,25 @@ margin-top:20px;
 
 .datosSocio div{
 
-background:#f3f3f3;
+background:
 
-padding:15px;
+linear-gradient(
+135deg,
+#f8fbff,
+#edf5ff
+);
 
-border-radius:12px;
+padding:18px;
+
+border-radius:16px;
+
+border-left:
+
+5px solid #006ee6;
+
+box-shadow:
+
+0 5px 15px rgba(0,0,0,.06);
 
 }
 
@@ -208,9 +349,13 @@ border-radius:12px;
 
 display:block;
 
+font-size:13px;
+
 font-weight:bold;
 
-font-size:14px;
+color:#667;
+
+margin-bottom:5px;
 
 }
 
@@ -220,10 +365,17 @@ font-size:14px;
 
 font-size:18px;
 
+font-weight:600;
+
 }
 
 
 
+
+
+/* ===============================
+ FORM EDICION
+=============================== */
 
 
 .form-edicion{
@@ -232,12 +384,111 @@ display:flex;
 
 flex-direction:column;
 
-gap:10px;
+gap:12px;
 
 }
 
 
 
+
+
+/* ===============================
+ CUOTAS
+=============================== */
+
+
+#cuotasSocio{
+
+display:grid;
+
+grid-template-columns:
+
+repeat(
+auto-fit,
+minmax(130px,1fr)
+);
+
+gap:14px;
+
+margin:25px 0;
+
+}
+
+
+
+.cuotaMes{
+
+padding:16px;
+
+border-radius:16px;
+
+font-weight:bold;
+
+text-align:center;
+
+background:#f1f4f8;
+
+box-shadow:
+
+0 4px 12px rgba(0,0,0,.08);
+
+}
+
+
+
+.cuotaPagada{
+
+background:
+
+linear-gradient(
+135deg,
+#b8f5c4,
+#76df91
+);
+
+color:#075d20;
+
+}
+
+
+
+.cuotaPendiente{
+
+background:
+
+linear-gradient(
+135deg,
+#ffd2d2,
+#ff9d9d
+);
+
+color:#7b1111;
+
+}
+
+
+
+
+
+.cuotaActual{
+
+margin:25px;
+
+text-align:center;
+
+font-size:24px;
+
+color:#004aad;
+
+}
+
+
+
+
+
+/* ===============================
+ ACCIONES
+=============================== */
 
 
 .accionesSocio{
@@ -252,72 +503,10 @@ margin:20px;
 
 
 
-/* CUOTAS */
+/* ===============================
+ MODALES
+=============================== */
 
-#cuotasSocio{
-
-display:grid;
-
-grid-template-columns:
-repeat(auto-fit,minmax(120px,1fr));
-
-gap:10px;
-
-margin:20px 0;
-
-}
-
-
-
-.cuotaMes{
-
-padding:12px;
-
-border-radius:10px;
-
-text-align:center;
-
-font-weight:bold;
-
-background:#eee;
-
-}
-
-
-
-.cuotaPagada{
-
-background:#b9e7b9;
-
-}
-
-
-
-.cuotaPendiente{
-
-background:#f1c1c1;
-
-}
-
-
-
-
-
-.cuotaActual{
-
-text-align:center;
-
-font-size:22px;
-
-margin:20px;
-
-}
-
-
-
-
-
-/* MODALES */
 
 .modal{
 
@@ -325,16 +514,21 @@ position:fixed;
 
 inset:0;
 
-background:
-rgba(0,0,0,.45);
-
 display:flex;
 
 align-items:center;
 
 justify-content:center;
 
-z-index:999;
+background:
+
+rgba(0,0,0,.45);
+
+backdrop-filter:
+
+blur(5px);
+
+z-index:1000;
 
 }
 
@@ -342,23 +536,33 @@ z-index:999;
 
 .modal-contenido{
 
-background:white;
-
-padding:25px;
-
-border-radius:15px;
-
 width:90%;
 
 max-width:450px;
 
+background:white;
+
+padding:30px;
+
+border-radius:22px;
+
 box-shadow:
-0 10px 30px rgba(0,0,0,.3);
+
+0 20px 50px rgba(0,0,0,.35);
+
+animation:
+
+aparecer .25s ease;
 
 }
 
 
 
+
+
+/* ===============================
+ UTILIDADES
+=============================== */
 
 
 .oculto{
@@ -378,7 +582,9 @@ from{
 
 opacity:0;
 
-transform:translateY(15px);
+transform:
+translateY(20px)
+scale(.97);
 
 }
 
@@ -387,7 +593,9 @@ to{
 
 opacity:1;
 
-transform:translateY(0);
+transform:
+translateY(0)
+scale(1);
 
 }
 
