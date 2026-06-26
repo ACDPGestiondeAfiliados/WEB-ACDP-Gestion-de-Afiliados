@@ -864,20 +864,579 @@ ventana.document.close();
 }
 
 // ===============================
+// EXPORTAR PAGOS HISTORIAL
+// ===============================
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+
+const btn =
+document.getElementById(
+"exportarHistorial"
+);
+
+
+
+if(btn){
+
+btn.onclick =
+abrirModalExportarHistorial;
+
+}
+
+
+});
+
+
+
+
+// ===============================
+// MODAL EXPORTAR
+// ===============================
+
+function abrirModalExportarHistorial(){
+
+
+abrirModalHistorial(`
+
+
+<h3>
+
+Exportar pagos
+
+</h3>
+
+
+
+<label>
+
+Desde:
+
+</label>
+
+
+
+<input
+
+type="date"
+
+id="exportarDesde"
+
+class="inputNumero"
+
+>
+
+
+
+
+<br><br>
+
+
+
+
+<label>
+
+Hasta:
+
+</label>
+
+
+
+<input
+
+type="date"
+
+id="exportarHasta"
+
+class="inputNumero"
+
+>
+
+
+
+
+<br><br>
+
+
+
+
+<button id="btnGenerarExportacion">
+
+
+Exportar
+
+
+</button>
+
+
+
+
+<button id="btnCancelarExportacion">
+
+
+Cancelar
+
+
+</button>
+
+
+
+`);
+
+
+
+document
+.getElementById(
+"btnGenerarExportacion"
+)
+.onclick =
+exportarPagosHistorial;
+
+
+
+
+document
+.getElementById(
+"btnCancelarExportacion"
+)
+.onclick =
+cerrarModalHistorial;
+
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// CONTROL MODAL GLOBAL
+// ===============================
+
+
+function abrirModalHistorial(html){
+
+
+document
+.getElementById("modalContenido")
+.innerHTML =
+html;
+
+
+
+document
+.getElementById("modalFondo")
+.classList.add("activo");
+
+
+
+document
+.getElementById("cerrarModal")
+.onclick =
+cerrarModalHistorial;
+
+
+
+}
+
+
+
+
+
+function cerrarModalHistorial(){
+
+
+document
+.getElementById("modalContenido")
+.innerHTML="";
+
+
+
+document
+.getElementById("modalFondo")
+.classList.remove("activo");
+
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// EXPORTAR EXCEL TEMPORAL
+// ===============================
+
+
+function exportarPagosHistorial(){
+
+
+
+const desdeInput =
+document.getElementById(
+"exportarDesde"
+).value;
+
+
+
+const hastaInput =
+document.getElementById(
+"exportarHasta"
+).value;
+
+
+
+
+
+if(
+!desdeInput ||
+!hastaInput
+){
+
+
+alert(
+"Seleccione fechas"
+);
+
+
+return;
+
+}
+
+
+
+
+const desde =
+new Date(
+desdeInput+"T00:00:00"
+);
+
+
+
+const hasta =
+new Date(
+hastaInput+"T23:59:59"
+);
+
+
+
+
+
+const convertirFecha = valor =>{
+
+
+if(!valor)
+return null;
+
+
+
+const partes =
+valor.split("/");
+
+
+
+return new Date(
+
+partes[2],
+partes[1]-1,
+partes[0]
+
+);
+
+
+
+};
+
+
+
+
+
+
+const pagos =
+
+CACHE_HISTORIAL.filter(h=>{
+
+
+
+if(
+
+h.accion !== "Cobro"
+
+)
+
+return false;
+
+
+
+
+if(
+
+h.estado==="Anulado"
+
+)
+
+return false;
+
+
+
+
+
+const fecha =
+convertirFecha(
+h.fecha
+);
+
+
+
+
+if(!fecha)
+return false;
+
+
+
+
+return (
+
+fecha>=desde &&
+fecha<=hasta
+
+);
+
+
+
+});
+
+
+
+
+
+
+if(!pagos.length){
+
+
+alert(
+"No hay pagos en ese rango"
+);
+
+
+return;
+
+}
+
+
+
+
+
+
+
+pagos.sort((a,b)=>{
+
+
+return (
+
+convertirFecha(a.fecha)
+
+-
+
+convertirFecha(b.fecha)
+
+);
+
+
+
+});
+
+
+
+
+
+
+
+let csv =
+
+"Fecha;Hora;Afiliado;DNI;Numero Afiliado;Meses;Medio Pago;Total\n";
+
+
+
+let total=0;
+
+
+
+
+pagos.forEach(p=>{
+
+
+const monto =
+Number(
+p.total || 0
+);
+
+
+
+total += monto;
+
+
+
+
+csv +=
+
+`${p.fecha};`+
+
+`${p.hora||""};`+
+
+`${p.afiliado||""};`+
+
+`${p.dni||""};`+
+
+`${p.numeroAfiliado||""};`+
+
+`${(p.meses||[]).join(" - ")};`+
+
+`${p.medioPago||""};`+
+
+`${monto}\n`;
+
+
+
+});
+
+
+
+
+
+
+csv +=
+
+`\nTOTAL;;;;;;;${total}`;
+
+
+
+
+
+
+
+const blob =
+new Blob(
+
+[csv],
+
+{
+
+type:
+"text/csv;charset=utf-8;"
+
+}
+
+);
+
+
+
+
+
+const url =
+URL.createObjectURL(
+blob
+);
+
+
+
+
+
+const enlace =
+document.createElement(
+"a"
+);
+
+
+
+enlace.href =
+url;
+
+
+
+enlace.download =
+
+"ACDP_Pagos_"+
+
+desdeInput+
+
+"_"+
+
+hastaInput+
+
+".csv";
+
+
+
+
+
+enlace.click();
+
+
+setTimeout(()=>{
+
+
+URL.revokeObjectURL(
+url
+);
+
+
+
+cerrarModalHistorial();
+
+
+
+},300);
+
+
+
+}
+
+
+
+
+
+
+
+// ===============================
 // EXPORT
 // ===============================
 
 window.HISTORIAL = {
-    registrar,
-    imprimir,
-    anular
+
+registrar,
+
+imprimir,
+
+anular
+
 };
 
 
-window.imprimirHistorial = imprimir;
-window.anularHistorial = anular;
+
+window.imprimirHistorial =
+imprimir;
+
+
+
+window.anularHistorial =
+anular;
+
+
+
 
 
 // PUENTE GLOBAL PARA OTROS MODULOS
 
-window.registrarHistorial = registrar;
+
+window.registrarHistorial =
+registrar;
