@@ -1327,7 +1327,9 @@ csv +=
 const blob =
 new Blob(
 
-[csv],
+[
+"\uFEFF" + csv
+],
 
 {
 
