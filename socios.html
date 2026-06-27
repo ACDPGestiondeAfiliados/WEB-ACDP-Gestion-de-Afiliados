@@ -499,7 +499,11 @@ Cerrar sesión
 
 <script type="module" src="socios.js"></script>
 
-
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+</script>
 </body>
 
 </html>
