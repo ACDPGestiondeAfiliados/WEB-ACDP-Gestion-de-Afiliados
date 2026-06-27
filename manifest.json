@@ -1,7 +1,7 @@
 {
   "name": "ACDP Portal Afiliados",
   "short_name": "ACDP",
-  "start_url": "./socios.html",
+  "start_url": "socios.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
