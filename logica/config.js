@@ -1843,6 +1843,17 @@ w.print();
 async function exportarCSVCurso(id){
 
 
+const cursoSnap =
+await getDoc(doc(db,"cursos",id));
+
+if(!cursoSnap.exists())
+return;
+
+const curso =
+cursoSnap.data();
+
+
+
 const snap =
 await getDocs(
 
@@ -1869,14 +1880,14 @@ lista.push(d.data());
 
 
 
-// 👇 ORDEN ALFABÉTICO POR APELLIDO
+// ORDEN ALFABÉTICO POR APELLIDO
 lista.sort((a,b)=>
 (a.apellido||"").localeCompare(b.apellido||"")
 );
 
 
 
-// 👇 columnas (Apellido antes que Nombre)
+// CSV HEADERS
 let filas=[
 
 [
@@ -1907,7 +1918,7 @@ a.celular||""
 
 
 
-// CSV con separador correcto + escape + acentos
+// CSV FORMATO EXCEL
 const csv =
 filas
 .map(row =>
@@ -1934,6 +1945,36 @@ URL.createObjectURL(blob);
 
 
 
+// ===============================
+// NOMBRE DINÁMICO DEL ARCHIVO
+// ===============================
+
+const cupoTotal =
+Number(curso.cupo || 0);
+
+const inscriptos =
+lista.length;
+
+const restantes =
+Math.max(0, cupoTotal - inscriptos);
+
+
+
+const nombreLimpio =
+(curso.titulo || "Curso")
+.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"")
+.replace(/[^a-zA-Z0-9]/g,"_")
+.replace(/_+/g,"_")
+.replace(/^_|_$/g,"");
+
+
+
+const fileName =
+`${nombreLimpio}_Cupo_${restantes}.csv`;
+
+
+
 const a =
 document.createElement("a");
 
@@ -1941,7 +1982,7 @@ document.createElement("a");
 
 a.href=url;
 
-a.download="curso.csv";
+a.download=fileName;
 
 a.click();
 
