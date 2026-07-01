@@ -470,24 +470,6 @@ font-family:monospace;
 
 }
 
-
-
-#consolaSistema{
-
-background:#0f0f0f;
-color:#00ff66;
-font-family:monospace;
-padding:10px;
-height:300px;
-overflow-y:auto;
-border:1px solid #222;
-margin-bottom:10px;
-white-space:pre-wrap;
-
-}
-
-
-
 #inputLogs{
 
 width:100%;
