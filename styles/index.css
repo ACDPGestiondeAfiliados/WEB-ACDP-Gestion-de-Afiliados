@@ -269,41 +269,6 @@ box-shadow:
 
 
 /* ===============================
-   MENU NAVEGACION
-=============================== */
-
-.menu{
-
-display:flex;
-justify-content:center;
-gap:10px;
-padding:15px;
-background:white;
-
-}
-
-
-.menu button{
-
-padding:12px 20px;
-border:0;
-border-radius:6px;
-cursor:pointer;
-background:#A602AB;
-color:white;
-
-}
-
-
-.menu button:hover{
-
-background:#F600FF;
-
-}
-
-
-
-/* ===============================
    SECCIONES
 =============================== */
 
