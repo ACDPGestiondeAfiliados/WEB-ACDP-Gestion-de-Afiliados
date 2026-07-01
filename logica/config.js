@@ -1843,34 +1843,46 @@ w.print();
 async function exportarCSVCurso(id){
 
 
-
 const snap =
 await getDocs(
 
 collection(
-
 db,
-
 "cursos",
-
 id,
-
 "inscripciones"
-
 )
 
 );
 
 
 
+let lista=[];
 
 
+
+snap.forEach(d=>{
+
+lista.push(d.data());
+
+});
+
+
+
+// 👇 ORDEN ALFABÉTICO POR APELLIDO
+lista.sort((a,b)=>
+(a.apellido||"").localeCompare(b.apellido||"")
+);
+
+
+
+// 👇 columnas (Apellido antes que Nombre)
 let filas=[
 
 [
 "DNI",
-"Nombre",
 "Apellido",
+"Nombre",
 "Correo",
 "Celular"
 ]
@@ -1879,45 +1891,39 @@ let filas=[
 
 
 
-
-snap.forEach(d=>{
-
-
-const a=d.data();
-
+lista.forEach(a=>{
 
 filas.push([
 
-a.dni,
-a.nombre,
-a.apellido,
-a.correo,
-a.celular
+a.dni||"",
+a.apellido||"",
+a.nombre||"",
+a.correo||"",
+a.celular||""
 
 ]);
-
-
 
 });
 
 
 
-
-
+// CSV con separador correcto + escape + acentos
 const csv =
 filas
-.map(x=>x.join(","))
+.map(row =>
+row.map(v =>
+`"${String(v).replace(/"/g,'""')}"`
+).join(";")
+)
 .join("\n");
-
-
 
 
 
 const blob =
 new Blob(
-[csv],
+["\uFEFF" + csv],
 {
-type:"text/csv"
+type:"text/csv;charset=utf-8;"
 }
 );
 
@@ -1941,13 +1947,9 @@ a.click();
 
 
 
+URL.revokeObjectURL(url);
+
 }
-
-
-
-
-
-
 
 
 
