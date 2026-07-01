@@ -345,45 +345,70 @@ cursor:pointer;
 }
 
 
-
 /* ===============================
    TABLAS
 =============================== */
 
 table{
 
-border-radius:25px;
+width:100%;
 
-overflow:hidden;
+border-collapse:separate;
+
+border-spacing:0;
+
+background:white;
 
 box-shadow:
 0 5px 20px rgba(0,0,0,.08);
 
+border-radius:14px;
+
+overflow:hidden;
+
 }
 
 
+
+/* CABECERA */
 
 th{
 
 background:#A602AB;
+
 color:white;
-padding:10px;
-border:1px solid #e0bfe3;
+
+padding:12px;
+
+border-bottom:2px solid #F600FF;
+
 font-weight:bold;
+
+position:sticky;
+
+top:0;
+
+z-index:2;
 
 }
 
 
 
+/* CELDAS */
+
 td{
 
 padding:10px;
-border:1px solid #eeeeee;
+
+border-bottom:1px solid #eeeeee;
+
 vertical-align:middle;
 
 }
 
 
+
+/* FILAS */
 
 tr:nth-child(even){
 
@@ -400,6 +425,22 @@ background:#FCEBFF;
 }
 
 
+
+/* ULTIMA FILA REDONDEADA */
+
+tr:last-child td:first-child{
+
+border-bottom-left-radius:14px;
+
+}
+
+
+
+tr:last-child td:last-child{
+
+border-bottom-right-radius:14px;
+
+}
 
 /* ===============================
    PAGINACION / CONTROLES FECHA
