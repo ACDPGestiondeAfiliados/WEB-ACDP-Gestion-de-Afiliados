@@ -956,7 +956,9 @@ CSV
 
 <th>Apellido</th>
 
-<th>Estado</th>
+<th>Correo</th>
+
+<th>Celular</th>
 
 <th>Operador</th>
 
@@ -1206,7 +1208,12 @@ ${a.apellido||""}
 
 
 <td>
-${a.estado||""}
+${a.correo||""}
+</td>
+
+
+<td>
+${a.celular||""}
 </td>
 
 
@@ -1496,8 +1503,11 @@ afiliado.nombre,
 apellido:
 afiliado.apellido,
 
-estado:
-afiliado.estado,
+correo:
+afiliado.correo||"",
+
+celular:
+afiliado.celular||"",
 
 operador:
 operadorActual,
@@ -1707,8 +1717,8 @@ Listado Curso
 <th>DNI</th>
 <th>Nombre</th>
 <th>Apellido</th>
-<th>Estado</th>
-<th>Operador</th>
+<th>Correo</th>
+<th>Celular</th>
 
 </tr>
 
@@ -1733,9 +1743,9 @@ html+=`
 
 <td>${a.apellido}</td>
 
-<td>${a.estado}</td>
+<td>${a.correo}</td>
 
-<td>${a.operador}</td>
+<td>${a.celular}</td>
 
 </tr>
 
@@ -1858,12 +1868,11 @@ id,
 let filas=[
 
 [
-"Nro Afiliado",
 "DNI",
 "Nombre",
 "Apellido",
-"Estado",
-"Operador"
+"Correo",
+"Celular"
 ]
 
 ];
@@ -1879,12 +1888,11 @@ const a=d.data();
 
 filas.push([
 
-a.numeroAfiliado,
 a.dni,
 a.nombre,
 a.apellido,
-a.estado,
-a.operador
+a.correo,
+a.celular
 
 ]);
 
