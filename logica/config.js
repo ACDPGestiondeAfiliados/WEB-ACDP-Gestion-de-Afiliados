@@ -27,8 +27,6 @@ let cursoEditando=null;
 
 let cursosCache=[];
 
-let operadorActual="Administrador";
-
 
 
 
@@ -1510,7 +1508,7 @@ celular:
 afiliado.celular||"",
 
 operador:
-operadorActual,
+ACDP?.usuario || "Desconocido",
 
 fecha:
 new Date()
