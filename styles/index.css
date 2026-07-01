@@ -153,8 +153,14 @@ position:relative;
 background:white;
 padding:25px;
 border-radius:10px;
-width:500px;
-max-width:90%;
+
+width:80vw;
+max-width:80vw;
+
+height:auto;
+max-height:85vh;
+
+overflow:hidden;
 }
 
 
@@ -248,10 +254,12 @@ vertical-align:middle;
 
 #modalContenido{
 
-    max-height:75vh;
+max-height:75vh;
 
-    overflow-y:auto;
+overflow-y:auto;
 
-    padding-right:10px;
+padding-right:15px;
+
+width:100%;
 
 }
