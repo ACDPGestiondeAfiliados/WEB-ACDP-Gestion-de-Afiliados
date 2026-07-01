@@ -31,7 +31,49 @@ font-size:40px;
 
 
 #usuarioActivo{
-margin-top:10px;
+
+margin-top:12px;
+
+display:inline-flex;
+align-items:center;
+gap:8px;
+
+padding:8px 16px;
+
+background:
+linear-gradient(
+135deg,
+#A602AB,
+#F600FF
+);
+
+color:white;
+
+font-size:14px;
+font-weight:600;
+
+border-radius:20px;
+
+box-shadow:
+0 4px 12px rgba(166,2,171,.35);
+
+letter-spacing:.3px;
+
+user-select:none;
+
+transition:.2s ease;
+
+}
+
+
+
+#usuarioActivo:hover{
+
+transform:translateY(-1px);
+
+box-shadow:
+0 6px 16px rgba(246,0,255,.45);
+
 }
 
 
