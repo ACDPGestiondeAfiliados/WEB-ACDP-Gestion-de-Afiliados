@@ -161,8 +161,8 @@ function configurarMenu() {
 function protegerSeccion(seccion) {
     if (!ACDP.logeado) return;
 
-    if ((seccion === "usuarios" || seccion === "configuracion" || seccion === "historial") && !ACDP.master && ACDP.rol !== "ADMINISTRADOR") {
-        alert("Acceso solo administrador o master");
+    if ((seccion === "usuarios" || seccion === "historial") && !ACDP.master && ACDP.rol !== "ADMINISTRADOR") {
+        alert("ERROR: Solo acceden adiministradores. Por favor, intentá clic en SALIR primero");
         return;
     }
 
