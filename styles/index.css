@@ -57,6 +57,8 @@ z-index:9999;
 
 box-shadow:0 2px 8px rgba(0,0,0,.25);
 
+transition: height .3s ease, box-shadow .3s ease, background .3s ease;
+
 }
 
 
@@ -97,15 +99,16 @@ white-space:nowrap;
 
 
 
-/* MENU */
+/* ===============================
+   MENU HEADER
+=============================== */
 
 .menu{
 
 display:flex;
-
 align-items:center;
 
-gap:8px;
+gap:10px;
 
 margin-left:auto;
 
@@ -113,50 +116,78 @@ margin-left:auto;
 
 
 
+/* BOTONES */
 
 .menu button{
 
-background:white;
+background:transparent;
 
-color:#A602AB;
+color:white;
 
-border:none;
+border:2px solid rgba(255,255,255,.85);
 
-border-radius:6px;
+border-radius:10px;
 
-padding:8px 13px;
+padding:8px 14px;
 
 font-size:13px;
 
-font-weight:bold;
+font-weight:800;
+
+letter-spacing:.5px;
 
 cursor:pointer;
 
-transition:.2s;
+transition:
+transform .2s ease,
+background .2s ease,
+box-shadow .2s ease;
 
 }
 
 
+
+/* HOVER */
 
 .menu button:hover{
 
 background:#F600FF;
 
+border-color:#F600FF;
+
 color:white;
 
-transform:translateY(-1px);
+transform:scale(1.10);
+
+box-shadow:
+0 5px 15px rgba(246,0,255,.45);
 
 }
 
 
 
+/* CLICK */
+
+.menu button:active{
+
+transform:scale(.98);
+
+}
+
+
+
+
+/* DESHABILITADOS */
+
 .menu button:disabled{
 
-opacity:.5;
+opacity:.45;
 
 cursor:not-allowed;
 
 transform:none;
+
+box-shadow:none;
 
 }
 
