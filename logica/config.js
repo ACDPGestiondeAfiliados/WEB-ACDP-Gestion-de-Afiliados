@@ -1010,13 +1010,15 @@ document
 
 abrir("modalFondo");
 
-
-
 escucharInscripciones(id);
 
 cargarInscripciones(id);
 
+if(window._timerCurso)
+clearInterval(window._timerCurso);
 
+window._timerCurso =
+iniciarContadorTiempo(curso);
 
 };
 
@@ -2255,9 +2257,80 @@ alert(
 
 
 
+// ===============================
+// CONTROL TIEMPO - CURSOS
+// ===============================
+
+function iniciarContadorTiempo(curso){
+
+const el =
+document.getElementById("contadorTiempo");
+
+if(!el || !curso.fechaCreacion || !curso.fechaCierre)
+return;
 
 
+function bloquearUI(){
 
+document.querySelectorAll("#listaInscripcionesCurso button")
+.forEach(b=>b.disabled = true);
+
+}
+
+
+function actualizar(){
+
+const ahora =
+new Date();
+
+
+const cierre =
+new Date(curso.fechaCierre + "T23:59:59");
+
+
+const finBloqueo =
+new Date(cierre);
+
+finBloqueo.setHours(finBloqueo.getHours() + 72);
+
+
+const diff =
+finBloqueo - ahora;
+
+
+if(diff <= 0){
+
+el.textContent =
+"Bloqueado";
+
+bloquearUI();
+
+return;
+
+}
+
+
+const horas =
+Math.floor(diff / (1000 * 60 * 60));
+
+const dias =
+Math.floor(horas / 24);
+
+const horasRestantes =
+horas % 24;
+
+
+el.textContent =
+`${dias}d ${horasRestantes}h restantes`;
+
+}
+
+
+actualizar();
+
+return setInterval(actualizar, 60000);
+
+}
 
 
 
