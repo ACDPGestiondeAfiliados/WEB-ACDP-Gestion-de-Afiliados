@@ -1,6 +1,11 @@
+/* ===============================
+   BASE GLOBAL
+=============================== */
+
 *{
 box-sizing:border-box;
 }
+
 
 body{
 margin:0;
@@ -8,6 +13,11 @@ font-family:Arial,Helvetica,sans-serif;
 background:#f2f4f7;
 color:#222;
 }
+
+
+/* ===============================
+   ESTADOS / AVISOS
+=============================== */
 
 .historialAnulado{
 
@@ -17,6 +27,12 @@ filter:grayscale(100%);
 
 }
 
+
+
+/* ===============================
+   HEADER PRINCIPAL
+=============================== */
+
 .header{
 background:#A602AB;
 color:white;
@@ -24,11 +40,17 @@ text-align:center;
 padding:20px;
 }
 
+
 .header h1{
 margin:0;
 font-size:40px;
 }
 
+
+
+/* ===============================
+   USUARIO ACTIVO
+=============================== */
 
 #usuarioActivo{
 
@@ -77,120 +99,199 @@ box-shadow:
 }
 
 
+
+/* ===============================
+   MENU NAVEGACION
+=============================== */
+
 .menu{
+
 display:flex;
 justify-content:center;
 gap:10px;
 padding:15px;
 background:white;
+
 }
 
 
 .menu button{
+
 padding:12px 20px;
 border:0;
 border-radius:6px;
 cursor:pointer;
 background:#A602AB;
 color:white;
+
 }
 
 
 .menu button:hover{
+
 background:#F600FF;
+
 }
 
 
+
+/* ===============================
+   SECCIONES
+=============================== */
+
 .seccion{
+
 display:none;
 padding:25px;
+
 }
 
 
 .seccion.activa{
+
 display:block;
+
 }
 
 
+
+/* ===============================
+   BLOQUES Y CONTENEDORES
+=============================== */
+
 .bloque{
+
 display:flex;
 gap:10px;
 margin:20px 0;
 align-items:center;
+
 }
 
 
+
+/* ===============================
+   INPUTS
+=============================== */
+
 input{
+
 padding:10px;
 border:1px solid #aaa;
 border-radius:5px;
+
 }
 
+
+
+/* ===============================
+   BOTONES GENERALES
+=============================== */
 
 button{
+
 cursor:pointer;
+
 }
 
+
+
+/* ===============================
+   TABLAS
+=============================== */
 
 table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-    border:1px solid #e6d7e8;
+
+width:100%;
+border-collapse:collapse;
+background:white;
+border:1px solid #e6d7e8;
+
 }
+
 
 
 th{
-    background:#A602AB;
-    color:white;
-    padding:10px;
-    border:1px solid #e0bfe3;
-    font-weight:bold;
+
+background:#A602AB;
+color:white;
+padding:10px;
+border:1px solid #e0bfe3;
+font-weight:bold;
+
 }
+
 
 
 td{
-    padding:10px;
-    border:1px solid #eeeeee;
-    vertical-align:middle;
+
+padding:10px;
+border:1px solid #eeeeee;
+vertical-align:middle;
+
 }
+
 
 
 tr:nth-child(even){
-    background:#faf7fb;
+
+background:#faf7fb;
+
 }
+
 
 
 tr:hover{
-    background:#FCEBFF;
+
+background:#FCEBFF;
+
 }
 
 
+
+/* ===============================
+   PAGINACION / CONTROLES FECHA
+=============================== */
+
 .fecha-control,
 .paginacion{
+
 display:flex;
 justify-content:center;
 gap:15px;
 margin:20px;
+
 }
 
 
+
+/* ===============================
+   MODALES
+=============================== */
+
 .modal-fondo{
+
 display:none;
 position:fixed;
 inset:0;
 background:rgba(0,0,0,.5);
 justify-content:center;
 align-items:center;
+
 }
+
 
 
 .modal-fondo.activo{
+
 display:flex;
+
 }
 
 
+
 .modal{
+
 position:relative;
 background:white;
 padding:25px;
@@ -203,10 +304,13 @@ height:auto;
 max-height:85vh;
 
 overflow:hidden;
+
 }
 
 
+
 #cerrarModal{
+
 position:absolute;
 right:10px;
 top:10px;
@@ -214,66 +318,89 @@ background:#c00;
 color:white;
 border:0;
 border-radius:50%;
+
 }
 
 
+
+/* ===============================
+   CONSOLA / LOGS
+=============================== */
+
 #consolaSistema{
+
 background:#111;
 color:#0f0;
 min-height:120px;
 padding:15px;
 font-family:monospace;
+
 }
 
-.iconoHistorial{
-    width:32px;
-    height:32px;
-    cursor:pointer;
-    object-fit:contain;
-    margin:3px;
-}
+
 
 #consolaSistema{
-    background:#0f0f0f;
-    color:#00ff66;
-    font-family:monospace;
-    padding:10px;
-    height:300px;
-    overflow-y:auto;
-    border:1px solid #222;
-    margin-bottom:10px;
-    white-space:pre-wrap;
+
+background:#0f0f0f;
+color:#00ff66;
+font-family:monospace;
+padding:10px;
+height:300px;
+overflow-y:auto;
+border:1px solid #222;
+margin-bottom:10px;
+white-space:pre-wrap;
+
 }
+
+
 
 #inputLogs{
-    width:100%;
-    padding:10px;
-    background:#111;
-    color:#0f0;
-    border:1px solid #333;
-    font-family:monospace;
+
+width:100%;
+padding:10px;
+background:#111;
+color:#0f0;
+border:1px solid #333;
+font-family:monospace;
+
 }
+
+
 
 .ayudaLogs{
-    margin-top:10px;
-    font-size:12px;
-    font-family:monospace;
-    background:#111;
-    color:#aaa;
-    padding:10px;
-    border:1px solid #222;
+
+margin-top:10px;
+font-size:12px;
+font-family:monospace;
+background:#111;
+color:#aaa;
+padding:10px;
+border:1px solid #222;
+
 }
 
-.modal-fondo{
-display:none;
-}
 
-.modal-fondo.activo{
-display:flex;
-}
 
 /* ===============================
-   ICONOS PNG
+   ICONOS HISTORIAL
+=============================== */
+
+.iconoHistorial{
+
+width:32px;
+height:32px;
+cursor:pointer;
+object-fit:contain;
+margin:3px;
+
+}
+
+
+
+/* ===============================
+   ICONOS PNG DEL SISTEMA
+   (EDIT / DELETE / PRINT)
 =============================== */
 
 img[src$="/iconos/delete.png"],
@@ -281,7 +408,6 @@ img[src$="/iconos/edit.png"],
 img[src$="/iconos/print.png"]{
 
 width:20px;
-
 height:20px;
 
 object-fit:contain;
@@ -290,10 +416,19 @@ vertical-align:middle;
 
 }
 
+
+
+/* ===============================
+   CONTENIDO MODAL
+=============================== */
+
 #modal{
-    max-height:85vh;
-    overflow:hidden;
+
+max-height:85vh;
+overflow:hidden;
+
 }
+
 
 
 #modalContenido{
