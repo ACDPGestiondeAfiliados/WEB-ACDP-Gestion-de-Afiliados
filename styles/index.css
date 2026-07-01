@@ -276,7 +276,9 @@ display:flex;
    ICONOS PNG
 =============================== */
 
-img[src$=".png"]{
+img[src$="/iconos/delete.png"],
+img[src$="/iconos/edit.png"],
+img[src$="/iconos/print.png"]{
 
 width:20px;
 
