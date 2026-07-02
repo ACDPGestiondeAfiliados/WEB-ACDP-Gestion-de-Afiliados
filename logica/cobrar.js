@@ -1008,7 +1008,7 @@ box-sizing:border-box;
 
 
 <img 
-src="./iconos/logo.jpg"
+src="iconos/icono-app.png"
 style="width:35px;"
 >
 
