@@ -1009,7 +1009,7 @@ box-sizing:border-box;
 
 <img 
 src="iconos/icono-app.png"
-style="width:35px;"
+style="width:70px;"
 >
 
 
