@@ -269,11 +269,6 @@ return (
 String(h.dni)
 .includes(valor)
 
-||
-
-String(h.numeroAfiliado)
-.includes(valor)
-
 );
 
 
@@ -397,7 +392,7 @@ ${h.dni||""}
 
 <td>
 
-${h.numeroAfiliado||""}
+${h.codigoComprobante||""}
 
 </td>
 
@@ -1263,7 +1258,7 @@ convertirFecha(b.fecha)
 
 let csv =
 
-"Fecha;Hora;Afiliado;DNI;Numero Afiliado;Meses;Medio Pago;Total\n";
+"Fecha;Hora;Afiliado;DNI;Numero Comprobante;Meses;Medio Pago;Total\n";
 
 
 
@@ -1297,7 +1292,7 @@ csv +=
 
 `${p.dni||""};`+
 
-`${p.numeroAfiliado||""};`+
+`${p.codigoComprobante||""};`+
 
 `${(p.meses||[]).join(" - ")};`+
 
