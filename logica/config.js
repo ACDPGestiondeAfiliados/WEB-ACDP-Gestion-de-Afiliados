@@ -916,7 +916,7 @@ calculando...
 
 id="buscarAfiliadoCurso"
 
-placeholder="DNI o Nro Afiliado"
+placeholder="DNI"
 
 >
 
@@ -945,8 +945,6 @@ CSV
 <thead>
 
 <tr>
-
-<th>Nro Afiliado</th>
 
 <th>DNI</th>
 
@@ -1157,11 +1155,6 @@ filtro &&
 !String(a.dni)
 .includes(filtro)
 
-&&
-
-!String(a.numeroAfiliado)
-.includes(filtro)
-
 ){
 
 return;
@@ -1185,11 +1178,6 @@ tabla.innerHTML+=`
 
 
 <tr>
-
-
-<td>
-${a.numeroAfiliado||""}
-</td>
 
 
 <td>
@@ -1491,9 +1479,6 @@ afiliadoID
 
 afiliadoID,
 
-numeroAfiliado:
-afiliado.numeroAfiliado,
-
 dni:
 afiliado.dni,
 
@@ -1712,8 +1697,6 @@ Listado Curso
 
 
 <tr>
-
-<th>Nro</th>
 <th>DNI</th>
 <th>Nombre</th>
 <th>Apellido</th>
@@ -1734,8 +1717,6 @@ lista.forEach(a=>{
 html+=`
 
 <tr>
-
-<td>${a.numeroAfiliado}</td>
 
 <td>${a.dni}</td>
 
