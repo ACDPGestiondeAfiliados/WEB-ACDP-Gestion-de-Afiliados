@@ -818,7 +818,9 @@ abrirModal(`
 
 <p>Provincia</p>&nbsp;&nbsp;<select id="aProvincia">
 ${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
-</select>&nbsp;
+</select>
+
+<br>
 <input id="aLocalidad" placeholder="Localidad" maxlength="15">
 
 <br>
@@ -892,6 +894,10 @@ guardarAfiliado;
 
 
 }
+
+
+
+
 
 
 
@@ -1062,123 +1068,170 @@ cargarAfiliados(true);
 // EDITAR AFILIADO
 // ===============================
 
+
 async function editarAfiliado(id){
 
+
+
 const af =
+
 CACHE_AFILIADOS.find(
+
 a=>a.id===id
+
 );
+
+
 
 if(!af)return;
 
+
+
+
+
 abrirModal(`
 
-<h3>Editar Afiliado</h3>
 
+<h3>Editar Afiliado</h3><br>
+
+
+<p>Nombre</p>&nbsp;
 <input id="eNombre" value="${af.nombre||""}">
-&nbsp;&nbsp;&nbsp;&nbsp;
-<input id="eApellido" value="${af.apellido||""}">
-&nbsp;&nbsp;&nbsp;&nbsp;
-<input id="eDni" value="${af.dni||""}" maxlength="8" inputmode="numeric">
-&nbsp;&nbsp;&nbsp;&nbsp;
-<input id="eCelular" value="${af.celular||""}" maxlength="10" inputmode="numeric">
-&nbsp;&nbsp;&nbsp;&nbsp;
-<input id="eCorreo" value="${af.correo||""}">
-&nbsp;&nbsp;&nbsp;&nbsp;
-<input id="eDireccion" value="${af.direccion||""}" maxlength="30">
-&nbsp;&nbsp;&nbsp;&nbsp;
-<input id="eCargo" value="${af.cargo||""}" maxlength="15">
+
 
 <br>
 
-<p>Provincia</p>&nbsp;&nbsp;
+<p>Apellido</p>&nbsp;
+<input id="eApellido" value="${af.apellido||""}">
+
+
+<br>
+
+<p>DNI</p>&nbsp;
+<input id="eDni" value="${af.dni||""}" maxlength="8" inputmode="numeric" >
+
+
+<br>
+
+<p>Celular</p>&nbsp;
+<input id="eCelular" value="${af.celular||""}"maxlength="10" inputmode="numeric" >
+
+
+<br>
+
+<p>Correo</p>&nbsp;
+<input id="eCorreo" value="${af.correo||""}">
+
+
+<br>
+
+<p>Dirección</p>&nbsp;
+<input id="eDireccion" value="${af.direccion||""}">
+
+
+<br>
+
+<p>Cargo</p>&nbsp;
+<input id="eCargo" value="${af.cargo||""}">
+
+
+<br>
+
+
+<p>Provincia</p>&nbsp;
 <select id="eProvincia">
 ${PROVINCIAS.map(p => `
 <option ${af.provincia===p?"selected":""}>${p}</option>
 `).join("")}
 </select>
-&nbsp;&nbsp;&nbsp;&nbsp;
 
-<input id="eLocalidad" value="${af.localidad||""}" maxlength="15">
-
-<br>
-
-<p>Fecha de Nacimiento</p><br>
-<input type="date" id="eNacimiento" value="${fechaInput(af.fechaNacimiento)}">
-
-<br>
-
-<p>Estado Civil</p>&nbsp;&nbsp;
-<select id="eEstadoCivil">
-
-<option ${af.estadoCivil==="Soltero/a"?"selected":""}>Soltero/a</option>
-<option ${af.estadoCivil==="Casado/a"?"selected":""}>Casado/a</option>
-<option ${af.estadoCivil==="Concubino/a"?"selected":""}>Concubino/a</option>
-
-</select>
-
-<br>
-
-<p>Situación</p>&nbsp;&nbsp;
-<select id="eEstado">
-
-<option value="ADHERENTE" ${af.estado==="ADHERENTE"?"selected":""}>ADHERENTE</option>
-<option value="ACTIVO" ${af.estado==="ACTIVO"?"selected":""}>ACTIVO</option>
-
-</select>
 
 <br><br>
 
+
+<p>Localidad</p>&nbsp; <input id="eLocalidad" value="${af.localidad||""}">
+
+
+
+<br>
+
+
+<p>Fecha de Nacimiento</p>&nbsp; <input type="date" id="eNacimiento" value="${fechaInput(af.fechaNacimiento)}">
+
+
+
+<br>
+
+
+<p>Estado Civil</p>&nbsp;
+<select id="eEstadoCivil">
+
+
+<option ${af.estadoCivil==="Soltero/a"?"selected":""}>
+
+Soltero/a
+
+</option>
+
+
+<option ${af.estadoCivil==="Casado/a"?"selected":""}>
+
+Casado/a
+
+</option>
+
+
+<option ${af.estadoCivil==="Concubino/a"?"selected":""}>
+
+Concubino/a
+
+</option>
+
+
+</select>
+
+
+
+<br>
+
+
+
+<p>Situación</p>&nbsp;
+<select id="eEstado">
+
+
+<option ${af.estado==="ADHERENTE"?"selected":""}>
+
+ADHERENTE
+
+</option>
+
+
+<option ${af.estado==="ACTIVO"?"selected":""}>
+
+ACTIVO
+
+</option>
+
+
+</select>
+
+
+
+
+<br>
+
+
+
 <button id="btnEditarAfiliado">
+
 Guardar Cambios
+
 </button>
 
+
+
 `);
-
-document.getElementById("btnEditarAfiliado").onclick = async ()=>{
-
-const eDni = document.getElementById("eDni");
-const dni = eDni.value.replace(/\D/g,"");
-
-if(dni.length!==8){
-alert("El DNI debe tener 8 dígitos");
-return;
-}
-
-const actualizado = {
-
-nombre: formatearNombre(document.getElementById("eNombre").value),
-apellido: formatearNombre(document.getElementById("eApellido").value),
-dni,
-celular: document.getElementById("eCelular").value.trim(),
-correo: document.getElementById("eCorreo").value.trim(),
-direccion: document.getElementById("eDireccion").value.trim(),
-cargo: document.getElementById("eCargo").value.trim(),
-provincia: document.getElementById("eProvincia").value,
-localidad: formatearNombre(document.getElementById("eLocalidad").value),
-fechaNacimiento: normalizarFechaNacimiento(document.getElementById("eNacimiento").value),
-estadoCivil: document.getElementById("eEstadoCivil").value,
-estado: document.getElementById("eEstado").value
-
-};
-
-await updateDoc(
-doc(db,"afiliados",id),
-actualizado
-);
-
-enviarHistorial(
-"Edicion afiliado",
-actualizado,
-"Afiliado editado"
-);
-
-cerrarModal();
-cargarAfiliados(true);
-
-};
-
-}
 
 
 
