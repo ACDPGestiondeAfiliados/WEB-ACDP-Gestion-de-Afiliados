@@ -424,8 +424,7 @@ mostrarCobros(
 
 CACHE_AFILIADOS.filter(a=>
 
-a.dni?.includes(valor) ||
-a.numeroAfiliado?.includes(valor)
+a.dni?.includes(valor)
 
 )
 
@@ -458,8 +457,6 @@ lista.forEach(a=>{
 cuerpo.innerHTML+=`
 
 <tr>
-
-<td>${a.numeroAfiliado}</td>
 
 <td>${a.dni}</td>
 
@@ -767,10 +764,6 @@ dni:
 afiliado.dni,
 
 
-numeroAfiliado:
-afiliado.numeroAfiliado,
-
-
 afiliado:
 afiliado.nombre+
 " "+
@@ -849,9 +842,6 @@ afiliado.apellido,
 
 dni:
 afiliado.dni,
-
-numeroAfiliado:
-afiliado.numeroAfiliado,
 
 meses,
 
@@ -1140,24 +1130,6 @@ win.document.close();
 
 }
 
-
-
-// ===============================
-// EXPORT
-// ===============================
-
-window.COBRAR={
-
-
-cobrarAfiliado,
-
-confirmarCobro,
-
-cerrarModal
-
-
-};
-
 // ===============================
 // RELOAD COBROS (IMPORTANTE)
 // ===============================
@@ -1176,6 +1148,6 @@ window.COBRAR = {
     cobrarAfiliado,
     confirmarCobro,
     cerrarModal,
-    generarTicket,     // 👈 para reimprimir
-    recargarCobros     // 👈 para sync desde historial
+    generarTicket,     
+    recargarCobros     
 };
