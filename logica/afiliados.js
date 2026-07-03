@@ -28,6 +28,18 @@ let PAGE_SIZE = 20;
 
 let PAGINA_ACTUAL = 0;
 
+// ===============================
+// FORMATO DE LETRAS APELLIDO Y NOMBRE
+// ===============================
+function formatearNombre(valor){
+
+return String(valor||"")
+.toLowerCase()
+.trim()
+.replace(/\s+/g," ")
+.replace(/\b\p{L}/gu,l=>l.toUpperCase());
+
+}
 
 
 // ===============================
@@ -965,18 +977,14 @@ const nuevo = {
 
 
 nombre:
-
-document
-.getElementById("aNombre")
-.value.trim(),
-
-
+formatearNombre(
+document.getElementById("aNombre").value
+),
 
 apellido:
-
-document
-.getElementById("aApellido")
-.value.trim(),
+formatearNombre(
+document.getElementById("aApellido").value
+),
 
 
 
@@ -1351,14 +1359,14 @@ const actualizado={
 
 
 nombre:
-
-eNombre.value.trim(),
-
-
+formatearNombre(
+eNombre.value
+),
 
 apellido:
-
-eApellido.value.trim(),
+formatearNombre(
+eApellido.value
+),
 
 
 
