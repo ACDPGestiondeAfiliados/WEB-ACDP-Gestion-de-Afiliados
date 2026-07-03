@@ -1038,9 +1038,9 @@ document
 
 localidad:
 
-document
-.getElementById("aLocalidad")
-.value.trim(),
+formatearNombre(
+document.getElementById("aLocalidad").value
+),
 
 
 
@@ -1408,7 +1408,9 @@ eProvincia.value,
 
 localidad:
 
-eLocalidad.value.trim(),
+formatearNombre(
+eLocalidad.value
+),
 
 
 
