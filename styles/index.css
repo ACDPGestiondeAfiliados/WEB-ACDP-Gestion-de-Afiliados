@@ -647,3 +647,114 @@ padding-right:15px;
 width:100%;
 
 }
+
+/* ===============================
+   FORMULARIOS MODAL ACDP
+   =============================== */
+
+.form-grid{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+align-items:center;
+}
+
+/* Inputs y selects coherentes */
+.form-grid input,
+.form-grid select{
+padding:8px 10px;
+border:1px solid #ddd;
+border-radius:6px;
+font-size:13px;
+outline:none;
+transition:.2s;
+min-width:140px;
+}
+
+.form-grid input:focus,
+.form-grid select:focus{
+border-color:#A602AB;
+box-shadow:0 0 0 2px rgba(166,2,171,.15);
+}
+
+/* Labels simples alineados */
+.lbl{
+display:inline-block;
+min-width:120px;
+font-size:13px;
+color:#444;
+font-weight:500;
+margin-top:6px;
+}
+
+/* Botón principal limpio */
+.btn-primario{
+background:#A602AB;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+transition:.2s;
+}
+
+.btn-primario:hover{
+background:#F600FF;
+}
+
+/* ===============================
+   FORM INLINE MODAL ACDP
+=============================== */
+
+#modalContenido h3{
+margin:0 0 15px 0;
+font-size:18px;
+font-weight:600;
+color:#222;
+}
+
+#modalContenido input,
+#modalContenido select{
+height:36px;
+padding:6px 10px;
+border:1px solid #ddd;
+border-radius:6px;
+outline:none;
+font-size:13px;
+margin-bottom:10px;
+vertical-align:middle;
+}
+
+#modalContenido input:focus,
+#modalContenido select:focus{
+border-color:#A602AB;
+box-shadow:0 0 0 2px rgba(166,2,171,.15);
+}
+
+#modalContenido p{
+display:inline-block;
+margin:10px 8px 6px 0;
+font-size:13px;
+font-weight:600;
+color:#444;
+}
+
+#modalContenido br{
+margin-bottom:6px;
+}
+
+#modalContenido button{
+margin-top:15px;
+padding:10px 14px;
+border:none;
+border-radius:6px;
+background:#A602AB;
+color:white;
+cursor:pointer;
+font-weight:600;
+}
+
+#modalContenido button:hover{
+background:#F600FF;
+}
