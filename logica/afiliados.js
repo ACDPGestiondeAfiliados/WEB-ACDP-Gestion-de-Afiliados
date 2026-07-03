@@ -153,6 +153,10 @@ cargarAfiliados(true);
 // HELPERS
 // ===============================
 
+function normalizarDni(valor){
+return String(valor||"").replace(/\D/g,"").slice(0,8);
+}
+
 function formatearFechaHora(date){
 
 
@@ -779,7 +783,7 @@ abrirModal(`
 <br><br>
 
 
-<input id="aDni" placeholder="DNI" maxlength="8">
+<input id="aDni" placeholder="DNI" maxlength="8" inputmode="numeric" >
 
 
 <br><br>
@@ -971,7 +975,12 @@ guardarAfiliado;
 
 async function guardarAfiliado(){
 
+const aDni = normalizarDni(document.getElementById("aDni").value);
 
+if(aDni.length!==8){
+alert("El DNI debe tener 8 dígitos");
+return;
+}
 
 const nuevo = {
 
@@ -988,11 +997,7 @@ document.getElementById("aApellido").value
 
 
 
-dni:
-
-document
-.getElementById("aDni")
-.value.trim(),
+dni:aDni,
 
 
 
@@ -1169,13 +1174,13 @@ abrirModal(`
 <br><br>
 
 <p>DNI</p><br>
-<input id="eDni" value="${af.dni||""}">
+<input id="eDni" value="${af.dni||""}" maxlength="8" inputmode="numeric" >
 
 
 <br><br>
 
 <p>Celular</p><br>
-<input id="eCelular" value="${af.celular||""}">
+<input id="eCelular" value="${af.celular||""}"maxlength="10" inputmode="numeric" >
 
 
 <br><br>
@@ -1350,7 +1355,14 @@ document
 .onclick =
 async()=>{
 
+const eDni=document.getElementById("eDni");
 
+const dni = normalizarDni(eDni.value);
+
+if(dni.length!==8){
+alert("El DNI debe tener 8 dígitos");
+return;
+}
 
 
 
@@ -1370,9 +1382,7 @@ eApellido.value
 
 
 
-dni:
-
-eDni.value.trim(),
+dni: dni,
 
 
 
