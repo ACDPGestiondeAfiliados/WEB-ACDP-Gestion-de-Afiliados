@@ -41,6 +41,36 @@ return String(valor||"")
 
 }
 
+// ===============================
+// PROVINCIAS
+// ===============================
+const PROVINCIAS = [
+"OTRO",
+"Buenos Aires",
+"Capital Federal",
+"Catamarca",
+"Chaco",
+"Chubut",
+"Córdoba",
+"Corrientes",
+"Entre Ríos",
+"Formosa",
+"Jujuy",
+"La Pampa",
+"La Rioja",
+"Mendoza",
+"Misiones",
+"Neuquén",
+"Río Negro",
+"Salta",
+"San Juan",
+"San Luis",
+"Santa Cruz",
+"Santa Fe",
+"Santiago del Estero",
+"Tierra del Fuego",
+"Tucumán"
+];
 
 // ===============================
 // COLUMNAS TABLA
@@ -767,136 +797,41 @@ function abrirCrearAfiliado(){
 abrirModal(`
 
 
-<h3>Nuevo Afiliado</h3>
+<h3>Agregar Afiliado Nuevo</h3>
 
 
 
 <input id="aNombre" placeholder="Nombre">
-
-
-<br><br>
-
-
+&nbsp;&nbsp;&nbsp;&nbsp;
 <input id="aApellido" placeholder="Apellido">
-
-
-<br><br>
-
-
+&nbsp;&nbsp;&nbsp;&nbsp;
 <input id="aDni" placeholder="DNI" maxlength="8" inputmode="numeric" >
-
-
-<br><br>
-
-
+&nbsp;&nbsp;&nbsp;&nbsp;
 <input id="aCelular" placeholder="Celular" maxlength="10">
-
-
-<br><br>
-
-
+&nbsp;&nbsp;&nbsp;&nbsp;
 <input id="aCorreo" placeholder="Correo">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<input id="aDireccion" placeholder="Dirección" maxlength="30">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<input id="aCargo" placeholder="Cargo" maxlength="15">
+<br>
 
-
-<br><br>
-
-
-<input
-
-id="aDireccion"
-
-placeholder="Dirección"
-
-maxlength="30"
-
->
-
-
-<br><br>
-
-
-<input
-
-id="aCargo"
-
-placeholder="Cargo"
-
-maxlength="15"
-
->
-
-
-<br><br>
-
-
-
-<p>Provincia</p><br><select id="aProvincia">
-
-
-<option>OTRO</option>
-<option>Buenos Aires</option>
-<option>Capital Federal</option>
-<option>Catamarca</option>
-<option>Chaco</option>
-<option>Chubut</option>
-<option>Córdoba</option>
-<option>Corrientes</option>
-<option>Entre Ríos</option>
-<option>Formosa</option>
-<option>Jujuy</option>
-<option>La Pampa</option>
-<option>La Rioja</option>
-<option>Mendoza</option>
-<option>Misiones</option>
-<option>Neuquén</option>
-<option>Río Negro</option>
-<option>Salta</option>
-<option>San Juan</option>
-<option>San Luis</option>
-<option>Santa Cruz</option>
-<option>Santa Fe</option>
-<option>Santiago del Estero</option>
-<option>Tierra del Fuego</option>
-<option>Tucumán</option>
-
-
+<p>Provincia</p>&nbsp;&nbsp;<select id="aProvincia">
+${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
 </select>
 
+<br>
+<input id="aLocalidad" placeholder="Localidad" maxlength="15">
 
-<br><br>
-
-
-
-<input
-
-id="aLocalidad"
-
-placeholder="Localidad"
-
-maxlength="15"
-
->
-
-
-<br><br>
-
+<br>
 
 <p>Fecha de Nacimiento</p><br>
-<input
+<input type="date" id="aNacimiento">
 
-type="date"
-
-id="aNacimiento"
-
->
+<br>
 
 
-
-<br><br>
-
-
-<p>Estado Civil</p><br>
-<select id="aEstadoCivil">
+<p>Estado Civil</p>&nbsp;&nbsp;<select id="aEstadoCivil">
 
 
 <option>Soltero/a</option>
@@ -910,11 +845,10 @@ id="aNacimiento"
 
 
 
-<br><br>
+<br>
 
 
-<p>Situación</p><br>
-<select id="aEstado">
+<p>Situación</p>&nbsp;&nbsp;<select id="aEstado">
 
 
 <option value="ADHERENTE">
@@ -936,13 +870,13 @@ ACTIVO
 
 
 
-<br><br>
+<br>
 
 
 
 <button id="btnGuardarAfiliado">
 
-Guardar
+Guardar Afiliado
 
 </button>
 
@@ -1161,118 +1095,75 @@ abrirModal(`
 <h3>Editar Afiliado</h3><br>
 
 
-<p>Nombre</p><br>
+<p>Nombre</p>&nbsp;
 <input id="eNombre" value="${af.nombre||""}">
 
 
-<br><br>
+<br>
 
-<p>Apellido</p><br>
+<p>Apellido</p>&nbsp;
 <input id="eApellido" value="${af.apellido||""}">
 
 
-<br><br>
+<br>
 
-<p>DNI</p><br>
+<p>DNI</p>&nbsp;
 <input id="eDni" value="${af.dni||""}" maxlength="8" inputmode="numeric" >
 
 
-<br><br>
+<br>
 
-<p>Celular</p><br>
+<p>Celular</p>&nbsp;
 <input id="eCelular" value="${af.celular||""}"maxlength="10" inputmode="numeric" >
 
 
-<br><br>
+<br>
 
-<p>Correo</p><br>
+<p>Correo</p>&nbsp;
 <input id="eCorreo" value="${af.correo||""}">
 
 
-<br><br>
+<br>
 
-<p>Dirección</p><br>
+<p>Dirección</p>&nbsp;
 <input id="eDireccion" value="${af.direccion||""}">
 
 
-<br><br>
+<br>
 
-<p>Cargo</p><br>
+<p>Cargo</p>&nbsp;
 <input id="eCargo" value="${af.cargo||""}">
 
 
-<br><br>
+<br>
 
 
-<p>Provincia</p><br>
+<p>Provincia</p>&nbsp;
 <select id="eProvincia">
-
-
-<option ${af.provincia==="OTRO"?"selected":""}>
-OTRO
-</option>
-
-
-<option ${af.provincia==="Buenos Aires"?"selected":""}>
-Buenos Aires
-</option>
-
-
-<option ${af.provincia==="Capital Federal"?"selected":""}>
-Capital Federal
-</option>
-
-
-<option ${af.provincia==="Córdoba"?"selected":""}>
-Córdoba
-</option>
-
-
-<option ${af.provincia==="Santa Fe"?"selected":""}>
-Santa Fe
-</option>
-
-
+${PROVINCIAS.map(p => `
+<option ${af.provincia===p?"selected":""}>${p}</option>
+`).join("")}
 </select>
 
 
-
 <br><br>
 
 
-<p>Localidad</p><br>
-<input
-
-id="eLocalidad"
-
-value="${af.localidad||""}"
-
->
+<p>Localidad</p>&nbsp; <input id="eLocalidad" value="${af.localidad||""}">
 
 
 
-<br><br>
+<br>
 
 
-<p>Fecha de Nacimiento</p><br>
-<input
-
-type="date"
-
-id="eNacimiento"
-
-value="${fechaInput(
-af.fechaNacimiento
-)}"
-
->
+<p>Fecha de Nacimiento</p>&nbsp; <input type="date" id="eNacimiento" value="${fechaInput(af.fechaNacimiento)}">
 
 
 
-<br><br>
+<br>
 
 
-<p>Estado Civil</p><br>
+<p>Estado Civil</p>&nbsp;
 <select id="eEstadoCivil">
 
 
@@ -1301,11 +1192,11 @@ Concubino/a
 
 
 
-<br><br>
+<br>
 
 
 
-<p>Situación</p><br>
+<p>Situación</p>&nbsp;
 <select id="eEstado">
 
 
@@ -1328,13 +1219,13 @@ ACTIVO
 
 
 
-<br><br>
+<br>
 
 
 
 <button id="btnEditarAfiliado">
 
-Guardar
+Guardar Cambios
 
 </button>
 
