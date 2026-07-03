@@ -485,13 +485,9 @@ abrirExportarAfiliados;
 // CARGAR FIREBASE
 // ===============================
 
-
 async function cargarAfiliados(reset=false){
 
-
-
-const snap =
-
+const snap=
 await getDocs(
 collection(
 db,
@@ -499,62 +495,34 @@ db,
 )
 );
 
-
-
 CACHE_AFILIADOS=[];
-
-
-
 
 snap.forEach(d=>{
 
-
 CACHE_AFILIADOS.push({
-
 
 id:d.id,
 
-
 ...d.data()
 
-
 });
 
-
 });
-
-
-
-
 
 CACHE_AFILIADOS.sort((a,b)=>
 
-
 new Date(b.fechaAlta)
 -
-
 new Date(a.fechaAlta)
-
 
 );
 
-
-
-
-
 if(reset)
-
 PAGINA_ACTUAL=0;
-
-
 
 renderAfiliados();
 
-
-
 actualizarResumenAfiliados();
-
-
 
 }
 
@@ -2388,41 +2356,57 @@ win.document.close();
 // RESUMEN
 // ===============================
 
-
 function actualizarResumenAfiliados(){
 
-
-
 const contar =
-estado =>
-
+estado=>
 CACHE_AFILIADOS.filter(
 a=>a.estado===estado
 ).length;
 
 
 
+const contarDuplicados =
+campo=>{
 
+const mapa={};
 
-const set =
+CACHE_AFILIADOS.forEach(a=>{
 
-(id,v)=>{
+const valor=
+String(a[campo]||"")
+.trim()
+.toLowerCase();
 
+if(!valor)
+return;
 
-const e =
-document.querySelector(
-id+" span"
-);
+mapa[valor]=
+(mapa[valor]||0)+1;
 
+});
 
-
-if(e)
-e.textContent=v;
-
+return Object
+.values(mapa)
+.filter(v=>v>1)
+.reduce((t,v)=>t+v,0);
 
 };
 
 
+
+const set =
+(id,v)=>{
+
+const e=
+document.querySelector(
+id+" span"
+);
+
+if(e)
+e.textContent=v;
+
+};
 
 
 
@@ -2431,18 +2415,27 @@ set(
 contar("ACTIVO")
 );
 
-
-
 set(
 "#contadorAdherentes",
 contar("ADHERENTE")
 );
 
+set(
+"#contadorCorreosRepetidos",
+contarDuplicados("correo")
+);
 
+set(
+"#contadorDniRepetidos",
+contarDuplicados("dni")
+);
+
+set(
+"#contadorCelularesRepetidos",
+contarDuplicados("celular")
+);
 
 }
-
-
 
 
 
