@@ -38,11 +38,6 @@ let PAGINA_ACTUAL = 0;
 const COLUMNAS = {
 
 
-numeroAfiliado:{
-    titulo:"Número",
-    mostrar:true
-},
-
 
 dni:{
     titulo:"DNI",
@@ -145,25 +140,6 @@ cargarAfiliados(true);
 // ===============================
 // HELPERS
 // ===============================
-
-
-function generarNumeroAfiliado(){
-
-
-return String(
-
-Math.floor(
-Math.random()*99999999
-)+1
-
-).padStart(8,"0");
-
-
-}
-
-
-
-
 
 function formatearFechaHora(date){
 
@@ -289,19 +265,14 @@ v=>
 // HISTORIAL
 // ===============================
 
-
 function enviarHistorial(
 accion,
 afiliado,
 detalle
 ){
 
-
-
 if(!window.HISTORIAL?.registrar)
 return;
-
-
 
 window.HISTORIAL.registrar(
 
@@ -309,32 +280,19 @@ accion,
 
 {
 
-
 afiliado:
 `${afiliado.nombre} ${afiliado.apellido}`,
 
-
 dni:
-afiliado.dni,
-
-
-numeroAfiliado:
-afiliado.numeroAfiliado
-
+afiliado.dni
 
 },
 
-
 detalle
-
 
 );
 
-
-
 }
-
-
 
 
 
@@ -1038,12 +996,6 @@ async function guardarAfiliado(){
 const nuevo = {
 
 
-numeroAfiliado:
-
-generarNumeroAfiliado(),
-
-
-
 nombre:
 
 document
@@ -1535,20 +1487,11 @@ enviarHistorial(
 
 "Edicion afiliado",
 
-{
-
-...actualizado,
-
-numeroAfiliado:
-af.numeroAfiliado
-
-},
+actualizado,
 
 "Afiliado editado"
 
 );
-
-
 
 
 
@@ -1754,12 +1697,8 @@ validarNumero(filtro)
 
 
 data =
-data.filter(a=>
-
-a.dni===filtro ||
-
-a.numeroAfiliado===filtro
-
+data = data.filter(a=>
+a.dni===filtro
 );
 
 
@@ -2119,7 +2058,7 @@ a=>a.estado==="ADHERENTE"
 
 let csv =
 
-"\ufeffNúmero;DNI;Nombre;Apellido;Celular;Correo;Estado;Dirección;Cargo;Provincia;Localidad;Nacimiento;Estado Civil\n";
+"\ufeffDNI;Nombre;Apellido;Celular;Correo;Estado;Dirección;Cargo;Provincia;Localidad;Nacimiento;Estado Civil\n";
 
 
 
@@ -2131,8 +2070,6 @@ lista.forEach(a=>{
 
 csv +=
 
-
-`${a.numeroAfiliado||""};`+
 
 `${a.dni||""};`+
 
@@ -2399,11 +2336,11 @@ letter-spacing:5px;
 margin:0;
 line-height:10px;
 ">
-${af.numeroAfiliado}
+${af.dni}
 </p>
 
 <img 
-src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.numeroAfiliado}&scale=2&height=10"
+src="https://bwipjs-api.metafloor.com/?bcid=code128&text=${af.dni}&scale=2&height=10"
 style="
 width:150px;
 height:35px;
