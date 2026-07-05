@@ -2160,47 +2160,27 @@ document
 .getElementById("modalContenido")
 .innerHTML=`
 
-<h3>
-Nueva Notificación
-</h3>
+<h3>Nueva Notificación</h3>
 
 <input
-
 id="tituloNotificacion"
-
 type="text"
-
 maxlength="25"
-
 placeholder="Título"
-
 >
 
 <br><br>
 
 <textarea
-
 id="textoNotificacion"
-
 maxlength="200"
-
 placeholder="Mensaje"
-
 ></textarea>
 
 <br><br>
 
-<button id="guardarNotificacion">
-
-Enviar
-
-</button>
-
-<button id="cancelarNotificacion">
-
-Cancelar
-
-</button>
+<button id="guardarNotificacion">Enviar</button>
+<button id="cancelarNotificacion">Cancelar</button>
 
 `;
 
@@ -2210,12 +2190,12 @@ document
 
 document
 .getElementById("cancelarNotificacion")
-.onclick=
-()=>cerrar("modalFondo");
+.onclick=()=>cerrar("modalFondo");
 
 abrir("modalFondo");
 
 }
+
 
 async function guardarNotificacion(){
 
@@ -2238,49 +2218,16 @@ await setDoc(doc(db,"notificaciones","principal"), {
     titulo,
     mensaje,
     fecha: new Date().toLocaleDateString("es-AR"),
-    hora: new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hour12:false})
-});
-
-/* =========================
-   2. PUSH GLOBAL (TOPIC)
-========================= */
-
-await fetch("https://fcm.googleapis.com/fcm/send", {
-    method: "POST",
-    headers: {
-        "Authorization": "key=TU_SERVER_KEY",
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        to: "/topics/acdp_general",
-        notification: {
-            title,
-            body: mensaje
-        }
+    hora: new Date().toLocaleTimeString("es-AR",{
+        hour:"2-digit",
+        minute:"2-digit",
+        hour12:false
     })
 });
 
-cerrar("modalFondo");
-
-alert("Notificación enviada (modal + push)");
-
-}
-
 /* =========================
-   1. GUARDAR MODAL (EXISTE)
+   2. TOKENS (BASE PUSH)
 ========================= */
-await setDoc(doc(db,"notificaciones","principal"), {
-    titulo,
-    mensaje,
-    fecha: ahora.toLocaleDateString("es-AR"),
-    hora: ahora.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hour12:false})
-});
-
-
-/* =========================
-   2. PUSH NOTIFICATION
-========================= */
-
 const snap = await getDocs(collection(db,"tokens"));
 
 const tokens = [];
@@ -2289,24 +2236,17 @@ snap.forEach(d=>{
     tokens.push(d.data().token);
 });
 
-if(tokens.length > 0){
+/*
+IMPORTANTE:
+- Esto solo guarda/lee tokens
+- NO necesitas backend ahora
+*/
 
-    await fetch("https://TU-FUNCTION-URL/notificacionGlobal", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-            titulo,
-            mensaje,
-            tokens
-        })
-    });
+console.log("TOKENS:", tokens);
 
-}
-
+alert("Notificación enviada (modal + tokens)");
 
 cerrar("modalFondo");
-
-alert("Notificación enviada (modal + push)");
 
 }
 
