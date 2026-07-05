@@ -1148,14 +1148,8 @@ window.COBRAR = {
     cobrarAfiliado,
     confirmarCobro,
     cerrarModal,
-    generarTicket,     
-    recargarCobros     
-};
-
-// ===============================
-// EXPORT ACTUALIZAR SECCIÓN
-// ===============================
-window.COBRAR = {
+    generarTicket,
+    recargarCobros,
     actualizar: async () => {
         await cargarConfiguracion();
         await cargarCobros();
