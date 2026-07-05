@@ -2365,3 +2365,11 @@ eliminarAfiliado,
 imprimir
 
 };
+
+// ===============================
+// ACTUALIZAR SECCIÓN
+// ===============================
+
+window.AFILIADOS = {
+    actualizar: () => cargarAfiliados()
+};
