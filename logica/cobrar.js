@@ -1151,3 +1151,14 @@ window.COBRAR = {
     generarTicket,     
     recargarCobros     
 };
+
+// ===============================
+// EXPORT ACTUALIZAR SECCIÓN
+// ===============================
+window.COBRAR = {
+    actualizar: async () => {
+        await cargarConfiguracion();
+        await cargarCobros();
+        await cargarAfiliados();
+    }
+};
