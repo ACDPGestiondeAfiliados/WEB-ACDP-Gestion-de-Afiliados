@@ -2359,5 +2359,5 @@ window.AFILIADOS = {
     editarAfiliado,
     eliminarAfiliado,
     imprimir,
-    actualizar: () => cargarAfiliados()
+    actualizar: () => cargarAfiliados(true)
 };
