@@ -496,7 +496,99 @@ document
 
 
 
+// ===============================
+// PUSH NOTIFICATIONS
+// ===============================
 
+async function registrarNotificaciones(){
+
+if(
+!("Notification" in window)
+)
+return;
+
+const permiso=
+await Notification.requestPermission();
+
+if(
+permiso!=="granted"
+)
+return;
+
+try{
+
+await navigator.serviceWorker.register(
+"./firebase-messaging-sw.js"
+);
+
+const token=
+await getToken(
+
+messaging,
+
+{
+
+vapidKey:VAPID_KEY,
+
+serviceWorkerRegistration:
+await navigator.serviceWorker.ready
+
+}
+
+);
+
+if(!token)
+return;
+
+await setDoc(
+
+doc(
+db,
+"tokens",
+token
+),
+
+{
+
+token,
+
+fecha:
+new Date()
+.toLocaleDateString(
+"es-AR"
+),
+
+hora:
+new Date()
+.toLocaleTimeString(
+"es-AR",
+{
+
+hour:"2-digit",
+
+minute:"2-digit",
+
+hour12:false
+
+}
+
+)
+
+}
+
+);
+
+}
+catch(error){
+
+console.error(
+"Error Push:",
+error
+);
+
+}
+
+}
 
 
 
