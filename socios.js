@@ -44,7 +44,6 @@ document.addEventListener(
 ()=>{
 
 iniciarSocios();
-iniciarNotificaciones();
 
 });
 
@@ -305,11 +304,10 @@ return;
 
 
 socioActual=encontrado;
-
+iniciarNotificaciones();
 
 
 mostrarPerfil();
-
 
 
 }
@@ -329,7 +327,6 @@ mostrarPerfil();
 
 
 async function mostrarPerfil(){
-
 
 
 const a=socioActual;
@@ -439,14 +436,6 @@ document
 .textContent=texto||"";
 
 }
-
-
-
-
-
-
-
-
 
 // ===============================
 // NOTIFICACION
