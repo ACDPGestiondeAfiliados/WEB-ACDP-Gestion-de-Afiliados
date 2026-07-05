@@ -2154,10 +2154,7 @@ mostrarCursos();
 // NOTIFICACIONES
 // ===============================
 
-
 function abrirNotificacion(){
-
-
 
 document
 .getElementById("modalContenido")
@@ -2167,20 +2164,31 @@ document
 Nueva Notificación
 </h3>
 
+<input
 
+id="tituloNotificacion"
+
+type="text"
+
+maxlength="25"
+
+placeholder="Título"
+
+>
+
+<br><br>
 
 <textarea
 
 id="textoNotificacion"
 
-maxlength="1000"
+maxlength="200"
+
+placeholder="Mensaje"
 
 ></textarea>
 
-
-
 <br><br>
-
 
 <button id="guardarNotificacion">
 
@@ -2188,63 +2196,53 @@ Enviar
 
 </button>
 
-
-
 <button id="cancelarNotificacion">
 
 Cancelar
 
 </button>
 
-
 `;
-
-
-
 
 document
 .getElementById("guardarNotificacion")
 .onclick=guardarNotificacion;
-
-
 
 document
 .getElementById("cancelarNotificacion")
 .onclick=
 ()=>cerrar("modalFondo");
 
-
-
 abrir("modalFondo");
-
 
 }
 
-
-
-
-
-
-
-
 async function guardarNotificacion(){
 
+const titulo=
+document
+.getElementById("tituloNotificacion")
+.value
+.trim();
 
-
-const texto =
+const mensaje=
 document
 .getElementById("textoNotificacion")
-.value.trim();
+.value
+.trim();
 
+if(!titulo)
+return alert(
+"Ingrese un título."
+);
 
+if(!mensaje)
+return alert(
+"Ingrese un mensaje."
+);
 
-
-if(!texto)
-return;
-
-
-
-
+const ahora=
+new Date();
 
 await setDoc(
 
@@ -2256,30 +2254,36 @@ db,
 
 {
 
-mensaje:texto,
+titulo,
+
+mensaje,
 
 fecha:
-new Date()
-.toISOString()
+ahora.toLocaleDateString(
+"es-AR"
+),
+
+hora:
+ahora.toLocaleTimeString(
+"es-AR",
+{
+hour:"2-digit",
+minute:"2-digit",
+hour12:false
+}
+)
 
 }
 
 );
 
-
-
-
 cerrar("modalFondo");
-
 
 alert(
 "Notificación enviada"
 );
 
-
 }
-
-
 
 // ===============================
 // CONTROL TIEMPO - CURSOS
