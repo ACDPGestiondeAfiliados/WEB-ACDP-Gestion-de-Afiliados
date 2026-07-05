@@ -2219,43 +2219,52 @@ abrir("modalFondo");
 
 async function guardarNotificacion(){
 
-const titulo=
-document
-.getElementById("tituloNotificacion")
-.value
-.trim();
-
-const mensaje=
-document
-.getElementById("textoNotificacion")
-.value
-.trim();
-
-if(!titulo)
-return alert(
-"Ingrese un título."
-);
-
-if(!mensaje)
-return alert(
-"Ingrese un mensaje."
-);
-
-const ahora=
-new Date();
-
-async function guardarNotificacion(){
-
 const titulo =
 document.getElementById("tituloNotificacion").value.trim();
 
 const mensaje =
 document.getElementById("textoNotificacion").value.trim();
 
-if(!titulo) return alert("Ingrese un título.");
-if(!mensaje) return alert("Ingrese un mensaje.");
+if(!titulo)
+return alert("Ingrese un título.");
 
-const ahora = new Date();
+if(!mensaje)
+return alert("Ingrese un mensaje.");
+
+/* =========================
+   1. MODAL (Firestore)
+========================= */
+await setDoc(doc(db,"notificaciones","principal"), {
+    titulo,
+    mensaje,
+    fecha: new Date().toLocaleDateString("es-AR"),
+    hora: new Date().toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hour12:false})
+});
+
+/* =========================
+   2. PUSH GLOBAL (TOPIC)
+========================= */
+
+await fetch("https://fcm.googleapis.com/fcm/send", {
+    method: "POST",
+    headers: {
+        "Authorization": "key=TU_SERVER_KEY",
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        to: "/topics/acdp_general",
+        notification: {
+            title,
+            body: mensaje
+        }
+    })
+});
+
+cerrar("modalFondo");
+
+alert("Notificación enviada (modal + push)");
+
+}
 
 /* =========================
    1. GUARDAR MODAL (EXISTE)
