@@ -2431,3 +2431,11 @@ d.getFullYear()
 
 
 }
+
+// ===============================
+// EXPORT
+// ===============================
+
+window.CURSOS = {
+    actualizar: mostrarCursos
+};
