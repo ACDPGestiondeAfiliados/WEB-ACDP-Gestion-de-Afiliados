@@ -451,49 +451,54 @@ document
 // NOTIFICACION
 // ===============================
 
+async function registrarNotificaciones(){
 
-async function mostrarNotificacion(){
-
-
-const snap =
-await getDoc(
-
-doc(
-db,
-"notificaciones",
-"principal"
-
-)
-
-);
-
-
-
-if(!snap.exists())
+if(!("Notification" in window))
 return;
 
+const permiso = await Notification.requestPermission();
 
+if(permiso !== "granted")
+return;
 
-const data =
-snap.data();
+try{
 
+await navigator.serviceWorker.register("./firebase-messaging-sw.js");
 
+const token = await getToken(messaging,{
+    vapidKey: VAPID_KEY,
+    serviceWorkerRegistration: await navigator.serviceWorker.ready
+});
 
-document
-.getElementById("textoNotificacionSocio")
-.textContent =
-data.mensaje;
+if(!token)
+return;
 
+/* =========================
+   GUARDAR TOKEN
+========================= */
+await setDoc(doc(db, "tokens", token), {
+    token,
+    socioID: socioActual?.id || null,
+    fecha: Date.now()
+});
 
+/* =========================
+   SUSCRIPCIÓN A TOPIC (PASO 2)
+========================= */
+await fetch(
+`https://iid.googleapis.com/iid/v1/${token}/rel/topics/acdp_general`,
+{
+    method: "POST",
+    headers: {
+        "Authorization": "key=TU_SERVER_KEY"
+    }
+});
 
-document
-.getElementById("modalNotificacionSocio")
-.classList.remove("oculto");
-
-
-
+}catch(error){
+console.error("Error Push:", error);
 }
 
+}
 
 
 // ===============================
@@ -557,7 +562,12 @@ error
 }
 
 }
-
+await fetch(`https://iid.googleapis.com/iid/v1/${token}/rel/topics/acdp_general`, {
+    method: "POST",
+    headers: {
+        "Authorization": "key=TU_SERVER_KEY"
+    }
+});
 
 
 
