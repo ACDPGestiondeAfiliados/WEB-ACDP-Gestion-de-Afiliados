@@ -2247,23 +2247,11 @@ return;
 
 
 await setDoc(
-
-doc(
-db,
-"notificaciones",
-"principal"
-),
-
+doc(db,"notificaciones","principal"),
 {
-
-mensaje:texto,
-
-fecha:
-new Date()
-.toISOString()
-
+    mensaje:texto,
+    fecha: Date.now()
 }
-
 );
 
 
