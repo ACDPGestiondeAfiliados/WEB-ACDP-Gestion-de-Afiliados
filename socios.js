@@ -53,6 +53,18 @@ iniciarSocios();
 
 function iniciarSocios(){
 
+document
+.getElementById("btnMenuPerfil")
+.onclick=()=>mostrarSeccion("perfil");
+
+document
+.getElementById("btnMenuCursos")
+.onclick=()=>mostrarSeccion("cursos");
+
+document
+.getElementById("btnMenuNovedades")
+.onclick=()=>mostrarSeccion("novedades");
+
 
 document
 .getElementById("btnLoginSocio")
@@ -115,7 +127,73 @@ activarNumericos();
 
 
 
+// ===============================
+// MENU
+// ===============================
 
+function mostrarSeccion(seccion){
+
+document
+.getElementById("seccionPerfil")
+.classList.add("oculto");
+
+document
+.getElementById("seccionCursos")
+.classList.add("oculto");
+
+document
+.getElementById("seccionNovedades")
+.classList.add("oculto");
+
+document
+.getElementById("btnMenuPerfil")
+.classList.remove("activo");
+
+document
+.getElementById("btnMenuCursos")
+.classList.remove("activo");
+
+document
+.getElementById("btnMenuNovedades")
+.classList.remove("activo");
+
+if(seccion==="perfil"){
+
+document
+.getElementById("seccionPerfil")
+.classList.remove("oculto");
+
+document
+.getElementById("btnMenuPerfil")
+.classList.add("activo");
+
+}
+
+if(seccion==="cursos"){
+
+document
+.getElementById("seccionCursos")
+.classList.remove("oculto");
+
+document
+.getElementById("btnMenuCursos")
+.classList.add("activo");
+
+}
+
+if(seccion==="novedades"){
+
+document
+.getElementById("seccionNovedades")
+.classList.remove("oculto");
+
+document
+.getElementById("btnMenuNovedades")
+.classList.add("activo");
+
+}
+
+}
 
 
 // ===============================
@@ -333,7 +411,15 @@ async function mostrarPerfil(){
 
 const a=socioActual;
 
+document
+.getElementById("headerLogin")
+.classList.add("oculto");
 
+document
+.getElementById("headerPortal")
+.classList.remove("oculto");
+
+mostrarSeccion("perfil");
 
 document
 .getElementById("loginSocio")
@@ -1085,21 +1171,24 @@ ${ok?"PAGADO":"PENDIENTE"}
 
 function cerrarSesion(){
 
-
 socioActual=null;
-
-
 
 document
 .getElementById("perfilSocio")
 .classList.add("oculto");
 
-
-
 document
 .getElementById("loginSocio")
 .classList.remove("oculto");
 
+document
+.getElementById("headerPortal")
+.classList.add("oculto");
 
+document
+.getElementById("headerLogin")
+.classList.remove("oculto");
+
+mostrarSeccion("perfil");
 
 }
