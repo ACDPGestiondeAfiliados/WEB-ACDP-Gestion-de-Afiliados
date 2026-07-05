@@ -496,7 +496,39 @@ document
 }
 
 
+function iniciarNotificaciones(){
 
+    setInterval(async () => {
+
+        if(!socioActual) return;
+
+        const snap = await getDoc(
+            doc(db, "notificaciones", "principal")
+        );
+
+        if(!snap.exists()) return;
+
+        const data = snap.data();
+
+        if(!data.fecha) return;
+
+        // evita repetir
+        if(window._lastNotif === data.fecha) return;
+
+        window._lastNotif = data.fecha;
+
+        document
+        .getElementById("textoNotificacionSocio")
+        .textContent = data.mensaje;
+
+        document
+        .getElementById("modalNotificacionSocio")
+        .classList.remove("oculto");
+
+        new Audio("notif.mp3").play().catch(()=>{});
+
+    }, 5000);
+}
 
 
 
