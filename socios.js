@@ -53,107 +53,69 @@ iniciarSocios();
 
 function iniciarSocios(){
 
-document
-.getElementById("btnMenuPerfil")
-.onclick=()=>mostrarSeccion("perfil");
-
-document
-.getElementById("btnMenuCursos")
-.onclick=()=>mostrarSeccion("cursos");
-
-document
-.getElementById("btnMenuNovedades")
-.onclick=()=>mostrarSeccion("novedades");
 
 document
 .getElementById("btnLoginSocio")
 .onclick=ingresarSocio;
 
+
+
 document
 .getElementById("btnCerrarSesion")
 .onclick=cerrarSesion;
+
+
 
 document
 .getElementById("btnGuardarDatos")
 .onclick=guardarDatos;
 
+
+
 document
 .getElementById("btnCambiarPin")
 .onclick=cambiarPin;
 
+
+
+document
+.getElementById("btnVerCursos")
+.onclick=abrirCursos;
+
+
+
+document
+.getElementById("cerrarCursosSocio")
+.onclick=()=>{
+
+document
+.getElementById("modalCursosSocio")
+.classList.add("oculto");
+
+};
+
+
+
+document
+.getElementById("cerrarNotificacionSocio")
+.onclick=()=>{
+
+document
+.getElementById("modalNotificacionSocio")
+.classList.add("oculto");
+
+};
+
+
+
 activarNumericos();
 
-}
-
-
-
-// ===============================
-// MENU
-// ===============================
-
-function mostrarSeccion(seccion){
-
-document
-.getElementById("seccionPerfil")
-.classList.add("oculto");
-
-document
-.getElementById("seccionCursos")
-.classList.add("oculto");
-
-document
-.getElementById("seccionNovedades")
-.classList.add("oculto");
-
-document
-.getElementById("btnMenuPerfil")
-.classList.remove("activo");
-
-document
-.getElementById("btnMenuCursos")
-.classList.remove("activo");
-
-document
-.getElementById("btnMenuNovedades")
-.classList.remove("activo");
-
-if(seccion==="perfil"){
-
-document
-.getElementById("seccionPerfil")
-.classList.remove("oculto");
-
-document
-.getElementById("btnMenuPerfil")
-.classList.add("activo");
 
 }
 
-if(seccion==="cursos"){
 
-document
-.getElementById("seccionCursos")
-.classList.remove("oculto");
 
-document
-.getElementById("btnMenuCursos")
-.classList.add("activo");
 
-}
-
-if(seccion==="novedades"){
-
-document
-.getElementById("seccionNovedades")
-.classList.remove("oculto");
-
-document
-.getElementById("btnMenuNovedades")
-.classList.add("activo");
-
-}
-
-}
 
 
 // ===============================
@@ -371,23 +333,17 @@ async function mostrarPerfil(){
 
 const a=socioActual;
 
-document
-.getElementById("headerLogin")
-.classList.add("oculto");
 
-document
-.getElementById("headerPortal")
-.classList.remove("oculto");
 
 document
 .getElementById("loginSocio")
 .classList.add("oculto");
 
+
+
 document
 .getElementById("perfilSocio")
 .classList.remove("oculto");
-
-mostrarSeccion("perfil");
 
 
 
@@ -459,7 +415,7 @@ mostrarCuotas();
 
 await cargarCursos();
 
-mostrarCursos();
+
 
 mostrarNotificacion();
 
@@ -520,6 +476,19 @@ return;
 
 const data =
 snap.data();
+
+
+
+document
+.getElementById("textoNotificacionSocio")
+.textContent =
+data.mensaje;
+
+
+
+document
+.getElementById("modalNotificacionSocio")
+.classList.remove("oculto");
 
 
 
@@ -630,58 +599,61 @@ cursos.slice(0,10);
 
 
 
-// ===============================
-// MOSTRAR CURSOS
-// ===============================
+function abrirCursos(){
 
-function mostrarCursos(){
 
-const caja =
+
+const modal =
 document
-.getElementById("seccionCursos");
+.getElementById("modalCursosSocio");
 
-caja.innerHTML=`
 
-<h2>
 
-Cursos
+const lista =
+document
+.getElementById("listaCursosSocio");
 
-</h2>
 
-`;
+
+lista.innerHTML="";
+
 
 
 
 if(cursos.length===0){
 
-caja.innerHTML+=`
+
+lista.innerHTML=`
 
 <p>
 
 Sin cursos disponibles por el momento,
-se le avisará cuando surjan jornadas, cursos o diplomaturas.
+se le avisará cuando surjan jornadas/cursos o diplomaturas.
 
 </p>
 
 `;
 
-return;
 
-}
+
+}else{
 
 
 
 cursos.forEach(c=>{
 
-caja.innerHTML+=`
+
+lista.innerHTML+=`
 
 <div class="cursoCard">
+
 
 <h3>
 
 ${c.titulo}
 
 </h3>
+
 
 <p>
 
@@ -690,6 +662,7 @@ ${formatearSimple(c.fechaInicio)}
 
 </p>
 
+
 <p>
 
 Cierre:
@@ -697,13 +670,27 @@ ${formatearSimple(c.fechaCierre)}
 
 </p>
 
+
 </div>
 
 `;
 
+
+
 });
 
+
+
 }
+
+
+
+modal.classList.remove("oculto");
+
+
+}
+
+
 
 
 
@@ -1098,27 +1085,21 @@ ${ok?"PAGADO":"PENDIENTE"}
 
 function cerrarSesion(){
 
+
 socioActual=null;
 
-document.getElementById("seccionCursos").innerHTML="";
-document.getElementById("seccionNovedades").innerHTML="";
-  
+
+
 document
 .getElementById("perfilSocio")
 .classList.add("oculto");
+
+
 
 document
 .getElementById("loginSocio")
 .classList.remove("oculto");
 
-document
-.getElementById("headerPortal")
-.classList.add("oculto");
 
-document
-.getElementById("headerLogin")
-.classList.remove("oculto");
-
-mostrarSeccion("perfil");
 
 }
