@@ -173,13 +173,42 @@ function protegerSeccion(seccion) {
 // SECCIONES
 // ===============================
 
-function cambiarSeccion(seccion) {
-    document.querySelectorAll(".seccion").forEach(s => s.style.display = "none");
+function cambiarSeccion(seccion){
 
-    const target = document.getElementById(seccion);
-    if (target) target.style.display = "block";
+    document
+    .querySelectorAll(".seccion")
+    .forEach(s=>s.style.display="none");
 
-    if (seccion === "usuarios") renderUsuariosTable();
+    const target=
+    document.getElementById(seccion);
+
+    if(target)
+        target.style.display="block";
+
+    switch(seccion){
+
+        case "cobrar":
+            window.COBRAR?.actualizar();
+            break;
+
+        case "historial":
+            window.HISTORIAL?.actualizar();
+            break;
+
+        case "afiliados":
+            window.AFILIADOS?.actualizar();
+            break;
+
+        case "usuarios":
+            renderUsuariosTable();
+            break;
+
+        case "configuracion":
+            window.CURSOS?.actualizar();
+            break;
+
+    }
+
 }
 
 // ===============================
