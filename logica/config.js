@@ -2244,44 +2244,60 @@ return alert(
 const ahora=
 new Date();
 
-await setDoc(
+async function guardarNotificacion(){
 
-doc(
-db,
-"notificaciones",
-"principal"
-),
+const titulo =
+document.getElementById("tituloNotificacion").value.trim();
 
-{
+const mensaje =
+document.getElementById("textoNotificacion").value.trim();
 
-titulo,
+if(!titulo) return alert("Ingrese un título.");
+if(!mensaje) return alert("Ingrese un mensaje.");
 
-mensaje,
+const ahora = new Date();
 
-fecha:
-ahora.toLocaleDateString(
-"es-AR"
-),
+/* =========================
+   1. GUARDAR MODAL (EXISTE)
+========================= */
+await setDoc(doc(db,"notificaciones","principal"), {
+    titulo,
+    mensaje,
+    fecha: ahora.toLocaleDateString("es-AR"),
+    hora: ahora.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hour12:false})
+});
 
-hora:
-ahora.toLocaleTimeString(
-"es-AR",
-{
-hour:"2-digit",
-minute:"2-digit",
-hour12:false
+
+/* =========================
+   2. PUSH NOTIFICATION
+========================= */
+
+const snap = await getDocs(collection(db,"tokens"));
+
+const tokens = [];
+
+snap.forEach(d=>{
+    tokens.push(d.data().token);
+});
+
+if(tokens.length > 0){
+
+    await fetch("https://TU-FUNCTION-URL/notificacionGlobal", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            titulo,
+            mensaje,
+            tokens
+        })
+    });
+
 }
-)
 
-}
-
-);
 
 cerrar("modalFondo");
 
-alert(
-"Notificación enviada"
-);
+alert("Notificación enviada (modal + push)");
 
 }
 
