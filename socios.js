@@ -16,6 +16,12 @@ getDoc
 
 } from "./firebase.js";
 
+import {
+  getToken
+} from "firebase/messaging";
+
+import { messaging, VAPID_KEY } from "./firebase.js";
+
 
 
 
