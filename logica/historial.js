@@ -1437,3 +1437,6 @@ anular;
 
 window.registrarHistorial =
 registrar;
+
+// ACTUALIZAR SECCIÓN
+window.HISTORIAL.actualizar = cargarHistorial;
