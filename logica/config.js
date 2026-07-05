@@ -693,7 +693,7 @@ if(estaBloqueado(c)){
 
 
 alert(
-"Este curso ya no puede editarse"
+"Este curso ya no puede editarse porque está cerrado, consulte a un administrador"
 );
 
 
@@ -1357,7 +1357,7 @@ Number(curso.disponibles)<=0
 ){
 
 alert(
-"No hay más cupos, por favor imprima"
+"No hay más cupos, el curso se cerró, por favor imprima. No se pueden hacer cambios ni inscripciones nuevas"
 );
 
 return;
@@ -1440,7 +1440,7 @@ if(!ok){
 
 
 alert(
-"Este afiliado no está al día con las cuotas"
+"Este afiliado debe cuotas: Tiene que ponerse al día para poder anotarse a este curso. Vaya a la sección COBRAR, y emita el pago correspondiente primero."
 );
 
 
