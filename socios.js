@@ -91,12 +91,6 @@ document
 
 
 document
-.getElementById("btnVerCursos")
-.onclick=abrirCursos;
-
-
-
-document
 .getElementById("cerrarCursosSocio")
 .onclick=()=>{
 
@@ -419,17 +413,15 @@ document
 .getElementById("headerPortal")
 .classList.remove("oculto");
 
-mostrarSeccion("perfil");
-
 document
 .getElementById("loginSocio")
 .classList.add("oculto");
 
-
-
 document
 .getElementById("perfilSocio")
 .classList.remove("oculto");
+
+mostrarSeccion("perfil");
 
 
 
@@ -501,7 +493,7 @@ mostrarCuotas();
 
 await cargarCursos();
 
-
+mostrarCursos();
 
 mostrarNotificacion();
 
@@ -685,61 +677,58 @@ cursos.slice(0,10);
 
 
 
-function abrirCursos(){
+// ===============================
+// MOSTRAR CURSOS
+// ===============================
 
+function mostrarCursos(){
 
-
-const modal =
+const caja =
 document
-.getElementById("modalCursosSocio");
+.getElementById("seccionCursos");
 
+caja.innerHTML=`
 
+<h2>
 
-const lista =
-document
-.getElementById("listaCursosSocio");
+Cursos
 
-
-
-lista.innerHTML="";
-
-
-
-
-if(cursos.length===0){
-
-
-lista.innerHTML=`
-
-<p>
-
-Sin cursos disponibles por el momento,
-se le avisará cuando surjan jornadas/cursos o diplomaturas.
-
-</p>
+</h2>
 
 `;
 
 
 
-}else{
+if(cursos.length===0){
+
+caja.innerHTML+=`
+
+<p>
+
+Sin cursos disponibles por el momento,
+se le avisará cuando surjan jornadas, cursos o diplomaturas.
+
+</p>
+
+`;
+
+return;
+
+}
 
 
 
 cursos.forEach(c=>{
 
-
-lista.innerHTML+=`
+caja.innerHTML+=`
 
 <div class="cursoCard">
-
 
 <h3>
 
 ${c.titulo}
 
 </h3>
-
 
 <p>
 
@@ -748,7 +737,6 @@ ${formatearSimple(c.fechaInicio)}
 
 </p>
 
-
 <p>
 
 Cierre:
@@ -756,27 +744,13 @@ ${formatearSimple(c.fechaCierre)}
 
 </p>
 
-
 </div>
 
 `;
 
-
-
 });
 
-
-
 }
-
-
-
-modal.classList.remove("oculto");
-
-
-}
-
-
 
 
 
