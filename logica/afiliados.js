@@ -2351,25 +2351,13 @@ contarDuplicados("celular")
 
 
 // ===============================
-// EXPORT
-// ===============================
-
-
-window.AFILIADOS = {
-
-
-editarAfiliado,
-
-eliminarAfiliado,
-
-imprimir
-
-};
-
-// ===============================
 // ACTUALIZAR SECCIÓN
 // ===============================
 
+
 window.AFILIADOS = {
+    editarAfiliado,
+    eliminarAfiliado,
+    imprimir,
     actualizar: () => cargarAfiliados()
 };
