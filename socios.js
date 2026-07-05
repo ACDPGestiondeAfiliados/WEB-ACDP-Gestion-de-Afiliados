@@ -65,57 +65,23 @@ document
 .getElementById("btnMenuNovedades")
 .onclick=()=>mostrarSeccion("novedades");
 
-
 document
 .getElementById("btnLoginSocio")
 .onclick=ingresarSocio;
-
-
 
 document
 .getElementById("btnCerrarSesion")
 .onclick=cerrarSesion;
 
-
-
 document
 .getElementById("btnGuardarDatos")
 .onclick=guardarDatos;
-
-
 
 document
 .getElementById("btnCambiarPin")
 .onclick=cambiarPin;
 
-
-
-document
-.getElementById("cerrarCursosSocio")
-.onclick=()=>{
-
-document
-.getElementById("modalCursosSocio")
-.classList.add("oculto");
-
-};
-
-
-
-document
-.getElementById("cerrarNotificacionSocio")
-.onclick=()=>{
-
-document
-.getElementById("modalNotificacionSocio")
-.classList.add("oculto");
-
-};
-
-
-
 activarNumericos();
-
 
 }
 
@@ -554,19 +520,6 @@ return;
 
 const data =
 snap.data();
-
-
-
-document
-.getElementById("textoNotificacionSocio")
-.textContent =
-data.mensaje;
-
-
-
-document
-.getElementById("modalNotificacionSocio")
-.classList.remove("oculto");
 
 
 
@@ -1147,6 +1100,9 @@ function cerrarSesion(){
 
 socioActual=null;
 
+document.getElementById("seccionCursos").innerHTML="";
+document.getElementById("seccionNovedades").innerHTML="";
+  
 document
 .getElementById("perfilSocio")
 .classList.add("oculto");
