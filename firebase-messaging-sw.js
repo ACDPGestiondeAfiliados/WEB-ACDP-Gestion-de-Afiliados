@@ -1,29 +1,28 @@
 // ===============================
-// ACDP - FIREBASE MESSAGING
-// SERVICE WORKER
+// ACDP - FIREBASE MESSAGING SW
 // ===============================
 
 importScripts(
-"https://www.gstatic.com/firebasejs/12.0.0/firebase-app-compat.js"
+"https://www.gstatic.com/firebasejs/11.0.2/firebase-app-compat.js"
 );
 
 importScripts(
-"https://www.gstatic.com/firebasejs/12.0.0/firebase-messaging-compat.js"
+"https://www.gstatic.com/firebasejs/11.0.2/firebase-messaging-compat.js"
 );
 
 firebase.initializeApp({
 
-apiKey:"TU_API_KEY",
+apiKey:"AIzaSyBuXoGjEGxmGXuvrWSGbJW_-i8NDydJX38",
 
-authDomain:"TU_AUTH_DOMAIN",
+authDomain:"acdp-afiliados.firebaseapp.com",
 
-projectId:"TU_PROJECT_ID",
+projectId:"acdp-afiliados",
 
-storageBucket:"TU_STORAGE_BUCKET",
+storageBucket:"acdp-afiliados.firebasestorage.app",
 
-messagingSenderId:"TU_MESSAGING_SENDER_ID",
+messagingSenderId:"67829346831",
 
-appId:"TU_APP_ID"
+appId:"1:67829346831:web:2abdb4c55b504b752ce97a"
 
 });
 
@@ -45,10 +44,10 @@ payload.notification?.body
 "",
 
 icon:
-"./logo192.png",
+"./iconos/notif.png",
 
 badge:
-"./logo192.png"
+"./iconos/notif.png"
 
 };
 
@@ -67,7 +66,9 @@ event.notification.close();
 
 event.waitUntil(
 
-clients.openWindow("/")
+clients.openWindow(
+"/"
+)
 
 );
 
