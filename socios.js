@@ -335,7 +335,7 @@ mostrarPerfil();
 
 async function mostrarPerfil(){
 
-
+registrarNotificaciones();
 
 const a=socioActual;
 
