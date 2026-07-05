@@ -44,6 +44,7 @@ document.addEventListener(
 ()=>{
 
 iniciarSocios();
+iniciarNotificaciones();
 
 });
 
@@ -1102,4 +1103,38 @@ document
 
 
 
+}
+
+let ultimaNotificacionId = null;
+
+function iniciarNotificaciones(){
+
+    setInterval(async () => {
+
+        if(!socioActual) return;
+
+        const snap = await getDoc(
+            doc(db, "notificaciones", "principal")
+        );
+
+        if(!snap.exists()) return;
+
+        const data = snap.data();
+
+        // evita repetir la misma notificación
+        if(ultimaNotificacionId === data.fecha) return;
+
+        ultimaNotificacionId = data.fecha;
+
+        mostrarNotificacionPopup(data.mensaje);
+        reproducirSonido();
+
+    }, 5000); // podés cambiar a 10000 si querés más liviano
+}
+
+const audioNotif = new Audio("notif.mp3");
+
+function reproducirSonido(){
+    audioNotif.currentTime = 0;
+    audioNotif.play().catch(()=>{});
 }
