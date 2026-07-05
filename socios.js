@@ -540,43 +540,11 @@ await navigator.serviceWorker.ready
 if(!token)
 return;
 
-await setDoc(
-
-doc(
-db,
-"tokens",
-token
-),
-
-{
-
-token,
-
-fecha:
-new Date()
-.toLocaleDateString(
-"es-AR"
-),
-
-hora:
-new Date()
-.toLocaleTimeString(
-"es-AR",
-{
-
-hour:"2-digit",
-
-minute:"2-digit",
-
-hour12:false
-
-}
-
-)
-
-}
-
-);
+await setDoc(doc(db, "tokens", token), {
+    token,
+    socioID: socioActual?.id || null,
+    fecha: Date.now()
+});
 
 }
 catch(error){
