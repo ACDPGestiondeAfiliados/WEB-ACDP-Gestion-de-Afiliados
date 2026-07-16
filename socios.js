@@ -1,424 +1,833 @@
-// ===============================
-// ACDP - PORTAL SOCIOS
-// Firebase + Cursos + Notificaciones
-// ===============================
-
+// ======================================================
+// ACDP - PORTAL DE AFILIADOS
+// socios.js
+// PARTE 1A
+// Inicio + Login + Navegación Base
+// ======================================================
 
 import {
-
-db,
-collection,
-getDocs,
-updateDoc,
-deleteDoc,
-doc,
-getDoc
-
+    db,
+    collection,
+    getDocs,
+    updateDoc,
+    doc,
+    getDoc
 } from "./firebase.js";
 
 
-
-
-// ===============================
+// ======================================================
 // ESTADO
-// ===============================
+// ======================================================
+
+let socioActual = null;
+let cursos = [];
+let novedades = [];
+
+const PIN_MASTER = "2015";
 
 
-let socioActual=null;
+// ======================================================
+// ELEMENTOS
+// ======================================================
 
-let cursos=[];
-
-const PIN_MASTER="2015";
-
-
+const $ = (id) => document.getElementById(id);
 
 
+// ======================================================
+// INICIO
+// ======================================================
 
-// ===============================
-// INIT
-// ===============================
+document.addEventListener("DOMContentLoaded", iniciarPortal);
 
+function iniciarPortal() {
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+    activarSoloNumeros();
 
-iniciarSocios();
+    // Login
+    $("btnLoginSocio").addEventListener("click", ingresarSocio);
 
-});
+    // Cuenta
+    $("btnGuardarCuenta").addEventListener("click", guardarCuenta);
 
+    // Menú
+    $("btnOpciones").addEventListener("click", toggleMenu);
 
+    // Navegación
+    document
+        .querySelectorAll("[data-seccion]")
+        .forEach(btn => {
 
+            btn.addEventListener("click", () => {
 
+                mostrarSeccion(btn.dataset.seccion);
 
-function iniciarSocios(){
+                ocultarMenu();
 
+            });
 
-document
-.getElementById("btnLoginSocio")
-.onclick=ingresarSocio;
+        });
 
+    // Salir
 
-
-document
-.getElementById("btnCerrarSesion")
-.onclick=cerrarSesion;
-
-
-
-document
-.getElementById("btnGuardarDatos")
-.onclick=guardarDatos;
-
-
-
-document
-.getElementById("btnCambiarPin")
-.onclick=cambiarPin;
-
-
-
-document
-.getElementById("btnVerCursos")
-.onclick=abrirCursos;
-
-
-
-document
-.getElementById("cerrarCursosSocio")
-.onclick=()=>{
-
-document
-.getElementById("modalCursosSocio")
-.classList.add("oculto");
-
-};
-
-
-
-document
-.getElementById("cerrarNotificacionSocio")
-.onclick=()=>{
-
-document
-.getElementById("modalNotificacionSocio")
-.classList.add("oculto");
-
-};
-
-
-
-activarNumericos();
-
+    $("btnCerrarSesion")
+        .addEventListener("click", cerrarSesion);
 
 }
 
 
+// ======================================================
+// INPUTS NUMÉRICOS
+// ======================================================
 
+function activarSoloNumeros() {
 
+    [
 
+        "loginNumero",
+        "loginPin",
+        "nuevoPin",
+        "nuevoCelular"
 
-// ===============================
-// INPUT NUMERICO
-// ===============================
+    ].forEach(id => {
 
+        const input = $(id);
 
-function activarNumericos(){
+        if (!input) return;
 
+        input.addEventListener("input", () => {
 
-[
-"loginNumero",
-"loginPin",
-"nuevoCelular",
-"nuevoPin",
-"confirmarPin"
+            input.value =
+                input.value.replace(/\D/g, "");
 
-].forEach(id=>{
+        });
 
-
-const el =
-document.getElementById(id);
-
-
-if(el){
-
-el.oninput=()=>{
-
-el.value =
-el.value.replace(/\D/g,"");
-
-};
+    });
 
 }
 
 
-});
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
+// ======================================================
 // LOGIN
-// ===============================
+// ======================================================
 
+async function ingresarSocio() {
 
-async function ingresarSocio(){
+    const dni =
+        $("loginNumero").value.trim();
 
+    const pin =
+        $("loginPin").value.trim();
 
-const dato =
-document
-.getElementById("loginNumero")
-.value.trim();
+    const mensaje =
+        $("mensajeLogin");
 
+    mensaje.textContent = "";
 
+    if (dni.length !== 8) {
 
-const pin =
-document
-.getElementById("loginPin")
-.value.trim();
+        mensaje.textContent =
+            "Ingrese un DNI válido.";
 
+        return;
 
+    }
 
-const mensaje =
-document
-.getElementById("mensajeLogin");
+    try {
 
+        const snap =
+            await getDocs(
+                collection(db, "afiliados")
+            );
 
+        let encontrado = null;
 
-if(dato.length!==8){
+        snap.forEach(docu => {
 
-mensaje.textContent=
-"Ingrese DNI o número válido";
+            const socio = {
 
-return;
+                id: docu.id,
+                ...docu.data()
 
-}
+            };
 
+            if (socio.dni === dni) {
 
+                encontrado = socio;
 
+            }
 
+        });
 
-const snap =
-await getDocs(
-collection(db,"afiliados")
-);
+        if (!encontrado) {
 
+            mensaje.textContent =
+                "Afiliado inexistente.";
 
+            return;
 
-let encontrado=null;
+        }
 
+        if (encontrado.estado === "Eliminado") {
 
+            mensaje.textContent =
+                "La cuenta está deshabilitada.";
 
-snap.forEach(d=>{
+            return;
 
+        }
 
-const a={
-id:d.id,
-...d.data()
-};
+        const pinCorrecto =
+            encontrado.pinAsociado || "1111";
 
+        if (
+            pin !== pinCorrecto &&
+            pin !== PIN_MASTER
+        ) {
 
-if(
+            mensaje.textContent =
+                "PIN incorrecto.";
 
-a.dni===dato ||
-a.numeroAfiliado===dato
+            return;
 
-){
+        }
 
-encontrado=a;
+        socioActual = encontrado;
 
-}
+        await mostrarPerfil();
 
+    }
 
-});
+    catch (error) {
 
+        console.error(error);
 
+        mensaje.textContent =
+            "No fue posible iniciar sesión.";
 
-
-
-if(!encontrado){
-
-
-mensaje.textContent=
-"Afiliado inexistente";
-
-
-return;
-
-}
-
-
-
-
-
-if(encontrado.estado==="Eliminado"){
-
-
-mensaje.textContent=
-"Cuenta deshabilitada";
-
-return;
-
+    }
 
 }
 
 
-
-
-
-
-const pinCorrecto =
-encontrado.pinAsociado ||
-"1111";
-
-
-
-
-
-if(
-
-pin!==pinCorrecto &&
-pin!==PIN_MASTER
-
-){
-
-
-mensaje.textContent=
-"PIN incorrecto";
-
-return;
-
-
-}
-
-
-
-
-
-socioActual=encontrado;
-
-
-
-mostrarPerfil();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-
-// ===============================
+// ======================================================
 // PERFIL
-// ===============================
+// ======================================================
+
+async function mostrarPerfil() {
+
+    $("loginSocio")
+        .classList.add("oculto");
+
+    $("menuOpciones")
+        .classList.remove("oculto");
+
+    mostrarSeccion("perfil");
+
+    cargarDatosPerfil();
+
+    cargarDatosCuenta();
+
+    await cargarValorCuota();
+
+}
 
 
-async function mostrarPerfil(){
+// ======================================================
+// DATOS DEL PERFIL
+// ======================================================
+
+function cargarDatosPerfil() {
+
+    if (!socioActual) return;
+
+    escribir("datoDni", socioActual.dni);
+
+    escribir("datoNombre", socioActual.nombre);
+
+    escribir("datoApellido", socioActual.apellido);
+
+    escribir("datoCelular", socioActual.celular);
+
+    escribir("datoCorreo", socioActual.correo);
+
+    escribir("datoEstado", socioActual.estado);
+
+    escribir(
+
+        "datoFechaAlta",
+
+        formatearFechaHora(
+            socioActual.fechaAlta
+        )
+
+    );
+
+}
+
+
+// ======================================================
+// DATOS CUENTA
+// ======================================================
+
+function cargarDatosCuenta() {
+
+    if (!socioActual) return;
+
+    $("nuevoCorreo").value =
+        socioActual.correo || "";
+
+    $("nuevoCelular").value =
+        socioActual.celular || "";
+
+    $("nuevoPin").value = "";
+
+}
+
+
+// ======================================================
+// VALOR CUOTA
+// ======================================================
+
+async function cargarValorCuota() {
+
+    try {
+
+        const ref =
+            doc(
+                db,
+                "configuracion",
+                "general"
+            );
+
+        const snap =
+            await getDoc(ref);
+
+        if (!snap.exists()) {
+
+            $("valorCuota").textContent =
+                "$0";
+
+            return;
+
+        }
+
+        const datos = snap.data();
+
+        $("valorCuota").textContent =
+            "$" + (datos.monto || 0);
+
+    }
+
+    catch {
+
+        $("valorCuota").textContent =
+            "$0";
+
+    }
+
+}
+
+
+// ======================================================
+// ESCRIBIR TEXTO
+// ======================================================
+
+function escribir(id, valor) {
+
+    const elemento = $(id);
+
+    if (!elemento) return;
+
+    elemento.textContent =
+        valor ?? "";
+
+}
+
+// ======================================================
+// PARTE 1B
+// Navegación + Menú + Helpers
+// Continuación de la Parte 1A
+// ======================================================
+
+
+// ======================================================
+// MOSTRAR SECCIONES
+// ======================================================
+
+function mostrarSeccion(seccion) {
+
+    const secciones = {
+
+        perfil: $("seccionPerfil"),
+        cuenta: $("seccionCuenta"),
+        cursos: $("seccionCursos"),
+        novedades: $("seccionNovedades")
+
+    };
+
+    Object.values(secciones).forEach(sec => {
+
+        if (sec) {
+
+            sec.classList.add("oculto");
+
+        }
+
+    });
+
+    if (secciones[seccion]) {
+
+        secciones[seccion]
+            .classList.remove("oculto");
+
+    }
+
+}
+
+
+// ======================================================
+// MENÚ FLOTANTE
+// ======================================================
+
+function toggleMenu() {
+
+    $("panelOpciones")
+        .classList.toggle("oculto");
+
+}
+
+function ocultarMenu() {
+
+    $("panelOpciones")
+        .classList.add("oculto");
+
+}
+
+
+// ======================================================
+// CERRAR MENÚ AL HACER CLICK AFUERA
+// ======================================================
+
+document.addEventListener("click", e => {
+
+    const menu = $("menuOpciones");
+    const panel = $("panelOpciones");
+    const boton = $("btnOpciones");
+
+    if (!menu || !panel || !boton) return;
+
+    if (
+
+        !menu.contains(e.target) &&
+        !boton.contains(e.target)
+
+    ) {
+
+        ocultarMenu();
+
+    }
+
+});
+
+
+// ======================================================
+// CERRAR SESIÓN
+// ======================================================
+
+function cerrarSesion() {
+
+    socioActual = null;
+
+    cursos = [];
+
+    novedades = [];
+
+    $("loginNumero").value = "";
+    $("loginPin").value = "";
+    $("mensajeLogin").textContent = "";
+
+    $("loginSocio")
+        .classList.remove("oculto");
+
+    $("menuOpciones")
+        .classList.add("oculto");
+
+    ocultarMenu();
+
+    [
+
+        "seccionPerfil",
+        "seccionCuenta",
+        "seccionCursos",
+        "seccionNovedades"
+
+    ].forEach(id => {
+
+        const sec = $(id);
+
+        if (sec) {
+
+            sec.classList.add("oculto");
+
+        }
+
+    });
+
+}
+
+
+// ======================================================
+// FORMATEAR FECHA Y HORA
+// ======================================================
+
+function formatearFechaHora(valor) {
+
+    if (!valor) return "";
+
+    const fecha = new Date(valor);
+
+    if (isNaN(fecha)) return "";
+
+    const dia =
+        String(fecha.getDate())
+        .padStart(2, "0");
+
+    const mes =
+        String(fecha.getMonth() + 1)
+        .padStart(2, "0");
+
+    const anio =
+        fecha.getFullYear();
+
+    const hora =
+        String(fecha.getHours())
+        .padStart(2, "0");
+
+    const minuto =
+        String(fecha.getMinutes())
+        .padStart(2, "0");
+
+    return `${dia}/${mes}/${anio} ${hora}:${minuto}`;
+
+}
+
+
+// ======================================================
+// FORMATEAR FECHA SIMPLE
+// ======================================================
+
+function formatearFecha(valor) {
+
+    if (!valor) return "";
+
+    const fecha =
+        new Date(valor + "T00:00:00");
+
+    if (isNaN(fecha)) return "";
+
+    const dia =
+        String(fecha.getDate())
+        .padStart(2, "0");
+
+    const mes =
+        String(fecha.getMonth() + 1)
+        .padStart(2, "0");
+
+    const anio =
+        fecha.getFullYear();
+
+    return `${dia}/${mes}/${anio}`;
+
+}
+
+
+// ======================================================
+// MOSTRAR / OCULTAR CUOTAS
+// ======================================================
+
+function actualizarEstadoCuotas() {
+
+    if (!socioActual) return;
+
+    const contenedor =
+        $("contenedorCuotas");
+
+    if (!contenedor) return;
+
+    if (
+
+        String(socioActual.estado)
+            .toUpperCase() === "ADHERENTE"
+
+    ) {
+
+        contenedor
+            .classList.remove("oculto");
+
+    }
+
+    else {
+
+        contenedor
+            .classList.add("oculto");
+
+    }
+
+}
+
+
+// ======================================================
+// REFRESCAR PERFIL
+// ======================================================
+
+function refrescarPerfil() {
+
+    if (!socioActual) return;
+
+    cargarDatosPerfil();
+
+    cargarDatosCuenta();
+
+    actualizarEstadoCuotas();
+
+}
+
+
+// ======================================================
+// UTILIDAD
+// ======================================================
+
+function limpiarHTML(id) {
+
+    const el = $(id);
+
+    if (el) {
+
+        el.innerHTML = "";
+
+    }
+
+}
+
+
+// ======================================================
+// FIN PARTE 1B
+// ======================================================
+// ======================================================
+// PARTE 2
+// MI CUENTA
+// Edición de datos del afiliado
+// ======================================================
+
+
+// ======================================================
+// GUARDAR CAMBIOS DE CUENTA
+// ======================================================
+
+async function guardarCuenta() {
+
+    if (!socioActual) {
+
+        return;
+
+    }
+
+
+    const nuevoPin =
+        $("nuevoPin")
+        .value
+        .trim();
+
+
+    const nuevoCorreo =
+        $("nuevoCorreo")
+        .value
+        .trim();
+
+
+    const nuevoCelular =
+        $("nuevoCelular")
+        .value
+        .trim();
 
 
 
-const a=socioActual;
+    // ===============================
+    // VALIDACIONES
+    // ===============================
+
+
+    if (nuevoPin !== "") {
+
+
+        if (nuevoPin.length !== 4) {
+
+
+            alert(
+                "El PIN debe tener 4 números."
+            );
+
+
+            return;
+
+
+        }
 
 
 
-document
-.getElementById("loginSocio")
-.classList.add("oculto");
+        if (nuevoPin === PIN_MASTER) {
+
+
+            alert(
+                "Ese PIN está reservado."
+            );
+
+
+            return;
+
+
+        }
+
+
+    }
 
 
 
-document
-.getElementById("perfilSocio")
-.classList.remove("oculto");
+    if (
+
+        nuevoCelular !== "" &&
+        nuevoCelular.length < 6
+
+    ) {
+
+
+        alert(
+            "Ingrese un celular válido."
+        );
+
+
+        return;
+
+
+    }
 
 
 
+    if (
+
+        nuevoCorreo !== "" &&
+        !validarCorreo(nuevoCorreo)
+
+    ) {
 
 
-dato("datoNumeroAfiliado",a.numeroAfiliado);
+        alert(
+            "Ingrese un correo válido."
+        );
 
-dato("datoDni",a.dni);
 
-dato("datoNombre",a.nombre);
+        return;
 
-dato("datoApellido",a.apellido);
 
-dato("datoCelular",a.celular);
-
-dato("datoCorreo",a.correo);
-
-dato("datoEstado",a.estado);
-
-dato(
-"datoFechaAlta",
-formatearFechaHora(a.fechaAlta)
-);
+    }
 
 
 
+    try {
 
 
-nuevoCelular.value=a.celular||"";
+        const datosActualizar = {
 
-nuevoCorreo.value=a.correo||"";
-
-
-
+            correo:
+                nuevoCorreo,
 
 
-const configRef =
-doc(
-db,
-"configuracion",
-"general"
-);
+            celular:
+                nuevoCelular
+
+        };
 
 
 
-const configSnap =
-await getDoc(configRef);
+        if (nuevoPin !== "") {
+
+
+            datosActualizar.pinAsociado =
+                nuevoPin;
+
+
+        }
 
 
 
-const monto =
-configSnap.exists()
-?
-configSnap.data().monto
-:
-0;
+        await updateDoc(
+
+            doc(
+                db,
+                "afiliados",
+                socioActual.id
+            ),
+
+            datosActualizar
+
+        );
 
 
 
-valorCuota.textContent=
-"$"+monto;
+        // Actualizar memoria local
+
+
+        socioActual.correo =
+            nuevoCorreo;
+
+
+        socioActual.celular =
+            nuevoCelular;
 
 
 
-
-mostrarCuotas();
-
+        if (nuevoPin !== "") {
 
 
-await cargarCursos();
+            socioActual.pinAsociado =
+                nuevoPin;
+
+
+        }
 
 
 
-mostrarNotificacion();
+        alert(
+            "Datos actualizados correctamente."
+        );
 
+
+
+        $("nuevoPin").value = "";
+
+
+
+        refrescarPerfil();
+
+
+    }
+
+
+    catch(error) {
+
+
+        console.error(
+            "Error guardando cuenta:",
+            error
+        );
+
+
+        alert(
+            "No fue posible guardar los cambios."
+        );
+
+
+    }
 
 
 }
@@ -426,70 +835,15 @@ mostrarNotificacion();
 
 
 
+// ======================================================
+// VALIDAR CORREO
+// ======================================================
+
+function validarCorreo(correo) {
 
 
-
-
-
-function dato(id,texto){
-
-document
-.getElementById(id)
-.textContent=texto||"";
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// NOTIFICACION
-// ===============================
-
-
-async function mostrarNotificacion(){
-
-
-const snap =
-await getDoc(
-
-doc(
-db,
-"notificaciones",
-"principal"
-
-)
-
-);
-
-
-
-if(!snap.exists())
-return;
-
-
-
-const data =
-snap.data();
-
-
-
-document
-.getElementById("textoNotificacionSocio")
-.textContent =
-data.mensaje;
-
-
-
-document
-.getElementById("modalNotificacionSocio")
-.classList.remove("oculto");
-
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        .test(correo);
 
 
 }
@@ -497,609 +851,694 @@ document
 
 
 
+// ======================================================
+// CAMBIAR SECCIÓN DESDE CUENTA
+// ======================================================
+
+function abrirCuenta() {
+
+
+    mostrarSeccion(
+        "cuenta"
+    );
+
+
+}
 
 
 
 
+// ======================================================
+// ACTUALIZAR PERFIL DESDE FIREBASE
+// ======================================================
 
-// ===============================
+async function recargarDatosSocio() {
+
+
+    if (!socioActual)
+        return;
+
+
+
+    try {
+
+
+        const snap =
+            await getDoc(
+
+                doc(
+                    db,
+                    "afiliados",
+                    socioActual.id
+                )
+
+            );
+
+
+
+        if (
+            snap.exists()
+        ) {
+
+
+            socioActual = {
+
+                id:
+                    snap.id,
+
+                ...snap.data()
+
+            };
+
+
+
+            refrescarPerfil();
+
+
+        }
+
+
+    }
+
+
+    catch(error) {
+
+
+        console.error(
+            error
+        );
+
+
+    }
+
+
+}
+
+
+// ======================================================
+// FIN PARTE 2
+// ======================================================
+
+// ======================================================
+// PARTE 3
+// CURSOS + NOVEDADES + CUOTAS
+// ======================================================
+
+
+// ======================================================
 // CURSOS
-// ===============================
+// ======================================================
+
+async function cargarCursos() {
 
 
-async function cargarCursos(){
+    cursos = [];
 
 
-cursos=[];
+    const lista =
+        $("listaCursosSocio");
 
 
-const snap =
-await getDocs(
-collection(db,"cursos")
-);
-
-
-
-const hoy =
-new Date()
-.toISOString()
-.split("T")[0];
+    if (!lista)
+        return;
 
 
 
-for(const d of snap.docs){
+    lista.innerHTML =
+        "";
 
 
-const c={
 
-id:d.id,
-...d.data()
+    try {
+
+
+        const snap =
+            await getDocs(
+
+                collection(
+                    db,
+                    "cursos"
+                )
+
+            );
+
+
+
+        const hoy =
+            new Date()
+                .toISOString()
+                .split("T")[0];
+
+
+
+        for (const item of snap.docs) {
+
+
+
+            const curso = {
+
+                id:
+                    item.id,
+
+                ...item.data()
+
+            };
+
+
+
+
+            // eliminar cursos vencidos
+
+            if (
+
+                curso.fechaCierre &&
+                curso.fechaCierre < hoy
+
+            ) {
+
+
+
+                await deleteDoc(
+
+                    doc(
+                        db,
+                        "cursos",
+                        curso.id
+                    )
+
+                );
+
+
+
+                continue;
+
+            }
+
+
+
+            cursos.push(
+                curso
+            );
+
+
+        }
+
+
+
+
+        cursos.sort(
+            (a,b)=>
+
+                new Date(a.fechaInicio)
+                -
+                new Date(b.fechaInicio)
+
+        );
+
+
+
+        mostrarCursos();
+
+
+    }
+
+
+    catch(error) {
+
+
+        console.error(
+            "Error cursos:",
+            error
+        );
+
+
+        lista.innerHTML =
+        `
+
+        <p>
+        No se pudieron cargar los cursos.
+        </p>
+
+        `;
+
+
+    }
+
+
+}
+
+
+
+// ======================================================
+// MOSTRAR CURSOS
+// ======================================================
+
+function mostrarCursos() {
+
+
+    const lista =
+        $("listaCursosSocio");
+
+
+
+    if (!lista)
+        return;
+
+
+
+    lista.innerHTML =
+        "";
+
+
+
+    if (cursos.length === 0) {
+
+
+        lista.innerHTML =
+        `
+
+        <p>
+        No hay cursos disponibles
+        actualmente.
+        </p>
+
+        `;
+
+
+        return;
+
+    }
+
+
+
+    cursos.forEach(c => {
+
+
+
+        lista.innerHTML +=
+
+        `
+
+        <div class="cursoCard">
+
+
+            <h3>
+            ${c.titulo || "Curso ACDP"}
+            </h3>
+
+
+            <p>
+
+            Inicio:
+            ${formatearFecha(c.fechaInicio)}
+
+            </p>
+
+
+            <p>
+
+            Cierre:
+            ${formatearFecha(c.fechaCierre)}
+
+            </p>
+
+
+            ${
+                c.descripcion
+                ?
+                `<p>${c.descripcion}</p>`
+                :
+                ""
+            }
+
+
+        </div>
+
+
+        `;
+
+
+    });
+
+
+}
+
+
+
+
+// ======================================================
+// NOVEDADES
+// ======================================================
+
+async function cargarNovedades() {
+
+
+    novedades = [];
+
+
+
+    const lista =
+        $("listaNovedades");
+
+
+
+    if (!lista)
+        return;
+
+
+
+    lista.innerHTML =
+        "";
+
+
+
+    try {
+
+
+
+        const ref =
+            doc(
+
+                db,
+                "notificaciones",
+                "principal"
+
+            );
+
+
+
+        const snap =
+            await getDoc(ref);
+
+
+
+
+        if (!snap.exists()) {
+
+
+
+            lista.innerHTML =
+            `
+
+            <p>
+            No hay novedades disponibles.
+            </p>
+
+            `;
+
+
+
+            return;
+
+        }
+
+
+
+
+        const data =
+            snap.data();
+
+
+
+        novedades.push(data);
+
+
+
+
+        lista.innerHTML +=
+
+
+        `
+
+        <div class="novedadCard">
+
+
+            <h3>
+            ACDP
+            </h3>
+
+
+            <p>
+
+            ${
+                data.mensaje ||
+                "Sin mensaje"
+
+            }
+
+            </p>
+
+
+        </div>
+
+
+        `;
+
+
+    }
+
+
+    catch(error) {
+
+
+        console.error(
+            "Error novedades:",
+            error
+        );
+
+
+    }
+
+
+}
+
+
+
+
+// ======================================================
+// CUOTAS
+// ======================================================
+
+async function mostrarCuotas() {
+
+
+    if (!socioActual)
+        return;
+
+
+
+    const caja =
+        $("cuotasSocio");
+
+
+
+    if (!caja)
+        return;
+
+
+
+    caja.innerHTML =
+        "";
+
+
+
+    const meses = [
+
+        "Enero",
+        "Febrero",
+        "Marzo",
+        "Abril",
+        "Mayo",
+        "Junio",
+        "Julio",
+        "Agosto",
+        "Septiembre",
+        "Octubre",
+        "Noviembre",
+        "Diciembre"
+
+    ];
+
+
+
+    const año =
+        new Date()
+        .getFullYear();
+
+
+
+    let pagados = [];
+
+
+
+    try {
+
+
+        const snap =
+            await getDocs(
+
+                collection(
+                    db,
+                    "cobros"
+                )
+
+            );
+
+
+
+        snap.forEach(d => {
+
+
+
+            const cobro =
+                d.data();
+
+
+
+            if (
+
+                cobro.dni === socioActual.dni &&
+                cobro.anio === año &&
+                cobro.estado !== "Anulado"
+
+            ) {
+
+
+
+                (cobro.meses || [])
+                .forEach(m => {
+
+
+
+                    if (
+                        !pagados.includes(m)
+                    )
+
+                        pagados.push(m);
+
+
+
+                });
+
+
+            }
+
+
+        });
+
+
+
+
+        meses.forEach(m => {
+
+
+
+            const pagado =
+                pagados.includes(m);
+
+
+
+            caja.innerHTML +=
+
+
+            `
+
+            <div class="cuota
+            ${pagado ? "pagada" : "pendiente"}">
+
+
+            ${m}
+
+
+            <br>
+
+
+            ${
+                pagado
+                ?
+                "PAGADO"
+                :
+                "PENDIENTE"
+
+            }
+
+
+            </div>
+
+
+            `;
+
+
+
+        });
+
+
+
+    }
+
+
+    catch(error) {
+
+
+        console.error(
+            "Error cuotas:",
+            error
+        );
+
+
+    }
+
+
+
+}
+
+
+
+
+// ======================================================
+// CARGA COMPLETA DEL PORTAL
+// ======================================================
+
+async function cargarPortalCompleto() {
+
+
+    await cargarCursos();
+
+
+    await cargarNovedades();
+
+
+    await mostrarCuotas();
+
+
+    actualizarEstadoCuotas();
+
+
+}
+
+
+// ======================================================
+// SOBRESCRIBIR PERFIL INICIAL
+// ======================================================
+
+const mostrarPerfilOriginal =
+    mostrarPerfil;
+
+
+
+mostrarPerfil =
+async function() {
+
+
+    await mostrarPerfilOriginal();
+
+
+    await cargarPortalCompleto();
+
 
 };
 
 
-
-if(
-c.fechaCierre &&
-c.fechaCierre < hoy
-
-){
-
-
-await deleteDoc(
-
-doc(
-db,
-"cursos",
-c.id
-
-)
-
-);
-
-
-continue;
-
-}
-
-
-
-cursos.push(c);
-
-
-}
-
-
-
-cursos.sort(
-
-(a,b)=>
-
-new Date(b.fechaInicio)
-
--
-
-new Date(a.fechaInicio)
-
-);
-
-
-
-cursos =
-cursos.slice(0,10);
-
-
-}
-
-
-
-
-
-
-
-
-
-function abrirCursos(){
-
-
-
-const modal =
-document
-.getElementById("modalCursosSocio");
-
-
-
-const lista =
-document
-.getElementById("listaCursosSocio");
-
-
-
-lista.innerHTML="";
-
-
-
-
-if(cursos.length===0){
-
-
-lista.innerHTML=`
-
-<p>
-
-Sin cursos disponibles por el momento,
-se le avisará cuando surjan jornadas/cursos o diplomaturas.
-
-</p>
-
-`;
-
-
-
-}else{
-
-
-
-cursos.forEach(c=>{
-
-
-lista.innerHTML+=`
-
-<div class="cursoCard">
-
-
-<h3>
-
-${c.titulo}
-
-</h3>
-
-
-<p>
-
-Inicio:
-${formatearSimple(c.fechaInicio)}
-
-</p>
-
-
-<p>
-
-Cierre:
-${formatearSimple(c.fechaCierre)}
-
-</p>
-
-
-</div>
-
-`;
-
-
-
-});
-
-
-
-}
-
-
-
-modal.classList.remove("oculto");
-
-
-}
-
-
-
-
-
-
-
-
-
-function formatearSimple(v){
-
-
-if(!v)return "";
-
-
-const d =
-new Date(
-v+"T00:00:00"
-);
-
-
-
-return (
-
-String(d.getDate())
-.padStart(2,"0")
-+"/"+
-String(d.getMonth()+1)
-.padStart(2,"0")
-+"/"+
-d.getFullYear()
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// FORMATO FECHA
-// ===============================
-
-
-function formatearFechaHora(valor){
-
-
-const fecha =
-new Date(valor);
-
-
-
-return (
-
-String(fecha.getDate())
-.padStart(2,"0")
-+"/"+
-String(fecha.getMonth()+1)
-.padStart(2,"0")
-+"/"+
-fecha.getFullYear()
-+" "+
-String(fecha.getHours())
-.padStart(2,"0")
-+":"+
-String(fecha.getMinutes())
-.padStart(2,"0")
-
-);
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// EDITAR DATOS
-// ===============================
-
-
-async function guardarDatos(){
-
-
-if(!socioActual)return;
-
-
-
-const celular =
-nuevoCelular.value.trim();
-
-
-
-const correo =
-nuevoCorreo.value.trim();
-
-
-
-
-
-await updateDoc(
-
-doc(
-db,
-"afiliados",
-socioActual.id
-),
-
-{
-
-celular,
-correo
-
-}
-
-);
-
-
-
-socioActual.celular=celular;
-
-socioActual.correo=correo;
-
-
-
-alert(
-"Datos actualizados"
-);
-
-
-
-mostrarPerfil();
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// CAMBIAR PIN
-// ===============================
-
-
-async function cambiarPin(){
-
-
-if(!socioActual)return;
-
-
-
-const nuevo =
-nuevoPin.value.trim();
-
-
-
-const confirmar =
-confirmarPin.value.trim();
-
-
-
-
-
-if(
-
-nuevo.length!==4 ||
-nuevo!==confirmar
-
-){
-
-alert(
-"PIN inválido"
-);
-
-return;
-
-}
-
-
-
-
-
-
-if(nuevo===PIN_MASTER){
-
-alert(
-"PIN reservado"
-);
-
-return;
-
-}
-
-
-
-
-
-await updateDoc(
-
-doc(
-db,
-"afiliados",
-socioActual.id
-),
-
-{
-
-pinAsociado:nuevo
-
-}
-
-);
-
-
-
-alert(
-"PIN cambiado"
-);
-
-
-
-nuevoPin.value="";
-
-confirmarPin.value="";
-
-
-
-}
-
-
-
-
-
-
-
-
-
-// ===============================
-// CUOTAS
-// ===============================
-
-
-async function mostrarCuotas(){
-
-
-const caja =
-document
-.getElementById("cuotasSocio");
-
-
-
-caja.innerHTML="";
-
-
-
-const meses=[
-
-"Enero",
-"Febrero",
-"Marzo",
-"Abril",
-"Mayo",
-"Junio",
-"Julio",
-"Agosto",
-"Septiembre",
-"Octubre",
-"Noviembre",
-"Diciembre"
-
-];
-
-
-
-const año =
-new Date()
-.getFullYear();
-
-
-
-let pagados=[];
-
-
-
-
-
-const snap =
-await getDocs(
-collection(db,"cobros")
-);
-
-
-
-
-snap.forEach(d=>{
-
-
-const c=d.data();
-
-
-
-if(
-
-c.dni===socioActual.dni &&
-c.anio===año &&
-c.estado!=="Anulado"
-
-){
-
-
-(c.meses||[])
-.forEach(m=>{
-
-
-if(!pagados.includes(m))
-pagados.push(m);
-
-
-});
-
-
-}
-
-
-
-});
-
-
-
-
-
-
-meses.forEach(m=>{
-
-
-const ok =
-pagados.includes(m);
-
-
-
-caja.innerHTML+=`
-
-
-<div class="cuota ${
-ok?"pagada":"pendiente"
-}">
-
-${m}
-
-<br>
-
-${ok?"PAGADO":"PENDIENTE"}
-
-</div>
-
-
-`;
-
-
-});
-
-
-
-}
-
-
-
-
-
-
-
-
-// ===============================
-// SALIR
-// ===============================
-
-
-function cerrarSesion(){
-
-
-socioActual=null;
-
-
-
-document
-.getElementById("perfilSocio")
-.classList.add("oculto");
-
-
-
-document
-.getElementById("loginSocio")
-.classList.remove("oculto");
-
-
-
-}
+// ======================================================
+// FIN SOCIOS.JS
+// ======================================================
