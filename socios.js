@@ -215,21 +215,29 @@ async function ingresarSocio() {
 // PERFIL
 // ======================================================
 
-async function mostrarPerfil() {
+async function mostrarPerfil(){
 
     $("loginSocio")
-        .classList.add("oculto");
+    .classList.add("oculto");
+
 
     $("menuOpciones")
-        .classList.remove("oculto");
+    .classList.remove("oculto");
+
 
     mostrarSeccion("perfil");
 
+
     cargarDatosPerfil();
+
 
     cargarDatosCuenta();
 
+
     await cargarValorCuota();
+
+
+    actualizarEstadoCuotas();
 
 }
 
