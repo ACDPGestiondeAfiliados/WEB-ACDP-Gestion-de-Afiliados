@@ -2280,40 +2280,6 @@ await cargarUltimaNotificacion();
 }
 
 
-`;
-
-
-
-document
-.getElementById("guardarNotificacion")
-.onclick =
-guardarNotificacion;
-
-
-}
-
-
-
-document
-.getElementById("cancelarNotificacion")
-.onclick =
-()=>cerrar("modalFondo");
-
-
-
-abrir("modalFondo");
-
-
-
-await cargarUltimaNotificacion();
-
-
-}
-
-
-
-
-
 // ===============================
 // CARGAR ÚLTIMA NOTIFICACION
 // ===============================
