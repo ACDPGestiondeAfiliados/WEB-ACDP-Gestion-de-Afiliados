@@ -282,9 +282,7 @@ box-shadow:
 
 
 #btnLoginSocio,
-#btnGuardarDatos,
-#btnCambiarPin,
-#btnCerrarSesion{
+#btnGuardarCuenta{
 
 width:100%;
 
@@ -600,5 +598,136 @@ scale(1);
 
 }
 
+
+}
+
+/* ===============================
+   MENU OPCIONES FLOTANTE
+=============================== */
+
+
+.menuOpciones{
+
+position:fixed;
+
+right:20px;
+
+top:50%;
+
+transform:
+translateY(-50%);
+
+z-index:999;
+
+}
+
+
+
+.btnOpciones{
+
+width:55px;
+
+height:170px;
+
+padding:10px 5px;
+
+line-height:18px;
+
+font-size:14px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+flex-direction:column;
+
+border-radius:30px;
+
+letter-spacing:2px;
+
+}
+
+
+
+
+.panelOpciones{
+
+position:absolute;
+
+right:70px;
+
+top:50%;
+
+transform:
+translateY(-50%)
+scale(.8);
+
+opacity:0;
+
+pointer-events:none;
+
+background:white;
+
+padding:15px;
+
+border-radius:22px;
+
+box-shadow:
+
+0 15px 40px rgba(166,2,171,.30);
+
+display:flex;
+
+flex-direction:column;
+
+gap:12px;
+
+min-width:180px;
+
+transition:.25s ease;
+
+}
+
+
+
+
+.panelOpciones:not(.oculto){
+
+opacity:1;
+
+transform:
+translateY(-50%)
+scale(1);
+
+pointer-events:auto;
+
+}
+
+
+
+
+.panelOpciones button{
+
+width:100%;
+
+text-align:center;
+
+}
+
+
+
+
+
+.panelOpciones button:last-child{
+
+background:
+
+linear-gradient(
+135deg,
+#7b1111,
+#d40000
+);
 
 }
