@@ -2757,7 +2757,10 @@ return;
 
 
 
-await deleteDoc(
+// Obtener datos antes de borrar
+
+const snap =
+await getDoc(
 
 doc(
 db,
@@ -2766,6 +2769,57 @@ id
 )
 
 );
+
+
+
+if(!snap.exists())
+return;
+
+
+
+const notificacion =
+snap.data();
+
+
+
+const titulo =
+notificacion.titulo || "Sin título";
+
+
+
+
+// Borrar notificación
+
+await deleteDoc(
+
+doc(
+db,
+"notificaciones",
+id
+
+)
+
+);
+
+
+
+
+// Registrar en historial
+
+if(window.registrarHistorial){
+
+await window.registrarHistorial(
+
+"Notificación",
+
+{},
+
+`Eliminó notificación: ${titulo}`
+
+);
+
+}
+
 
 
 
@@ -2779,10 +2833,6 @@ cargarUltimaNotificacion();
 
 
 }
-
-
-
-
 
 
 
