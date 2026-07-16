@@ -855,3 +855,134 @@ white-space:pre-line;
 
 
 }
+
+/* ===============================
+   NOTIFICACIONES ADMIN
+=============================== */
+
+
+.notificaciones-admin{
+
+display:grid;
+
+grid-template-columns:
+1fr 1fr;
+
+gap:30px;
+
+align-items:start;
+
+width:900px;
+
+max-width:95vw;
+
+}
+
+
+
+.notif-nueva,
+.notif-ultima{
+
+background:white;
+
+padding:25px;
+
+border-radius:18px;
+
+box-shadow:
+0 10px 25px rgba(166,2,171,.15);
+
+border:
+1px solid rgba(166,2,171,.12);
+
+}
+
+
+
+.notif-nueva h3,
+.notif-ultima h3{
+
+margin-top:0;
+
+color:#A602AB;
+
+text-align:center;
+
+}
+
+
+
+.notif-nueva input,
+.notif-nueva textarea,
+.notif-ultima input,
+.notif-ultima textarea{
+
+width:100%;
+
+padding:12px;
+
+border-radius:12px;
+
+border:1px solid #ddd;
+
+font-size:15px;
+
+font-family:inherit;
+
+resize:none;
+
+}
+
+
+
+.notif-nueva textarea,
+.notif-ultima textarea{
+
+min-height:120px;
+
+}
+
+
+
+.notif-nueva button,
+.notif-ultima button{
+
+margin-top:15px;
+
+}
+
+
+
+.acciones-notificaciones{
+
+grid-column:1 / -1;
+
+text-align:center;
+
+}
+
+
+
+.acciones-notificaciones button{
+
+width:220px;
+
+}
+
+
+
+/* Responsive por seguridad */
+
+@media(max-width:900px){
+
+
+.notificaciones-admin{
+
+grid-template-columns:1fr;
+
+width:100%;
+
+}
+
+
+}
