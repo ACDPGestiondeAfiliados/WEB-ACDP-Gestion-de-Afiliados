@@ -986,3 +986,73 @@ width:100%;
 
 
 }
+
+/* ===============================
+   MODAL NOTIFICACIONES ADMIN
+   Vista escritorio 2 columnas
+=============================== */
+
+
+.modal-contenido:has(.notificaciones-admin){
+
+max-width:950px;
+
+width:95%;
+
+}
+
+
+.notificaciones-admin{
+
+display:grid;
+
+grid-template-columns:
+1fr 1fr;
+
+gap:30px;
+
+width:100%;
+
+}
+
+
+
+.notif-nueva,
+.notif-ultima{
+
+min-width:0;
+
+}
+
+
+
+.acciones-notificaciones{
+
+grid-column:
+1 / -1;
+
+text-align:center;
+
+margin-top:10px;
+
+}
+
+
+
+@media(max-width:900px){
+
+.modal-contenido:has(.notificaciones-admin){
+
+max-width:95%;
+
+}
+
+
+.notificaciones-admin{
+
+grid-template-columns:
+1fr;
+
+}
+
+}
