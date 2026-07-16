@@ -5,67 +5,104 @@
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0d6efd">
-     
+
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
 
-<title>ACDP - Portal Asociados</title>
-
+<title>ACDP - Portal Afiliados</title>
 
 <link rel="stylesheet" href="./styles/socios.css">
 
-
 </head>
-
 
 <body>
 
-
-
 <header class="socios-header">
-
 
 <img
 src="./iconos/icono-app.png"
-alt="ACDP"
->
-
+alt="ACDP">
 
 <h2>
 Portal de Afiliados ACDP
 </h2>
 
-
 </header>
 
+<!-- ===============================
+     BOTÓN FLOTANTE
+================================ -->
 
+<div id="menuOpciones"
+class="menuOpciones oculto">
 
+<button id="btnOpciones"
+class="btnOpciones">
 
+OPCIONES
 
+</button>
+
+<div id="panelOpciones"
+class="panelOpciones oculto">
+
+<button data-seccion="perfil">
+
+Perfil
+
+</button>
+
+<button data-seccion="cuenta">
+
+Cuenta
+
+</button>
+
+<button data-seccion="cursos">
+
+Cursos
+
+</button>
+
+<button data-seccion="novedades">
+
+Novedades
+
+</button>
+
+<button id="btnCerrarSesion">
+
+Cerrar sesión
+
+</button>
+
+</div>
+
+</div>
 
 <main class="socios-main">
 
+<!-- ===============================
+     LOGIN
+================================ -->
 
-
-
-
-
-<section id="loginSocio" class="tarjeta">
-
-
+<section
+id="loginSocio"
+class="tarjeta">
 
 <h2>
+
 Ingreso de afiliado
+
 </h2>
 
-
-
 <p>
-DNI o Nro Afiliado
+
+DNI
+
 </p>
-
-
 
 <input
 
@@ -77,11 +114,9 @@ maxlength="8"
 
 inputmode="numeric"
 
-placeholder="DNI / Nº afiliado"
+placeholder="Ingrese su DNI"
 
 >
-
-
 
 <input
 
@@ -97,231 +132,143 @@ placeholder="PIN"
 
 >
 
-
-
 <button id="btnLoginSocio">
 
 Ingresar
 
 </button>
 
-
-
-
 <p id="mensajeLogin"></p>
 
 <br>
 
 <button id="btnInstalarApp">
-  📲 Bajar Aplicación
-</button>
 
-<br>
+📲 Bajar Aplicación
+
+</button>
 
 </section>
 
+<!-- ===============================
+     PERFIL
+================================ -->
 
-
-
-
-
-
-
-
-<section id="perfilSocio" class="tarjeta oculto">
-
-
+<section
+id="seccionPerfil"
+class="tarjeta oculto">
 
 <h2>
 
-Mi perfil
+Mi Perfil
 
-</h2><br><button id="btnVerCursos">
-
-VER CURSOS
-
-</button><br>
-
-
-
+</h2>
 
 <div class="datosSocio">
 
-
-
 <div>
 
-<label>
-Nro Afiliado
-</label>
-
-<span id="datoNumeroAfiliado"></span>
-
-</div>
-
-
-
-<div>
-
-<label>
-DNI
-</label>
+<label>DNI</label>
 
 <span id="datoDni"></span>
 
 </div>
 
-
-
-
 <div>
 
-<label>
-Nombre
-</label>
+<label>Nombre</label>
 
 <span id="datoNombre"></span>
 
 </div>
 
-
-
 <div>
 
-<label>
-Apellido
-</label>
+<label>Apellido</label>
 
 <span id="datoApellido"></span>
 
 </div>
 
-
-
-
 <div>
 
-<label>
-Celular
-</label>
+<label>Celular</label>
 
 <span id="datoCelular"></span>
 
 </div>
 
-
-
-
 <div>
 
-<label>
-Correo
-</label>
+<label>Correo</label>
 
 <span id="datoCorreo"></span>
 
 </div>
 
-
-
-
 <div>
 
-<label>
-Estado
-</label>
+<label>Estado</label>
 
 <span id="datoEstado"></span>
 
 </div>
 
-
-
 <div>
 
-<label>
-Fecha alta
-</label>
+<label>Fecha de Alta</label>
 
 <span id="datoFechaAlta"></span>
 
 </div>
 
+</div>
 
+<div
+id="contenedorCuotas"
+class="oculto">
+
+<h3>
+
+Estado de Cuotas
+
+</h3>
+
+<div id="cuotasSocio">
 
 </div>
 
+</div>
 
+<div class="cuotaActual">
 
+Cuota actual:
 
+<strong id="valorCuota">
 
+$0
 
-
-
-
-<h3>
-Modificar datos
-</h3>
-
-
-
-<div class="form-edicion">
-
-
-<input
-
-id="nuevoCelular"
-
-maxlength="10"
-
-inputmode="numeric"
-
-placeholder="Nuevo celular"
-
->
-
-
-
-<input
-
-id="nuevoCorreo"
-
-placeholder="Nuevo correo"
-
-maxlength="50"
-
->
-
-
-
-<button id="btnGuardarDatos">
-
-Guardar cambios
-
-</button>
-
-
+</strong>
 
 </div>
 
+</section>
 
+<!-- ===============================
+     CUENTA
+================================ -->
 
+<section
+id="seccionCuenta"
+class="tarjeta oculto">
 
+<h2>
 
+Mi Cuenta
 
-
-
-
-<h3>
-Cambiar PIN
-</h3>
-
-
-
+</h2>
 
 <div class="form-edicion">
-
-
 
 <input
 
@@ -337,180 +284,98 @@ placeholder="Nuevo PIN"
 
 >
 
+<input
 
+id="nuevoCorreo"
+
+maxlength="50"
+
+placeholder="Correo electrónico"
+
+>
 
 <input
 
-id="confirmarPin"
+id="nuevoCelular"
 
-type="password"
-
-maxlength="4"
+maxlength="10"
 
 inputmode="numeric"
 
-placeholder="Confirmar PIN"
+placeholder="Celular"
 
 >
 
+<button id="btnGuardarCuenta">
 
-
-
-<button id="btnCambiarPin">
-
-Cambiar PIN
+Guardar Cambios
 
 </button>
 
-
-
 </div>
-
-
-
-
-
-
-
-
-
-<h3>
-Estado de cuotas
-</h3>
-
-<div class="accionesSocio">
-
-
-</div>
-
-
-
-<div id="cuotasSocio">
-
-
-</div>
-
-
-<!-- =============================
-     MODAL NOTIF
-============================= -->
-<div id="modalCursosSocio" class="modal oculto">
-
-<div class="modal-contenido">
-
-
-<h3>
-Cursos disponibles
-</h3>
-
-
-<div id="listaCursosSocio"></div>
-
-
-<button id="cerrarCursosSocio">
-Cerrar
-</button>
-
-
-</div>
-
-</div>
-
-<!-- =============================
-  CUOTA ACTUAL
-============================= -->
-  
-<div class="cuotaActual">
-
-
-Cuota actual:
-
-<strong id="valorCuota">
-
-$0
-
-</strong>
-
-
-
-</div>
-
-
-
-
-
-
-<!-- =============================
-     NOTIFICACION EMERGENTE
-============================= -->
-
-
-<div
-
-id="modalNotificacionSocio"
-
-class="modal oculto"
-
-
->
-
-
-<div class="modal-contenido">
-
-
-
-<div
-
-id="textoNotificacionSocio"
-
-></div>
-
-
-
-
-<button id="cerrarNotificacionSocio">
-
-Cerrar
-
-</button>
-
-
-
-</div>
-
-
-</div>
-
-<button id="btnCerrarSesion">
-
-Cerrar sesión
-
-</button>
-
-
-
 
 </section>
 
+<!-- ===============================
+     CURSOS
+================================ -->
 
+<section
+id="seccionCursos"
+class="tarjeta oculto">
 
+<h2>
 
+Cursos Disponibles
+
+</h2>
+
+<div id="listaCursosSocio">
+
+</div>
+
+</section>
+
+<!-- ===============================
+     NOVEDADES
+================================ -->
+
+<section
+id="seccionNovedades"
+class="tarjeta oculto">
+
+<h2>
+
+Novedades
+
+</h2>
+
+<div id="listaNovedades">
+
+</div>
+
+</section>
 
 </main>
 
+<script
+type="module"
+src="instalar-app.js"></script>
 
-
-
-
-<script type="module" src="instalar-app.js"></script>
-<script type="module" src="socios.js"></script>
-
+<script
+type="module"
+src="socios.js"></script>
 
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
+
+if("serviceWorker" in navigator){
+
+navigator.serviceWorker.register("./sw.js");
+
 }
+
 </script>
+
 </body>
 
 </html>
