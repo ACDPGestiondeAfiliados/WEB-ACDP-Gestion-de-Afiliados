@@ -731,3 +731,127 @@ linear-gradient(
 );
 
 }
+
+/* ===============================
+   NOVEDADES
+   Comunicados ACDP
+=============================== */
+
+
+#listaNovedades{
+
+display:flex;
+
+flex-direction:column;
+
+gap:18px;
+
+margin-top:20px;
+
+}
+
+
+
+.novedadCard{
+
+background:
+
+linear-gradient(
+135deg,
+#fff8ff,
+#ffffff
+);
+
+border-radius:18px;
+
+padding:22px;
+
+border-left:
+
+6px solid #A602AB;
+
+box-shadow:
+
+0 8px 20px rgba(166,2,171,.15);
+
+animation:
+
+aparecer .35s ease;
+
+transition:.2s;
+
+}
+
+
+
+.novedadCard:hover{
+
+
+transform:translateY(-3px);
+
+
+box-shadow:
+
+0 12px 28px rgba(166,2,171,.25);
+
+
+}
+
+
+
+.novedadCard h3{
+
+margin:
+
+0 0 8px 0;
+
+
+color:#A602AB;
+
+font-size:21px;
+
+}
+
+
+
+
+
+.fechaNovedad{
+
+
+font-size:13px;
+
+font-weight:600;
+
+color:#765;
+
+margin:
+
+0 0 15px 0;
+
+
+padding-bottom:8px;
+
+
+border-bottom:
+
+1px solid #efd6f4;
+
+
+}
+
+
+
+.novedadCard p:last-child{
+
+
+font-size:16px;
+
+line-height:1.5;
+
+color:#3a2040;
+
+white-space:pre-line;
+
+
+}
