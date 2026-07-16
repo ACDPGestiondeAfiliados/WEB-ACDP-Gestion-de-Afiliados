@@ -1268,6 +1268,10 @@ async function cargarNovedades(){
 
         });
 
+        // Mostrar solamente las últimas 5 novedades
+
+novedades =
+    novedades.slice(0,5);
 
 
 
