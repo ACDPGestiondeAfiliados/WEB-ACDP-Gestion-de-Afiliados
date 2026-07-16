@@ -2182,19 +2182,13 @@ Título
 
 
 <input
-
 id="tituloNotificacion"
-
 maxlength="35"
-
 placeholder="Título"
-
 >
 
 
-
 <br><br>
-
 
 
 <label>
@@ -2203,29 +2197,19 @@ Cuerpo
 
 
 <textarea
-
 id="cuerpoNotificacion"
-
 maxlength="200"
-
 rows="5"
-
 placeholder="Cuerpo"
-
 ></textarea>
 
 
-
-<br><br>
-
+<br>
 
 
 <button id="guardarNotificacion">
-
 Enviar
-
 </button>
-
 
 
 </div>
@@ -2242,7 +2226,6 @@ Enviar
 </h3>
 
 
-
 <div id="ultimaNotificacion">
 
 Cargando...
@@ -2250,11 +2233,51 @@ Cargando...
 </div>
 
 
+</div>
+
+
+
+
+<div class="acciones-notificaciones">
+
+
+<button id="cancelarNotificacion">
+
+Cancelar
+
+</button>
+
 
 </div>
 
 
 </div>
+
+`;
+
+
+
+document
+.getElementById("guardarNotificacion")
+.onclick =
+guardarNotificacion;
+
+
+
+document
+.getElementById("cancelarNotificacion")
+.onclick =
+()=>cerrar("modalFondo");
+
+
+
+abrir("modalFondo");
+
+
+await cargarUltimaNotificacion();
+
+
+}
 
 
 `;
