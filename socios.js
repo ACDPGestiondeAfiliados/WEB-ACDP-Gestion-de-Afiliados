@@ -226,7 +226,8 @@ async function mostrarPerfil(){
     .classList.remove("oculto");
 
 
-    mostrarSeccion("perfil");
+    // Al ingresar, mostrar novedades primero
+    mostrarSeccion("novedades");
 
 
     cargarDatosPerfil();
