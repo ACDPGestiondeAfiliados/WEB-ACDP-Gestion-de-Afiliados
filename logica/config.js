@@ -2155,8 +2155,17 @@ mostrarCursos();
 // ===============================
 
 
-function abrirNotificacion(){
+// ===============================
+// NOTIFICACIONES
+// Sistema acumulativo
+// ===============================
 
+
+// ===============================
+// ABRIR NOTIFICACION
+// ===============================
+
+async function abrirNotificacion(){
 
 
 document
@@ -2168,26 +2177,66 @@ Nueva Notificación
 </h3>
 
 
+<label>
+Título
+</label>
 
-<textarea
+<input
 
-id="textoNotificacion"
+id="tituloNotificacion"
 
-maxlength="1000"
+maxlength="35"
 
-></textarea>
+placeholder="Título de la novedad"
 
+>
 
 
 <br><br>
 
 
+<label>
+Cuerpo
+</label>
+
+
+<textarea
+
+id="cuerpoNotificacion"
+
+maxlength="200"
+
+rows="5"
+
+placeholder="Mensaje"
+
+></textarea>
+
+
+<hr>
+
+
+<h3>
+Última notificación enviada
+</h3>
+
+
+<div id="ultimaNotificacion">
+
+Cargando...
+
+</div>
+
+
+
+<br>
+
+
 <button id="guardarNotificacion">
 
-Enviar
+Enviar nueva
 
 </button>
-
 
 
 <button id="cancelarNotificacion">
@@ -2201,21 +2250,259 @@ Cancelar
 
 
 
-
 document
 .getElementById("guardarNotificacion")
-.onclick=guardarNotificacion;
+.onclick =
+guardarNotificacion;
 
 
 
 document
 .getElementById("cancelarNotificacion")
-.onclick=
+.onclick =
 ()=>cerrar("modalFondo");
 
 
 
 abrir("modalFondo");
+
+
+
+await cargarUltimaNotificacion();
+
+
+}
+
+
+
+
+
+// ===============================
+// CARGAR ÚLTIMA NOTIFICACION
+// ===============================
+
+async function cargarUltimaNotificacion(){
+
+
+const contenedor =
+document.getElementById(
+"ultimaNotificacion"
+);
+
+
+if(!contenedor)
+return;
+
+
+
+try{
+
+
+const snap =
+await getDocs(
+
+collection(
+db,
+"notificaciones"
+)
+
+);
+
+
+
+if(snap.empty){
+
+
+contenedor.innerHTML=
+`
+
+<p>
+No hay notificaciones enviadas.
+</p>
+
+`;
+
+return;
+
+
+}
+
+
+
+let lista=[];
+
+
+snap.forEach(d=>{
+
+
+lista.push({
+
+id:d.id,
+
+...d.data()
+
+});
+
+
+});
+
+
+
+lista.sort(
+
+(a,b)=>
+
+new Date(b.fecha)
+-
+new Date(a.fecha)
+
+);
+
+
+
+const ultima =
+lista[0];
+
+
+
+contenedor.innerHTML=
+
+`
+
+<div>
+
+
+<label>
+Título
+</label>
+
+
+<input
+
+id="editarTituloNotificacion"
+
+maxlength="35"
+
+value="${ultima.titulo || ""}"
+
+>
+
+
+<br><br>
+
+
+<label>
+Cuerpo
+</label>
+
+
+<textarea
+
+id="editarCuerpoNotificacion"
+
+maxlength="200"
+
+rows="5"
+
+>${ultima.cuerpo || ultima.mensaje || ""}</textarea>
+
+
+
+<p>
+
+Fecha:
+${formatearFechaNotificacion(ultima.fecha)}
+
+</p>
+
+
+
+<p>
+
+Operador:
+${ultima.operador || "Desconocido"}
+
+</p>
+
+
+
+<button
+
+id="guardarEdicionNotificacion"
+
+>
+
+Aceptar cambios
+
+</button>
+
+
+
+<button
+
+id="borrarUltimaNotificacion"
+
+>
+
+Borrar
+
+</button>
+
+
+
+</div>
+
+`;
+
+
+
+document
+.getElementById(
+"guardarEdicionNotificacion"
+)
+.onclick =
+()=>editarUltimaNotificacion(
+ultima.id
+);
+
+
+
+document
+.getElementById(
+"borrarUltimaNotificacion"
+)
+.onclick =
+()=>borrarUltimaNotificacion(
+ultima.id
+);
+
+
+
+}
+
+
+
+catch(error){
+
+
+console.error(
+"Error cargando notificaciones:",
+error
+);
+
+
+contenedor.innerHTML=
+
+`
+
+<p>
+No se pudieron cargar novedades.
+</p>
+
+`;
+
+
+}
 
 
 }
@@ -2225,42 +2512,80 @@ abrir("modalFondo");
 
 
 
-
+// ===============================
+// GUARDAR NUEVA NOTIFICACION
+// ===============================
 
 async function guardarNotificacion(){
 
 
-
-const texto =
+const titulo =
+normalizarTexto(
 document
-.getElementById("textoNotificacion")
-.value.trim();
+.getElementById(
+"tituloNotificacion"
+)
+.value
+);
 
 
 
+const cuerpo =
+normalizarCuerpo(
+document
+.getElementById(
+"cuerpoNotificacion"
+)
+.value
+);
 
-if(!texto)
+
+
+if(!titulo || !cuerpo){
+
+
+alert(
+"Complete título y cuerpo."
+);
+
+
 return;
 
 
+}
 
 
 
-await setDoc(
 
-doc(
+await addDoc(
+
+collection(
 db,
-"notificaciones",
-"principal"
+"notificaciones"
 ),
 
 {
 
-mensaje:texto,
+
+titulo,
+
+
+cuerpo,
+
 
 fecha:
+
 new Date()
-.toISOString()
+.toISOString(),
+
+
+
+operador:
+
+window.ACDP?.usuario ||
+"Desconocido"
+
+
 
 }
 
@@ -2272,13 +2597,280 @@ new Date()
 cerrar("modalFondo");
 
 
+
 alert(
-"Notificación enviada"
+"Notificación enviada."
+);
+
+
+
+}
+
+
+
+
+
+
+// ===============================
+// EDITAR ÚLTIMA NOTIFICACION
+// ===============================
+
+async function editarUltimaNotificacion(id){
+
+
+const titulo =
+normalizarTexto(
+
+document
+.getElementById(
+"editarTituloNotificacion"
+)
+.value
+
+);
+
+
+
+const cuerpo =
+normalizarCuerpo(
+
+document
+.getElementById(
+"editarCuerpoNotificacion"
+)
+.value
+
+);
+
+
+
+
+if(!titulo || !cuerpo){
+
+
+alert(
+"Complete título y cuerpo."
+);
+
+
+return;
+
+
+}
+
+
+
+
+await updateDoc(
+
+doc(
+db,
+"notificaciones",
+id
+),
+
+{
+
+
+titulo,
+
+
+cuerpo
+
+
+}
+
+
+);
+
+
+
+alert(
+"Notificación actualizada."
+);
+
+
+
+cargarUltimaNotificacion();
+
+
+}
+
+
+
+
+
+
+// ===============================
+// BORRAR ÚLTIMA NOTIFICACION
+// ===============================
+
+async function borrarUltimaNotificacion(id){
+
+
+if(
+!confirm(
+"¿Eliminar esta notificación?"
+)
+
+)
+
+return;
+
+
+
+await deleteDoc(
+
+doc(
+db,
+"notificaciones",
+id
+)
+
+);
+
+
+
+alert(
+"Notificación eliminada."
+);
+
+
+
+cargarUltimaNotificacion();
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// NORMALIZAR TEXTO
+// ===============================
+
+function normalizarTexto(texto){
+
+
+return texto
+
+.toLowerCase()
+
+.replace(
+/[^a-z0-9áéíóúñü ]/gi,
+""
+)
+
+.trim()
+
+.replace(
+
+/(^|\s)(\S)/g,
+
+(m,p,l)=>
+
+p+l.toUpperCase()
+
+)
+
+.substring(
+0,
+35
 );
 
 
 }
 
+
+
+
+
+// ===============================
+// NORMALIZAR CUERPO
+// ===============================
+
+function normalizarCuerpo(texto){
+
+
+return texto
+
+.toLowerCase()
+
+.replace(
+/(^|\n|\s)(\S)/g,
+
+(m,p,l)=>
+
+p+l.toUpperCase()
+
+)
+
+.trim()
+
+.substring(
+0,
+200
+);
+
+
+}
+
+
+
+
+
+
+
+// ===============================
+// FECHA NOTIFICACION
+// ===============================
+
+function formatearFechaNotificacion(valor){
+
+
+if(!valor)
+return "";
+
+
+
+const d =
+new Date(valor);
+
+
+
+return (
+
+String(
+d.getDate()
+)
+.padStart(2,"0")
+
++
+
+"/"
+
++
+
+String(
+d.getMonth()+1
+)
+.padStart(2,"0")
+
++
+
+"/"
+
++
+
+d.getFullYear()
+
+);
+
+
+}
 
 
 // ===============================
