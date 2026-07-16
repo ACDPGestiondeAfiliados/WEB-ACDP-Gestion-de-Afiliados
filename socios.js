@@ -10,6 +10,7 @@ import {
     collection,
     getDocs,
     updateDoc,
+    deleteDoc,
     doc,
     getDoc
 } from "./firebase.js";
@@ -567,6 +568,7 @@ function actualizarEstadoCuotas() {
     if (
 
         String(socioActual.estado)
+            .trim()
             .toUpperCase() === "ADHERENTE"
 
     ) {
