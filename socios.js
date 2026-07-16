@@ -195,6 +195,8 @@ async function ingresarSocio() {
 
         await mostrarPerfil();
 
+        await cargarPortalCompleto();
+
     }
 
     catch (error) {
@@ -1443,8 +1445,10 @@ async function mostrarCuotas() {
 
             `
 
-            <div class="cuota
-            ${pagado ? "pagada" : "pendiente"}">
+            <div class="
+cuotaMes
+${pagado ? "cuotaPagada" : "cuotaPendiente"}
+">
 
 
             ${m}
@@ -1516,27 +1520,6 @@ async function cargarPortalCompleto() {
 
 }
 
-
-// ======================================================
-// SOBRESCRIBIR PERFIL INICIAL
-// ======================================================
-
-const mostrarPerfilOriginal =
-    mostrarPerfil;
-
-
-
-mostrarPerfil =
-async function() {
-
-
-    await mostrarPerfilOriginal();
-
-
-    await cargarPortalCompleto();
-
-
-};
 
 
 // ======================================================
