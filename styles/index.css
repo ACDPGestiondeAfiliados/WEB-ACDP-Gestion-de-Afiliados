@@ -649,217 +649,15 @@ width:100%;
 }
 
 /* ===============================
-   NOTIFICACIONES ADMIN
+   NOTIFICACIONES ADMIN CURSOS
 =============================== */
 
 
-.notificaciones-admin{
+.modal:has(.notificaciones-admin){
 
-display:grid;
-
-grid-template-columns:
-1fr 1fr;
-
-gap:30px;
-
-align-items:start;
-
-width:900px;
-
-max-width:95vw;
-
-}
-
-
-
-.notif-nueva,
-.notif-ultima{
-
-background:white;
-
-padding:25px;
-
-border-radius:18px;
-
-box-shadow:
-0 10px 25px rgba(166,2,171,.15);
-
-border:
-1px solid rgba(166,2,171,.12);
-
-}
-
-
-
-.notif-nueva h3,
-.notif-ultima h3{
-
-margin-top:0;
-
-color:#A602AB;
-
-text-align:center;
-
-}
-
-
-
-.notif-nueva input,
-.notif-nueva textarea,
-.notif-ultima input,
-.notif-ultima textarea{
-
-width:100%;
-
-padding:12px;
-
-border-radius:12px;
-
-border:1px solid #ddd;
-
-font-size:15px;
-
-font-family:inherit;
-
-resize:none;
-
-}
-
-
-
-.notif-nueva textarea,
-.notif-ultima textarea{
-
-min-height:120px;
-
-}
-
-
-
-.notif-nueva button,
-.notif-ultima button{
-
-margin-top:15px;
-
-}
-
-
-
-.acciones-notificaciones{
-
-grid-column:1 / -1;
-
-text-align:center;
-
-}
-
-
-
-.acciones-notificaciones button{
-
-width:220px;
-
-}
-
-
-
-/* Responsive por seguridad */
-
-@media(max-width:900px){
-
-
-.notificaciones-admin{
-
-grid-template-columns:1fr;
-
-width:100%;
-
-}
-
-
-}
-
-/* ===============================
-   MODAL NOTIFICACIONES ADMIN
-   Vista escritorio 2 columnas
-=============================== */
-
-
-.modal-contenido:has(.notificaciones-admin){
+width:95vw;
 
 max-width:950px;
-
-width:95%;
-
-}
-
-
-.notificaciones-admin{
-
-display:grid;
-
-grid-template-columns:
-1fr 1fr;
-
-gap:30px;
-
-width:100%;
-
-}
-
-
-
-.notif-nueva,
-.notif-ultima{
-
-min-width:0;
-
-}
-
-
-
-.acciones-notificaciones{
-
-grid-column:
-1 / -1;
-
-text-align:center;
-
-margin-top:10px;
-
-}
-
-
-
-@media(max-width:900px){
-
-.modal-contenido:has(.notificaciones-admin){
-
-max-width:95%;
-
-}
-
-
-.notificaciones-admin{
-
-grid-template-columns:
-1fr;
-
-}
-
-}
-
-/* ===============================
-   NOTIFICACIONES CURSOS
-   MODAL ADMIN
-=============================== */
-
-
-.modal-contenido:has(.notificaciones-admin){
-
-max-width:950px;
-
-width:95%;
 
 }
 
@@ -894,8 +692,6 @@ box-shadow:
 border:
 1px solid rgba(166,2,171,.12);
 
-min-width:0;
-
 }
 
 
@@ -977,9 +773,9 @@ width:220px;
 @media(max-width:900px){
 
 
-.modal-contenido:has(.notificaciones-admin){
+.modal:has(.notificaciones-admin){
 
-max-width:95%;
+width:95vw;
 
 }
 
