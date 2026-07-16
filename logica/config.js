@@ -2154,13 +2154,6 @@ mostrarCursos();
 // NOTIFICACIONES
 // ===============================
 
-
-// ===============================
-// NOTIFICACIONES
-// Sistema acumulativo
-// ===============================
-
-
 // ===============================
 // ABRIR NOTIFICACION
 // ===============================
@@ -2172,6 +2165,12 @@ document
 .getElementById("modalContenido")
 .innerHTML=`
 
+<div class="notificaciones-admin">
+
+
+<div class="notif-nueva">
+
+
 <h3>
 Nueva Notificación
 </h3>
@@ -2181,18 +2180,21 @@ Nueva Notificación
 Título
 </label>
 
+
 <input
 
 id="tituloNotificacion"
 
 maxlength="35"
 
-placeholder="Título de la novedad"
+placeholder="Título"
 
 >
 
 
+
 <br><br>
+
 
 
 <label>
@@ -2208,17 +2210,37 @@ maxlength="200"
 
 rows="5"
 
-placeholder="Mensaje"
+placeholder="Cuerpo"
 
 ></textarea>
 
 
-<hr>
+
+<br><br>
+
+
+
+<button id="guardarNotificacion">
+
+Enviar
+
+</button>
+
+
+
+</div>
+
+
+
+
+
+<div class="notif-ultima">
 
 
 <h3>
-Última notificación enviada
+Última enviada
 </h3>
+
 
 
 <div id="ultimaNotificacion">
@@ -2229,21 +2251,10 @@ Cargando...
 
 
 
-<br>
+</div>
 
 
-<button id="guardarNotificacion">
-
-Enviar nueva
-
-</button>
-
-
-<button id="cancelarNotificacion">
-
-Cancelar
-
-</button>
+</div>
 
 
 `;
@@ -2254,6 +2265,9 @@ document
 .getElementById("guardarNotificacion")
 .onclick =
 guardarNotificacion;
+
+
+}
 
 
 
