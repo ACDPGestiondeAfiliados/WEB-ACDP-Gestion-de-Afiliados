@@ -1200,13 +1200,14 @@ function mostrarCursos() {
 
 // ======================================================
 // NOVEDADES
+// Notificaciones acumulativas
 // ======================================================
 
-async function cargarNovedades() {
+
+async function cargarNovedades(){
 
 
     novedades = [];
-
 
 
     const lista =
@@ -1214,43 +1215,66 @@ async function cargarNovedades() {
 
 
 
-    if (!lista)
+    if(!lista)
         return;
 
 
 
-    lista.innerHTML =
-        "";
+    lista.innerHTML = "";
 
 
 
     try {
 
 
+        const snap =
+            await getDocs(
 
-        const ref =
-            doc(
-
-                db,
-                "notificaciones",
-                "principal"
+                collection(
+                    db,
+                    "notificaciones"
+                )
 
             );
 
 
 
-        const snap =
-            await getDoc(ref);
+        snap.forEach(d=>{
+
+
+            novedades.push({
+
+                id:d.id,
+
+                ...d.data()
+
+            });
+
+
+        });
+
+
+
+        // Más recientes primero
+
+        novedades.sort((a,b)=>{
+
+
+            return new Date(b.fecha)
+            -
+            new Date(a.fecha);
+
+
+        });
 
 
 
 
-        if (!snap.exists()) {
+
+        if(novedades.length===0){
 
 
-
-            lista.innerHTML =
-            `
+            lista.innerHTML = `
 
             <p>
             No hay novedades disponibles.
@@ -1259,50 +1283,76 @@ async function cargarNovedades() {
             `;
 
 
-
             return;
+
 
         }
 
 
 
 
-        const data =
-            snap.data();
+
+        novedades.forEach(n=>{
 
 
 
-        novedades.push(data);
+            lista.innerHTML += `
+
+
+            <div class="novedadCard">
+
+
+                <h3>
+
+                ${n.titulo || "ACDP"}
+
+                </h3>
 
 
 
+                <p class="fechaNovedad">
 
-        lista.innerHTML +=
+                ${formatearFechaHoraSimple(n.fecha)}
 
-
-        `
-
-        <div class="novedadCard">
+                </p>
 
 
-            <h3>
-            ACDP
-            </h3>
+
+                <p>
+
+                ${n.cuerpo || ""}
+
+                </p>
 
 
-            <p>
-
-            ${
-                data.mensaje ||
-                "Sin mensaje"
-
-            }
-
-            </p>
+            </div>
 
 
-        </div>
+            `;
 
+
+
+        });
+
+
+
+    }
+
+
+    catch(error){
+
+
+        console.error(
+            "Error cargando novedades:",
+            error
+        );
+
+
+        lista.innerHTML = `
+
+        <p>
+        No se pudieron cargar las novedades.
+        </p>
 
         `;
 
@@ -1310,16 +1360,54 @@ async function cargarNovedades() {
     }
 
 
-    catch(error) {
+
+}
 
 
-        console.error(
-            "Error novedades:",
-            error
-        );
 
 
-    }
+
+// ======================================================
+// FECHA NOTIFICACIONES
+// Solo fecha sin hora
+// ======================================================
+
+function formatearFechaHoraSimple(valor){
+
+
+    if(!valor)
+        return "";
+
+
+
+    const fecha =
+        new Date(valor);
+
+
+
+    if(isNaN(fecha))
+        return "";
+
+
+
+    const dia =
+        String(fecha.getDate())
+        .padStart(2,"0");
+
+
+
+    const mes =
+        String(fecha.getMonth()+1)
+        .padStart(2,"0");
+
+
+
+    const anio =
+        fecha.getFullYear();
+
+
+
+    return `${dia}/${mes}/${anio}`;
 
 
 }
