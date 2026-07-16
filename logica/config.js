@@ -2594,7 +2594,23 @@ window.ACDP?.usuario ||
 
 );
 
+// ===============================
+// HISTORIAL - CREAR NOTIFICACION
+// ===============================
 
+if(window.registrarHistorial){
+
+await window.registrarHistorial(
+
+"Notificación",
+
+{},
+
+`Creó notificación: ${titulo}`
+
+);
+
+}
 
 
 cerrar("modalFondo");
@@ -2687,9 +2703,28 @@ cuerpo
 );
 
 
+// ===============================
+// HISTORIAL - EDITAR NOTIFICACION
+// ===============================
+
+if(window.registrarHistorial){
+
+await window.registrarHistorial(
+
+"Notificación",
+
+{},
+
+`Editó notificación: ${titulo}`
+
+);
+
+}
+
+
 
 alert(
-"Notificación actualizada."
+"Notificación editada"
 );
 
 
