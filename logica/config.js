@@ -493,82 +493,40 @@ return;
 }
 
 
-
-
-
-
-
-const datos={
-
-titulo,
-fechaInicio:inicio,
-fechaCierre:cierre,
-fechaCreacion:cursoEditando ? undefined : new Date().toISOString(),
-
-estado:cursoEditando ? undefined : "activo",
-
-fechaArchivado:cursoEditando ? undefined : null,
-
-cupo,
-inscriptos:cursoEditando ? undefined : 0,
-disponibles:cursoEditando ? undefined : cupo
-
+let datos = {
+    titulo,
+    fechaInicio: inicio,
+    fechaCierre: cierre,
+    cupo
 };
 
+if(!cursoEditando){
 
-
-
-
-if(cursoEditando){
-
-
-
-delete datos.fechaCreacion;
-
-delete datos.inscriptos;
-
-delete datos.disponibles;
-
-
-
-await updateDoc(
-
-doc(
-db,
-"cursos",
-cursoEditando
-),
-
-datos
-
-);
-
-
-
-}else{
-
-
-
-await addDoc(
-
-collection(db,"cursos"),
-
-datos
-
-);
-
-
+    datos.fechaCreacion = new Date().toISOString();
+    datos.estado = "activo";
+    datos.fechaArchivado = null;
+    datos.inscriptos = 0;
+    datos.disponibles = cupo;
 
 }
 
+if(cursoEditando){
 
+    await updateDoc(
+        doc(db,"cursos",cursoEditando),
+        datos
+    );
 
+}else{
 
+    await addDoc(
+        collection(db,"cursos"),
+        datos
+    );
 
+}
 
 cerrar("modalFondo");
-
-
 
 mostrarCursos();
 
