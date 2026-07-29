@@ -797,25 +797,25 @@ function abrirCrearAfiliado(){
 abrirModal(`
 
 
-<div style="display:flex;"><img src="./iconos/add.png"><span>Agregar Afiliado Nuevo</span></div>
+<div style="display:flex; align-items:center;"><img src="./iconos/add.png"><span>Agregar Afiliado Nuevo</span></div>
 
 
 <input id="aDni" placeholder="DNI" maxlength="8" inputmode="numeric" >
-&nbsp;
+<br>
 <input id="aNombre" placeholder="Nombre">
 &nbsp;
 <input id="aApellido" placeholder="Apellido">
-&nbsp;
-<input id="aCargo" placeholder="Cargo" maxlength="15"><br>
+<br>
+<input id="aCargo" placeholder="Cargo" maxlength="15"><br><br>
 
-<div style="display:flex;"><img src="./iconos/cel.png"><span>Contacto</span></div>
+<div style="display:flex; align-items:center;"><img src="./iconos/cel.png"><span>Contacto</span></div>
 <input id="aCelular" placeholder="Celular" maxlength="10">
 &nbsp;
 <input id="aCorreo" placeholder="Correo">
 
-<br>
+<br><br>
 
-<div style="display:flex;"><img src="./iconos/provincia.png"><span>Ubicación</span></div>
+<div style="display:flex; align-items:center;"><img src="./iconos/provincia.png"><span>Ubicación</span></div>
 <select id="aProvincia">
 ${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
 </select>
@@ -826,12 +826,12 @@ ${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
 
 <input id="aDireccion" placeholder="Dirección" maxlength="30">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<br>
+<br><br>
 
-<div style="display:flex;"><img src="./iconos/fecha.png"><span>Fecha de Nacimiento</span></div>
+<div style="display:flex; align-items:center;"><img src="./iconos/fecha.png"><span>Fecha de Nacimiento</span></div>
 <input type="date" id="aNacimiento">
-
-<div style="display:flex;"><img src="./iconos/job.png"><span>Situación y Estado Civil</span></div>
+<br><br>
+<div style="display:flex; align-items:center;"><img src="./iconos/job.png"><span>Situación y Estado Civil</span></div>
 
 <br>
 
