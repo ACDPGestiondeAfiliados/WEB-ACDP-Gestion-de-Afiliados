@@ -831,7 +831,7 @@ ${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
 <div style="display:flex;"><img src="./iconos/fecha.png"><span>Fecha de Nacimiento</span></div>
 <input type="date" id="aNacimiento">
 
-<div style="display:flex;"><img src="./iconos/job.png"><span>Situación y Estado Civil</span>
+<div style="display:flex;"><img src="./iconos/job.png"><span>Situación y Estado Civil</span></div>
 
 <br>
 
