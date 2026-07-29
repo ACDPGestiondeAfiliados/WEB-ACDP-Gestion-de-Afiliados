@@ -1702,19 +1702,12 @@ src="./iconos/edit.png"
 
 
 <button onclick="AFILIADOS.imprimir('${a.id}')">
-
-
-<img
-
-src="./iconos/credencial.png"
-
-
->
-
-
+<img src="./iconos/credencial.png">
 </button>
 
-
+<button onclick="AFILIADOS.imprimirFicha('${a.id}')">
+<img src="./iconos/ficha.png">
+</button>
 
 
 
@@ -2015,7 +2008,7 @@ cerrarModal();
 
 
 // ===============================
-// IMPRIMIR FICHA
+// IMPRIMIR CREDENCIAL
 // ===============================
 
 async function imprimir(id){
@@ -2232,7 +2225,418 @@ win.document.close();
 
 }
 
+// ===============================
+// IMPRIMIR FICHA COMPLETA
+// ===============================
 
+async function imprimirFicha(id){
+
+    const af =
+        CACHE_AFILIADOS.find(
+            a=>a.id===id
+        );
+
+    if(!af)
+        return;
+
+    const fechaAlta =
+        formatearFechaHora(
+            af.fechaAlta
+        );
+
+    const win =
+        window.open(
+            "",
+            "_blank"
+        );
+
+    win.document.write(`
+
+<html>
+
+<head>
+
+<title>
+
+Ficha de Afiliación
+
+</title>
+
+<style>
+
+body{
+
+    font-family:Arial,sans-serif;
+
+    margin:35px;
+
+    color:#000;
+
+}
+
+.encabezado{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+    margin-bottom:25px;
+
+    border-bottom:2px solid #A602AB;
+
+    padding-bottom:15px;
+
+}
+
+.encabezado img{
+
+    width:90px;
+
+    height:90px;
+
+    border-radius:12px;
+
+}
+
+h1{
+
+    margin:0;
+
+    color:#A602AB;
+
+    font-size:26px;
+
+}
+
+h2{
+
+    margin:0;
+
+    font-size:18px;
+
+    font-weight:normal;
+
+}
+
+.tabla{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:20px;
+
+}
+
+.tabla td{
+
+    border:1px solid #000;
+
+    padding:8px;
+
+    vertical-align:top;
+
+}
+
+.titulo{
+
+    width:220px;
+
+    font-weight:bold;
+
+    background:#f5f5f5;
+
+}
+
+.firma{
+
+    margin-top:80px;
+
+    text-align:center;
+
+}
+
+.firma hr{
+
+    width:320px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="encabezado">
+
+<img src="./iconos/logo.jpg">
+
+<div>
+
+<h1>
+
+ACDP
+
+</h1>
+
+<h2>
+
+Ficha de Afiliación
+
+</h2>
+
+</div>
+
+</div>
+
+<table class="tabla">
+
+<tr>
+
+<td class="titulo">
+
+Fecha de Alta
+
+</td>
+
+<td>
+
+${fechaAlta.fecha}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Apellido
+
+</td>
+
+<td>
+
+${af.apellido || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Nombre
+
+</td>
+
+<td>
+
+${af.nombre || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+DNI
+
+</td>
+
+<td>
+
+${af.dni || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Fecha de Nacimiento
+
+</td>
+
+<td>
+
+${af.fechaNacimiento || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Estado Civil
+
+</td>
+
+<td>
+
+${af.estadoCivil || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Cargo
+
+</td>
+
+<td>
+
+${af.cargo || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Estado
+
+</td>
+
+<td>
+
+${af.estado || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Celular
+
+</td>
+
+<td>
+
+${af.celular || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Correo
+
+</td>
+
+<td>
+
+${af.correo || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Dirección
+
+</td>
+
+<td>
+
+${af.direccion || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Localidad
+
+</td>
+
+<td>
+
+${af.localidad || ""}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="titulo">
+
+Provincia
+
+</td>
+
+<td>
+
+${af.provincia || ""}
+
+</td>
+
+</tr>
+
+</table>
+
+<div class="firma">
+
+<hr>
+
+<b>
+
+Firma del Afiliado
+
+</b>
+
+</div>
+
+<script>
+
+window.onload=()=>{
+
+    window.print();
+
+    window.close();
+
+}
+
+</script>
+
+</body>
+
+</html>
+
+`);
+
+    win.document.close();
+
+}
 
 // ===============================
 // RESUMEN
@@ -2330,5 +2734,6 @@ window.AFILIADOS = {
     editarAfiliado,
     eliminarAfiliado,
     imprimir,
+    imprimirFicha,
     actualizar: () => cargarAfiliados(true)
 };
