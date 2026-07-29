@@ -814,7 +814,7 @@ placeholder="DNI"
 
 <button id="btnImprimirCurso">
 
-Imprimir
+<img src="./iconos/print.png">
 
 </button>
 
@@ -822,7 +822,7 @@ Imprimir
 
 <button id="btnCSVCurso">
 
-CSV
+<img src="./iconos/export.png">
 
 </button>
 
