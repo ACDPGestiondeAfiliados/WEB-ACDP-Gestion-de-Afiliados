@@ -27,10 +27,9 @@ let cursoEditando=null;
 
 let cursosCache=[];
 
+let paginaCursos = 0;
 
-
-
-
+const CURSOS_POR_PAGINA = 20;
 
 
 
@@ -152,11 +151,11 @@ cursosCache.sort(
 
 (a,b)=>
 
-new Date(b.fechaInicio)
+new Date(b.fechaCreacion || 0)
 
 -
 
-new Date(a.fechaInicio)
+new Date(a.fechaCreacion || 0)
 
 );
 
@@ -164,15 +163,21 @@ new Date(a.fechaInicio)
 
 
 
-cursosCache =
-cursosCache.slice(0,10);
+const inicio =
+paginaCursos * CURSOS_POR_PAGINA;
+
+const fin =
+inicio + CURSOS_POR_PAGINA;
+
+const cursosPagina =
+cursosCache.slice(inicio,fin);
 
 
 
 
 
 
-cursosCache.forEach(c=>{
+cursosPagina.forEach(c=>{
 
 
 const cupo =
@@ -223,7 +228,11 @@ ${formato(c.fechaCierre)}
 
 </td>
 
+<td>
 
+${obtenerEstadoCurso(c)}
+
+</td>
 
 <td>
 
@@ -524,65 +533,20 @@ return;
 
 const datos={
 
-
 titulo,
+fechaInicio:inicio,
+fechaCierre:cierre,
+fechaCreacion:cursoEditando ? undefined : new Date().toISOString(),
 
+estado:cursoEditando ? undefined : "activo",
 
-fechaInicio:
-inicio,
-
-
-fechaCierre:
-cierre,
-
-
-fechaCreacion:
-
-cursoEditando
-
-?
-
-undefined
-
-:
-
-new Date()
-.toISOString(),
-
-
+fechaArchivado:cursoEditando ? undefined : null,
 
 cupo,
-
-
-inscriptos:
-
-cursoEditando
-
-?
-
-undefined
-
-:
-
-0,
-
-
-disponibles:
-
-cursoEditando
-
-?
-
-undefined
-
-:
-
-cupo
-
+inscriptos:cursoEditando ? undefined : 0,
+disponibles:cursoEditando ? undefined : cupo
 
 };
-
-
 
 
 
@@ -689,13 +653,14 @@ snap.data();
 
 
 
-if(estaBloqueado(c)){
-
+if(
+estaBloqueado(c) &&
+ACDP.rol!=="ADMINISTRADOR"
+){
 
 alert(
-"Este curso ya no puede editarse porque está cerrado, consulte a un administrador"
+"Este curso ya fue archivado. Solo un administrador puede modificarlo."
 );
-
 
 return;
 
@@ -1347,7 +1312,18 @@ doc(db,"cursos",cursoID)
 const curso =
 cursoSnap.data();
 
+if(
+estaBloqueado(curso) &&
+ACDP.rol!=="ADMINISTRADOR"
+){
 
+alert(
+"Este curso está archivado. Solo un administrador puede modificar las inscripciones."
+);
+
+return;
+
+}
 
 
 if(
@@ -1534,7 +1510,20 @@ cursoID,
 id
 ){
 
+const cursoSnap =
+await getDoc(doc(db,"cursos",cursoID));
 
+const curso = cursoSnap.data();
+
+if(
+    estaBloqueado(curso) &&
+    ACDP.rol!="ADMINISTRADOR"
+){
+
+    alert("Este curso está archivado. Solo un administrador puede modificar las inscripciones.");
+
+    return;
+}
 
 if(
 
@@ -1973,42 +1962,49 @@ URL.revokeObjectURL(url);
 
 }
 
-
-
 // ===============================
 // CONTROL TIEMPO
 // ===============================
 
-
 function estaBloqueado(c){
 
-
-if(!c.fechaCreacion)
+if(!c.fechaCierre)
 return false;
-
-
-
 
 const cierre =
 new Date(
 c.fechaCierre+"T23:59:59"
 );
 
-
-
-cierre.setHours(
-cierre.getHours()+72
+// 7 días de gracia tras el cierre
+cierre.setDate(
+cierre.getDate()+7
 );
-
-
 
 return new Date()>=cierre;
 
-
 }
 
+// OBTENER ESTADO
+function obtenerEstadoCurso(c){
 
+const ahora = new Date();
 
+const cierre = new Date(c.fechaCierre+"T23:59:59");
+
+const gracia = new Date(cierre);
+
+gracia.setDate(gracia.getDate()+7);
+
+if((c.estado || "activo")==="archivado")
+return "⚫ Archivado";
+
+if(ahora>cierre)
+return "🟡 Gracia";
+
+return "🟢 Activo";
+
+}
 
 
 
@@ -2017,62 +2013,74 @@ return new Date()>=cierre;
 
 async function limpiarCursoVencido(id,c){
 
-
-
-if(!c.fechaCreacion)
+if(!c.fechaCierre)
 return;
 
+// ===============================
+// ARCHIVAR AUTOMÁTICAMENTE
+// 7 días después del cierre
+// ===============================
 
-
-
-
-const limite =
+const archivado =
 new Date(
-c.fechaCreacion
+c.fechaCierre+"T23:59:59"
 );
 
-
-
-limite.setDate(
-limite.getDate()+63
+archivado.setDate(
+archivado.getDate()+7
 );
-
-
-
-
 
 if(
+new Date()>=archivado &&
+c.estado!=="archivado"
+){
 
-new Date() < limite
-
-)
+await updateDoc(
+doc(db,"cursos",id),
+{
+estado:"archivado",
+fechaArchivado:new Date().toISOString()
+}
+);
 
 return;
 
+}
 
+// ===============================
+// ELIMINAR DEFINITIVAMENTE
+// 2 años después del archivado
+// ===============================
 
+if(
+c.estado!=="archivado" ||
+!c.fechaArchivado
+)
+return;
 
+const eliminar =
+new Date(
+c.fechaArchivado
+);
 
+eliminar.setFullYear(
+eliminar.getFullYear()+2
+);
+
+if(
+new Date()<eliminar
+)
+return;
 
 const ins =
 await getDocs(
-
 collection(
-
 db,
-
 "cursos",
-
 id,
-
 "inscripciones"
-
 )
-
 );
-
-
-
 
 for(const d of ins.docs){
 
@@ -2080,18 +2088,11 @@ await deleteDoc(d.ref);
 
 }
 
-
-
-
-
 await deleteDoc(
 doc(db,"cursos",id)
 );
 
-
-
 }
-
 
 
 
@@ -2987,56 +2988,63 @@ function actualizar(){
 const ahora =
 new Date();
 
-
 const cierre =
-new Date(curso.fechaCierre + "T23:59:59");
+new Date(curso.fechaCierre+"T23:59:59");
 
-
-const finBloqueo =
+const archivado =
 new Date(cierre);
 
-finBloqueo.setHours(finBloqueo.getHours() + 72);
+archivado.setDate(
+archivado.getDate()+7
+);
 
+if(ahora<=cierre){
 
-const diff =
-finBloqueo - ahora;
+const diff=cierre-ahora;
 
+const dias=
+Math.floor(diff/86400000);
 
-if(diff <= 0){
+const horas=
+Math.floor((diff%86400000)/3600000);
 
-el.textContent =
-"Bloqueado";
-
-bloquearUI();
+el.textContent=
+`🟢 Abierto (${dias}d ${horas}h)`;
 
 return;
 
 }
 
+if(ahora<archivado){
 
-const horas =
-Math.floor(diff / (1000 * 60 * 60));
+const diff=archivado-ahora;
 
-const dias =
-Math.floor(horas / 24);
+const dias=
+Math.floor(diff/86400000);
 
-const horasRestantes =
-horas % 24;
+const horas=
+Math.floor((diff%86400000)/3600000);
 
+el.textContent=
+`🟡 Gracia (${dias}d ${horas}h)`;
 
-el.textContent =
-`${dias}d ${horasRestantes}h restantes`;
+return;
 
 }
 
+el.textContent=
+"⚫ Archivado";
+
+if(ACDP.rol!=="ADMINISTRADOR")
+bloquearUI();
+
+}
 
 actualizar();
 
-return setInterval(actualizar, 60000);
+return setInterval(actualizar,60000);
 
 }
-
-
 
 // ===============================
 // UTILIDADES
