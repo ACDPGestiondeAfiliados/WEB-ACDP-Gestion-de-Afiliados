@@ -468,10 +468,8 @@ cuerpo.innerHTML+=`
 
 <td>
 
-<button onclick="COBRAR.cobrarAfiliado('${a.id}')">
-
-COBRAR
-
+<button onclick="COBRAR.cobrarAfiliado('${a.id}')" title="Cobrar">
+    <img src="iconos/cobrar.png" alt="Cobrar">
 </button>
 
 </td>
