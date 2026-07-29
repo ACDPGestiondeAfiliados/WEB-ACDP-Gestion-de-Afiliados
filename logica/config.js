@@ -236,15 +236,15 @@ contenedor.innerHTML+=`
 <td>
 
 <button onclick="editarCurso('${c.id}')">
-Editar
+<img src="./iconos/edit.png">
 </button>
 
 <button onclick="abrirInscripciones('${c.id}')">
-Inscripciones
+<img src="./iconos/inscripciones.png">
 </button>
 
 <button onclick="borrarCurso('${c.id}')">
-Eliminar
+<img src="./iconos/delete.png">
 </button>
 
 </td>
