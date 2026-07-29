@@ -625,8 +625,8 @@ img[src$="/iconos/provincia.png"],
 img[src$="/iconos/save.png"],
 img[src$="/iconos/print.png"]{
 
-width:20px;
-height:20px;
+width:2px;
+height:2px;
 
 object-fit:contain;
 
