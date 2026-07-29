@@ -70,11 +70,23 @@ btnNotif.onclick=abrirNotificacion;
 
 }
 
-
-
 mostrarCursos();
 
+const ant =
+document.getElementById("btnCursosAnterior");
+
+const sig =
+document.getElementById("btnCursosSiguiente");
+
+if(ant)
+ant.onclick=paginaAnteriorCursos;
+
+if(sig)
+sig.onclick=paginaSiguienteCursos;
+    
 }
+
+
 
 
 
@@ -144,9 +156,6 @@ cursosCache.push(curso);
 }
 
 
-
-
-
 cursosCache.sort(
 
 (a,b)=>
@@ -159,9 +168,25 @@ new Date(a.fechaCreacion || 0)
 
 );
 
+// ===============================
+// AJUSTAR PAGINA SI QUEDÓ FUERA
+// ===============================
 
+const maxPagina =
+Math.max(
+0,
+Math.ceil(cursosCache.length / CURSOS_POR_PAGINA) - 1
+);
 
+if(paginaCursos > maxPagina){
 
+    paginaCursos = maxPagina;
+
+}
+
+// ===============================
+// OBTENER CURSOS DE LA PAGINA
+// ===============================
 
 const inicio =
 paginaCursos * CURSOS_POR_PAGINA;
@@ -172,23 +197,17 @@ inicio + CURSOS_POR_PAGINA;
 const cursosPagina =
 cursosCache.slice(inicio,fin);
 
-
-
-
-
+// ===============================
+// DIBUJAR CURSOS
+// ===============================
 
 cursosPagina.forEach(c=>{
-
 
 const cupo =
 Number(c.cupo||0);
 
-
-
 const inscritos =
 Number(c.inscriptos||0);
-
-
 
 const disponibles =
 Math.max(
@@ -196,120 +215,68 @@ Math.max(
 cupo-inscritos
 );
 
-
-
-
-
-
 contenedor.innerHTML+=`
 
 <tr>
 
+<td>${c.titulo}</td>
+
+<td>${formato(c.fechaInicio)}</td>
+
+<td>${formato(c.fechaCierre)}</td>
+
+<td>${obtenerEstadoCurso(c)}</td>
+
+<td>${cupo}</td>
+
+<td>${inscritos}</td>
+
+<td>${disponibles}</td>
 
 <td>
-
-${c.titulo}
-
-</td>
-
-
-
-<td>
-
-${formato(c.fechaInicio)}
-
-</td>
-
-
-
-<td>
-
-${formato(c.fechaCierre)}
-
-</td>
-
-<td>
-
-${obtenerEstadoCurso(c)}
-
-</td>
-
-<td>
-
-${cupo}
-
-</td>
-
-
-
-<td>
-
-${inscritos}
-
-</td>
-
-
-
-<td>
-
-${disponibles}
-
-</td>
-
-
-
-<td>
-
-
 
 <button onclick="editarCurso('${c.id}')">
-
 Editar
-
 </button>
-
-
 
 <button onclick="abrirInscripciones('${c.id}')">
-
 Inscripciones
-
 </button>
-
-
 
 <button onclick="borrarCurso('${c.id}')">
-
 Eliminar
-
 </button>
 
-
 </td>
-
-
 
 </tr>
 
 `;
 
-
-
 });
 
+// ===============================
+// TEXTO PAGINACION
+// ===============================
 
+const txt =
+document.getElementById("paginaCursosTexto");
+
+if(txt){
+
+    txt.textContent =
+    `Página ${paginaCursos+1} de ${
+        Math.max(
+            1,
+            Math.ceil(cursosCache.length / CURSOS_POR_PAGINA)
+        )
+    }`;
 
 }
 
-
-
-
-
-
-
-
-
-// ===============================
+}
+    
+//================================
 // NUEVO CURSO
 // ===============================
 
@@ -3117,6 +3084,35 @@ d.getFullYear()
 
 );
 
+
+}
+
+// PAGINACION
+
+function paginaAnteriorCursos(){
+
+    if(paginaCursos>0){
+
+        paginaCursos--;
+
+        mostrarCursos();
+
+    }
+
+}
+
+function paginaSiguienteCursos(){
+
+    const maxPagina =
+    Math.ceil(cursosCache.length/CURSOS_POR_PAGINA)-1;
+
+    if(paginaCursos<maxPagina){
+
+        paginaCursos++;
+
+        mostrarCursos();
+
+    }
 
 }
 
