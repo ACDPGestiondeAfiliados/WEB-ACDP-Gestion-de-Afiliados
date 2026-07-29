@@ -1706,7 +1706,7 @@ src="./iconos/edit.png"
 </button>
 
 <button onclick="AFILIADOS.imprimirFicha('${a.id}')">
-<img src="./iconos/ficha.png">
+<img src="./iconos/print.png">
 </button>
 
 
