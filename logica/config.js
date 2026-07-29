@@ -1922,12 +1922,12 @@ const gracia = new Date(cierre);
 gracia.setDate(gracia.getDate()+7);
 
 if((c.estado || "activo")==="archivado")
-return "⚫ Archivado";
+return "&#10060; Cerrado";
 
 if(ahora>cierre)
-return "🟡 Gracia";
+return "&#9940; Inactivo";
 
-return "🟢 Activo";
+return "&#9989; Activo";
 
 }
 
