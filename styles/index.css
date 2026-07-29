@@ -608,29 +608,26 @@ margin:3px;
    (EDIT / DELETE / PRINT)
 =============================== */
 
-img[src$="./iconos/delete.png"],
-img[src$="./iconos/edit.png"],
-img[src$="./iconos/cobrar.png"],
-img[src$="./iconos/back.png"],
-img[src$="./iconos/cel.png"],
-img[src$="./iconos/columnas.png"],
-img[src$="./iconos/credencial.png"],
-img[src$="./iconos/export.png"],
-img[src$="./iconos/fecha.png"],
-img[src$="./iconos/inscripciones.png"],
-img[src$="./iconos/job.png"],
-img[src$="./iconos/mail.png"],
-img[src$="./iconos/edit.png"],
-img[src$="./iconos/provincia.png"],
-img[src$="./iconos/save.png"],
-img[src$="./iconos/print.png"]{
+img[src*="iconos/delete.png"],
+img[src*="iconos/edit.png"],
+img[src*="iconos/cobrar.png"],
+img[src*="iconos/back.png"],
+img[src*="iconos/cel.png"],
+img[src*="iconos/columnas.png"],
+img[src*="iconos/credencial.png"],
+img[src*="iconos/export.png"],
+img[src*="iconos/fecha.png"],
+img[src*="iconos/inscripciones.png"],
+img[src*="iconos/job.png"],
+img[src*="iconos/mail.png"],
+img[src*="iconos/provincia.png"],
+img[src*="iconos/save.png"],
+img[src*="iconos/print.png"]{
 
-width:20px;
-height:20px;
-
-object-fit:contain;
-
-vertical-align:middle;
+    width:28px;
+    height:28px;
+    object-fit:contain;
+    vertical-align:middle;
 
 }
 
