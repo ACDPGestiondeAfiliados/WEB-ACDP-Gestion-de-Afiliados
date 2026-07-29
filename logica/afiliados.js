@@ -1728,7 +1728,7 @@ src="./iconos/edit.png"
 
 <img
 
-src="./iconos/print.png"
+src="./iconos/credencial.png"
 
 
 >
