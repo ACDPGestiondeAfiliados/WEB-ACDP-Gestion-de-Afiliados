@@ -353,9 +353,7 @@ table{
 
 width:100%;
 
-border-collapse:separate;
-
-border-spacing:0;
+border-collapse:collapse;
 
 background:white;
 
@@ -365,6 +363,8 @@ box-shadow:
 border-radius:14px;
 
 overflow:hidden;
+
+border:1px solid #d7d7d7;
 
 }
 
@@ -380,9 +380,11 @@ color:white;
 
 padding:12px;
 
-border-bottom:2px solid #F600FF;
-
 font-weight:bold;
+
+text-align:center;
+
+border:1px solid #c94bd0;
 
 position:sticky;
 
@@ -400,9 +402,11 @@ td{
 
 padding:10px;
 
-border-bottom:1px solid #eeeeee;
+text-align:center;
 
 vertical-align:middle;
+
+border:1px solid #e2e2e2;
 
 }
 
@@ -415,8 +419,6 @@ tr:nth-child(even){
 background:#faf7fb;
 
 }
-
-
 
 tr:hover{
 
