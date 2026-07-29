@@ -797,26 +797,25 @@ function abrirCrearAfiliado(){
 abrirModal(`
 
 
-<img src="./iconos/add.png"><h3>Agregar Afiliado Nuevo</h3>
+<div style="display:flex;"><img src="./iconos/add.png"><span>Agregar Afiliado Nuevo</span></div>
 
 
 <input id="aDni" placeholder="DNI" maxlength="8" inputmode="numeric" >
-&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
 <input id="aNombre" placeholder="Nombre">
-&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
 <input id="aApellido" placeholder="Apellido">
-&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
 <input id="aCargo" placeholder="Cargo" maxlength="15"><br>
 
-<img src="./iconos/cel.png"><p>Contacto</p>&nbsp;&nbsp;
+<div style="display:flex;"><img src="./iconos/cel.png"><span>Contacto</span></div>
 <input id="aCelular" placeholder="Celular" maxlength="10">
-&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;
 <input id="aCorreo" placeholder="Correo">
-&nbsp;&nbsp;&nbsp;&nbsp;
 
 <br>
 
-<img src="./iconos/provincia.png"><p>Ubicación</p>&nbsp;&nbsp;
+<div style="display:flex;"><img src="./iconos/provincia.png"><span>Ubicación</span></div>
 <select id="aProvincia">
 ${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
 </select>
@@ -829,53 +828,33 @@ ${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
 &nbsp;&nbsp;&nbsp;&nbsp;
 <br>
 
-<img src="./iconos/fecha.png"><p>Fecha de Nacimiento</p><br>
+<div style="display:flex;"><img src="./iconos/fecha.png"><span>Fecha de Nacimiento</span></div>
 <input type="date" id="aNacimiento">
 
+<div style="display:flex;"><img src="./iconos/job.png"><span>Situación y Estado Civil</span>
+
 <br>
 
-
-<img src="./iconos/job.png"><p>Situación y Estado Civil</p>&nbsp;&nbsp;<select id="aEstadoCivil">
-
-
+<select id="aEstadoCivil">
 <option>Soltero/a</option>
-
 <option>Casado/a</option>
-
 <option>Concubino/a</option>
-
-
 </select>
 
-&nbsp;&nbsp;<select id="aEstado">
-
-
+<select id="aEstado">
 <option value="ADHERENTE">
-
 ADHERENTE
-
 </option>
-
-
 <option value="ACTIVO">
-
 ACTIVO
-
 </option>
-
-
 </select>
 
-
-
-
-<br>
-
-
+<br><br>
 
 <button id="btnGuardarAfiliado">
 
-Guardar Afiliado
+Finalizar
 
 </button>
 
