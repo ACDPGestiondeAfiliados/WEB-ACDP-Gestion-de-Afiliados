@@ -1714,8 +1714,6 @@ fila+=`
 
 src="./iconos/edit.png"
 
-class="iconoHistorial"
-
 
 >
 
@@ -1745,12 +1743,7 @@ src="./iconos/print.png"
 <button onclick="AFILIADOS.eliminarAfiliado('${a.id}')">
 
 
-<img
-
-src="./iconos/delete.png"
-
-
->
+<img src="./iconos/delete.png">
 
 
 </button>
