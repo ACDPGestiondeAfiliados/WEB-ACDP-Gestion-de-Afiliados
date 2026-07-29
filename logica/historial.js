@@ -1219,7 +1219,7 @@ if(!pagos.length){
 
 
 alert(
-"No hay pagos en ese rango"
+"No hay pagos en esa fecha"
 );
 
 
