@@ -797,41 +797,45 @@ function abrirCrearAfiliado(){
 abrirModal(`
 
 
-<h3>Agregar Afiliado Nuevo</h3>
+<img src="./iconos/add.png"><h3>Agregar Afiliado Nuevo</h3>
 
 
-
+<input id="aDni" placeholder="DNI" maxlength="8" inputmode="numeric" >
+&nbsp;&nbsp;&nbsp;&nbsp;
 <input id="aNombre" placeholder="Nombre">
 &nbsp;&nbsp;&nbsp;&nbsp;
 <input id="aApellido" placeholder="Apellido">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<input id="aDni" placeholder="DNI" maxlength="8" inputmode="numeric" >
-&nbsp;&nbsp;&nbsp;&nbsp;
+<input id="aCargo" placeholder="Cargo" maxlength="15"><br>
+
+<img src="./iconos/cel.png"><p>Contacto</p>&nbsp;&nbsp;
 <input id="aCelular" placeholder="Celular" maxlength="10">
 &nbsp;&nbsp;&nbsp;&nbsp;
 <input id="aCorreo" placeholder="Correo">
 &nbsp;&nbsp;&nbsp;&nbsp;
-<input id="aDireccion" placeholder="Dirección" maxlength="30">
-&nbsp;&nbsp;&nbsp;&nbsp;
-<input id="aCargo" placeholder="Cargo" maxlength="15">
+
 <br>
 
-<p>Provincia</p>&nbsp;&nbsp;<select id="aProvincia">
+<img src="./iconos/provincia.png"><p>Ubicación</p>&nbsp;&nbsp;
+<select id="aProvincia">
 ${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
 </select>
 
 <br>
 <input id="aLocalidad" placeholder="Localidad" maxlength="15">
-
 <br>
 
-<p>Fecha de Nacimiento</p><br>
+<input id="aDireccion" placeholder="Dirección" maxlength="30">
+&nbsp;&nbsp;&nbsp;&nbsp;
+<br>
+
+<img src="./iconos/fecha.png"><p>Fecha de Nacimiento</p><br>
 <input type="date" id="aNacimiento">
 
 <br>
 
 
-<p>Estado Civil</p>&nbsp;&nbsp;<select id="aEstadoCivil">
+<img src="./iconos/job.png"><p>Situación y Estado Civil</p>&nbsp;&nbsp;<select id="aEstadoCivil">
 
 
 <option>Soltero/a</option>
@@ -843,12 +847,7 @@ ${PROVINCIAS.map(p => `<option>${p}</option>`).join("")}
 
 </select>
 
-
-
-<br>
-
-
-<p>Situación</p>&nbsp;&nbsp;<select id="aEstado">
+&nbsp;&nbsp;<select id="aEstado">
 
 
 <option value="ADHERENTE">
