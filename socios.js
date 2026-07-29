@@ -23,6 +23,7 @@ import {
 let socioActual = null;
 let cursos = [];
 let novedades = [];
+let ultimaNotificacionActual = null;
 
 const PIN_MASTER = "2015";
 
@@ -52,6 +53,13 @@ function iniciarPortal() {
 
     // Menú
     $("btnOpciones").addEventListener("click", toggleMenu);
+
+        // Cerrar Notif (ya leido)
+    $("btnCerrarNotificacion")
+        .addEventListener(
+            "click",
+            cerrarModalNotificacion
+        );
 
     // Navegación
     document
@@ -1417,7 +1425,155 @@ function formatearFechaHoraSimple(valor){
 
 }
 
+// ======================================================
+// VERIFICAR ÚLTIMA NOTIFICACIÓN
+// ======================================================
 
+async function verificarUltimaNotificacion(){
+
+    try{
+
+        const snap =
+            await getDocs(
+
+                collection(
+                    db,
+                    "notificaciones"
+                )
+
+            );
+
+        if(snap.empty)
+            return;
+
+        let lista = [];
+
+        snap.forEach(d=>{
+
+            lista.push({
+
+                id:d.id,
+
+                ...d.data()
+
+            });
+
+        });
+
+        lista.sort((a,b)=>
+
+            new Date(b.fecha)
+            -
+            new Date(a.fecha)
+
+        );
+
+        ultimaNotificacionActual =
+            lista[0];
+
+        if(
+
+            socioActual.ultimaNotificacionLeida
+            ===
+            ultimaNotificacionActual.id
+
+        )
+
+            return;
+
+        mostrarModalNotificacion();
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Error verificando notificación:",
+            error
+        );
+
+    }
+
+}
+
+// ======================================================
+// MOSTRAR MODAL NOTIFICACIÓN
+// ======================================================
+
+function mostrarModalNotificacion(){
+
+    $("modalNotifTitulo").textContent =
+
+        ultimaNotificacionActual.titulo || "ACDP";
+
+
+
+    $("modalNotifFecha").textContent =
+
+        formatearFechaHoraSimple(
+            ultimaNotificacionActual.fecha
+        );
+
+
+
+    $("modalNotifCuerpo").textContent =
+
+        ultimaNotificacionActual.cuerpo || "";
+
+
+
+    $("modalNotificacion")
+        .classList
+        .remove("oculto");
+
+}
+
+// ======================================================
+// CERRAR MODAL NOTIFICACIÓN
+// ======================================================
+
+async function cerrarModalNotificacion(){
+
+    try{
+
+        await updateDoc(
+
+            doc(
+                db,
+                "afiliados",
+                socioActual.id
+            ),
+
+            {
+
+                ultimaNotificacionLeida:
+
+                ultimaNotificacionActual.id
+
+            }
+
+        );
+
+        socioActual.ultimaNotificacionLeida =
+
+            ultimaNotificacionActual.id;
+
+    }
+
+    catch(error){
+
+        console.error(
+            "Error guardando lectura:",
+            error
+        );
+
+    }
+
+    $("modalNotificacion")
+        .classList
+        .add("oculto");
+
+}
 
 
 // ======================================================
@@ -1608,18 +1764,15 @@ ${pagado ? "cuotaPagada" : "cuotaPendiente"}
 
 async function cargarPortalCompleto() {
 
-
     await cargarCursos();
-
 
     await cargarNovedades();
 
-
     await mostrarCuotas();
-
 
     actualizarEstadoCuotas();
 
+    await verificarUltimaNotificacion();
 
 }
 
