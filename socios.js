@@ -1433,43 +1433,18 @@ async function verificarUltimaNotificacion(){
 
     try{
 
-        const snap =
-            await getDocs(
+        if(
+            novedades.length === 0
+        )
 
-                collection(
-                    db,
-                    "notificaciones"
-                )
-
-            );
-
-        if(snap.empty)
             return;
 
-        let lista = [];
 
-        snap.forEach(d=>{
-
-            lista.push({
-
-                id:d.id,
-
-                ...d.data()
-
-            });
-
-        });
-
-        lista.sort((a,b)=>
-
-            new Date(b.fecha)
-            -
-            new Date(a.fecha)
-
-        );
 
         ultimaNotificacionActual =
-            lista[0];
+            novedades[0];
+
+
 
         if(
 
@@ -1481,6 +1456,8 @@ async function verificarUltimaNotificacion(){
 
             return;
 
+
+
         mostrarModalNotificacion();
 
     }
@@ -1488,8 +1465,11 @@ async function verificarUltimaNotificacion(){
     catch(error){
 
         console.error(
+
             "Error verificando notificación:",
+
             error
+
         );
 
     }
