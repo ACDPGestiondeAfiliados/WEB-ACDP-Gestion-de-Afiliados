@@ -300,9 +300,7 @@ HTMLPart:
 <div>
 
 <p>
-Elegiste recibir correos de ACDP.
-Si no deseas recibir más correos,
-puedes solicitar la baja.
+Eligió recibir correos de ACDP. Si no quiere seguir recibiendo estos correos, puede desuscribirse.
 </p>
 
 
@@ -323,7 +321,7 @@ ${cuerpo}
 
 
 <p>
-Gracias por formar parte de ACDP
+José Gea, Secretario General
 </p>
 
 
