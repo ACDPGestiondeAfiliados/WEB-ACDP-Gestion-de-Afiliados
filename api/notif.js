@@ -5,338 +5,130 @@
 // =====================================
 
 
-import admin from "firebase-admin";
-
-
-// ===============================
-// FIREBASE ADMIN
-// ===============================
-
-if (!admin.apps.length) {
-
-    admin.initializeApp({
-
-        credential:
-        admin.credential.cert({
-
-            projectId:
-            process.env.FIREBASE_PROJECT_ID,
-
-            clientEmail:
-            process.env.FIREBASE_CLIENT_EMAIL,
-
-            privateKey:
-            process.env.FIREBASE_PRIVATE_KEY
-            ?.replace(/\\n/g, "\n")
-
-        })
-
-    });
-
-}
-
-
-const db =
-admin.firestore();
-
-
-
-// ===============================
-// MAILJET
-// ===============================
-
-const MAILJET_API =
-process.env.MAILJET_API_KEY;
-
-
-const MAILJET_SECRET =
-process.env.MAILJET_SECRET_KEY;
-
-
-
-// ===============================
-// HANDLER
-// ===============================
-
-
-export default async function handler(req,res){
-
-
-    if(req.method !== "POST"){
-
-        return res.status(405).json({
-
-            ok:false,
-
-            error:"Método no permitido"
-
-        });
-
-    }
-
-
+export default async function handler(req, res) {
 
     try {
 
+        const API_KEY =
+            process.env.f5f35a91c8cd33c2f63f391ed474784f;
 
-        const {
-            notificacionId
-
-        } = req.body;
+        const SECRET_KEY =
+            process.env.9a315e419bd58b5f928e605972a7ad0d;
 
 
-
-        if(!notificacionId){
-
-            return res.status(400).json({
-
-                ok:false,
-
-                error:"Falta ID notificación"
-
-            });
-
-        }
+        const auth =
+        Buffer
+        .from(
+            `${API_KEY}:${SECRET_KEY}`
+        )
+        .toString("base64");
 
 
 
-        // ===============================
-        // 1) LEER NOTIFICACIÓN
-        // ===============================
+        const respuesta =
+        await fetch(
+            "https://api.mailjet.com/v3.1/send",
+            {
+
+                method:"POST",
+
+                headers:{
+                    "Authorization":
+                    `Basic ${auth}`,
+
+                    "Content-Type":
+                    "application/json"
+                },
 
 
-        const notifSnap =
-        await db
-        .collection("notificaciones")
-        .doc(notificacionId)
-        .get();
+                body:JSON.stringify({
+
+                    Messages:[{
+
+                        From:{
+                            Email:
+                            "consultas.acdp@gmail.com",
+
+                            Name:
+                            "ACDP"
+                        },
 
 
+                        To:[{
 
-        if(!notifSnap.exists){
+                            Email:
+                            "fraga.aranda@gmail.com"
 
-            return res.status(404).json({
-
-                ok:false,
-
-                error:"Notificación inexistente"
-
-            });
-
-        }
+                        }],
 
 
-
-        const notif =
-        notifSnap.data();
-
+                        Subject:
+                        "Prueba ACDP Mailjet",
 
 
-        // ===============================
-        // 2) LEER AFILIADOS
-        // ===============================
+                        HTMLPart:
+                        `
+
+                        <h2>
+                        Prueba de notificaciones ACDP
+                        </h2>
 
 
-        const afiliadosSnap =
-        await db
-        .collection("afiliados")
-        .get();
+                        <p>
+                        Si recibiste este correo,
+                        Mailjet funciona correctamente.
+                        </p>
 
 
+                        <br>
 
-        let correos = [];
+                        <p>
+                        Gracias por formar parte de ACDP
+                        </p>
 
+                        `
 
+                    }]
 
-        afiliadosSnap.forEach(doc=>{
-
-
-            const a =
-            doc.data();
-
-
-
-            if(
-                a.correo &&
-                a.estado !== "Eliminado"
-            ){
-
-                correos.push(
-                    a.correo.trim()
-                );
+                })
 
             }
+        );
 
+
+
+        const resultado =
+        await respuesta.json();
+
+
+
+        res.status(200)
+        .json({
+
+            correcto:true,
+
+            resultado
 
         });
-
-
-
-        // ===============================
-        // 3) CREAR HTML
-        // ===============================
-
-
-        const html = `
-
-        <div style="
-        font-family:Arial;
-        max-width:650px;
-        margin:auto;
-        ">
-
-
-        <p style="
-        font-size:12px;
-        color:#777;
-        ">
-
-        Elegiste recibir este mail.
-        Si no deseas recibir más correos de ACDP,
-        <a href="#">
-        CLIC AQUI
-        </a>
-
-        </p>
-
-
-        <hr>
-
-
-        <h2>
-        ${notif.titulo}
-        </h2>
-
-
-        <p>
-        ${notif.cuerpo}
-        </p>
-
-
-        <br>
-
-
-        <strong>
-        Gracias por formar parte de ACDP
-        </strong>
-
-
-        </div>
-
-        `;
-
-
-
-        // ===============================
-        // 4) ENVIAR LOTES
-        // ===============================
-
-
-        let enviados = 0;
-        let errores = 0;
-
-
-        const lote = 100;
-
-
-        for(
-            let i=0;
-            i<correos.length;
-            i+=lote
-        ){
-
-
-            const grupo =
-            correos.slice(
-                i,
-                i+lote
-            );
-
-
-
-            for(const correo of grupo){
-
-
-                try{
-
-
-                    // Aquí irá la llamada Mailjet
-
-
-                    enviados++;
-
-
-                }
-
-                catch(e){
-
-                    errores++;
-
-                }
-
-
-            }
-
-
-
-            // espera entre lotes
-
-            if(
-                i + lote < correos.length
-            ){
-
-                await new Promise(
-                    r=>setTimeout(
-                        r,
-                        60000
-                    )
-                );
-
-            }
-
-
-        }
-
-
-
-        // ===============================
-        // 5) RESPUESTA
-        // ===============================
-
-
-        return res.json({
-
-            ok:true,
-
-            total:
-            correos.length,
-
-            enviados,
-
-            errores
-
-        });
-
 
 
     }
 
-    catch(error){
 
+    catch(error){
 
         console.error(error);
 
 
-        return res.status(500).json({
+        res.status(500)
+        .json({
 
-            ok:false,
+            correcto:false,
 
             error:error.message
 
         });
 
-
     }
-
 
 }
