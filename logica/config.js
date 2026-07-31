@@ -2398,7 +2398,7 @@ return;
 
 
 
-await addDoc(
+const nuevaNotificacion = await addDoc(
 
 collection(
 db,
@@ -2407,30 +2407,70 @@ db,
 
 {
 
-
 titulo,
 
-
 cuerpo,
-
 
 fecha:
 
 new Date()
 .toISOString(),
 
-
-
 operador:
 
 window.ACDP?.usuario ||
 "Desconocido"
 
-
-
 }
 
 );
+
+// ===============================
+// ENVIO EMAILS - VERCEL
+// ===============================
+
+try {
+
+    const respuesta =
+    await fetch("/api/notif", {
+
+        method: "POST",
+
+        headers: {
+
+            "Content-Type": "application/json"
+
+        },
+
+        body: JSON.stringify({
+
+            notificacionId:
+            nuevaNotificacion.id
+
+        })
+
+    });
+
+
+    const resultado =
+    await respuesta.json();
+
+
+    console.log(
+        "Resultado envío:",
+        resultado
+    );
+
+
+}
+catch(error){
+
+    console.error(
+        "Error enviando notificación por correo:",
+        error
+    );
+
+}
 
 // ===============================
 // HISTORIAL - CREAR NOTIFICACION
