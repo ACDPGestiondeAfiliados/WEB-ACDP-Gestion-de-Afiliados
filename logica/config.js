@@ -2445,12 +2445,16 @@ await fetch(
 
         },
 
-        body: JSON.stringify({
+body: JSON.stringify({
 
-            notificacionId:
-            nuevaNotificacion.id
+titulo,
 
-        })
+cuerpo,
+
+notificacionId:
+nuevaNotificacion.id
+
+})
 
     });
 
