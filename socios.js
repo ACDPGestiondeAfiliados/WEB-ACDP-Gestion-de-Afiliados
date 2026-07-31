@@ -10,7 +10,6 @@ import {
     collection,
     getDocs,
     updateDoc,
-    deleteDoc,
     doc,
     getDoc
 } from "./firebase.js";
@@ -972,129 +971,60 @@ async function recargarDatosSocio() {
 
 async function cargarCursos() {
 
-
     cursos = [];
-
 
     const lista =
         $("listaCursosSocio");
 
-
     if (!lista)
         return;
 
-
-
-    lista.innerHTML =
-        "";
-
-
+    lista.innerHTML = "";
 
     try {
 
-
         const snap =
             await getDocs(
-
                 collection(
                     db,
                     "cursos"
                 )
-
             );
-
-
-
-        const hoy =
-            new Date()
-                .toISOString()
-                .split("T")[0];
-
-
 
         for (const item of snap.docs) {
 
-
-
             const curso = {
-
-                id:
-                    item.id,
-
+                id: item.id,
                 ...item.data()
-
             };
 
-
-
-
-            // eliminar cursos vencidos
-
-            if (
-
-                curso.fechaCierre &&
-                curso.fechaCierre < hoy
-
-            ) {
-
-
-
-                await deleteDoc(
-
-                    doc(
-                        db,
-                        "cursos",
-                        curso.id
-                    )
-
-                );
-
-
-
+            if (curso.estado !== "activo") {
                 continue;
-
             }
 
-
-
-            cursos.push(
-                curso
-            );
-
+            cursos.push(curso);
 
         }
 
-
-
-
         cursos.sort(
             (a,b)=>
-
                 new Date(a.fechaInicio)
                 -
                 new Date(b.fechaInicio)
-
         );
-
-
 
         mostrarCursos();
 
-
     }
 
-
     catch(error) {
-
 
         console.error(
             "Error cursos:",
             error
         );
 
-
-        lista.innerHTML =
-        `
+        lista.innerHTML = `
 
         <p>
         No se pudieron cargar los cursos.
@@ -1102,9 +1032,7 @@ async function cargarCursos() {
 
         `;
 
-
     }
-
 
 }
 
@@ -1139,8 +1067,7 @@ function mostrarCursos() {
         `
 
         <p>
-        No hay cursos disponibles
-        actualmente.
+        No hay cursos publicados aún.
         </p>
 
         `;
