@@ -9,11 +9,8 @@ module.exports = async function handler(req, res) {
 
     try {
 
-        const API_KEY =
-            process.env.f5f35a91c8cd33c2f63f391ed474784f;
-
-        const SECRET_KEY =
-            process.env.9a315e419bd58b5f928e605972a7ad0d;
+const API_KEY = process.env.MAILJET_API_KEY;
+const SECRET_KEY = process.env.MAILJET_SECRET_KEY;
 
 
         const auth =
