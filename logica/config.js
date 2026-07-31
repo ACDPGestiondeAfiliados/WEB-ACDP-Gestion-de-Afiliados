@@ -504,7 +504,7 @@ if(!cursoEditando){
 
     datos.fechaCreacion = new Date().toISOString();
     datos.estado = "activo";
-    datos.fechaArchivado = null;
+    datos.fechaInactivo = null;
     datos.inscriptos = 0;
     datos.disponibles = cupo;
 
@@ -572,24 +572,6 @@ return;
 
 const c =
 snap.data();
-
-
-
-
-
-
-if(
-estaBloqueado(c) &&
-ACDP.rol!=="ADMINISTRADOR"
-){
-
-alert(
-"Este curso ya fue archivado. Solo un administrador puede modificarlo."
-);
-
-return;
-
-}
 
 
 
@@ -1168,23 +1150,35 @@ inscriptos.length
 
 );
 
+let datos = {
 
+    inscriptos: inscriptos.length,
 
+    disponibles: libres
 
-await updateDoc(
+};
 
-doc(db,"cursos",id),
+if(libres <= 0){
 
-{
+    datos.estado = "inactivo";
 
-inscriptos:
-inscriptos.length,
+    if(!curso.fechaInactivo){
 
-disponibles:
-libres
+        datos.fechaInactivo = new Date().toISOString();
+
+    }
+
+}else if(new Date() < new Date(curso.fechaCierre + "T23:59:59")){
+
+    datos.estado = "activo";
+
+    datos.fechaInactivo = null;
 
 }
 
+await updateDoc(
+    doc(db,"cursos",id),
+    datos
 );
 
 
@@ -1237,19 +1231,6 @@ doc(db,"cursos",cursoID)
 const curso =
 cursoSnap.data();
 
-if(
-estaBloqueado(curso) &&
-ACDP.rol!=="ADMINISTRADOR"
-){
-
-alert(
-"Este curso está archivado. Solo un administrador puede modificar las inscripciones."
-);
-
-return;
-
-}
-
 
 if(
 
@@ -1258,7 +1239,7 @@ Number(curso.disponibles)<=0
 ){
 
 alert(
-"No hay más cupos, el curso se cerró, por favor imprima. No se pueden hacer cambios ni inscripciones nuevas"
+"No hay más cupo para este curso."
 );
 
 return;
@@ -1439,16 +1420,6 @@ const cursoSnap =
 await getDoc(doc(db,"cursos",cursoID));
 
 const curso = cursoSnap.data();
-
-if(
-    estaBloqueado(curso) &&
-    ACDP.rol!="ADMINISTRADOR"
-){
-
-    alert("Este curso está archivado. Solo un administrador puede modificar las inscripciones.");
-
-    return;
-}
 
 if(
 
@@ -1888,46 +1859,15 @@ URL.revokeObjectURL(url);
 }
 
 // ===============================
-// CONTROL TIEMPO
-// ===============================
-
-function estaBloqueado(c){
-
-if(!c.fechaCierre)
-return false;
-
-const cierre =
-new Date(
-c.fechaCierre+"T23:59:59"
-);
-
-// 7 días de gracia tras el cierre
-cierre.setDate(
-cierre.getDate()+7
-);
-
-return new Date()>=cierre;
-
-}
-
 // OBTENER ESTADO
+// ===============================
 function obtenerEstadoCurso(c){
 
-const ahora = new Date();
+    if((c.estado || "activo")==="inactivo"){
+        return "&#10060; Inactivo";
+    }
 
-const cierre = new Date(c.fechaCierre+"T23:59:59");
-
-const gracia = new Date(cierre);
-
-gracia.setDate(gracia.getDate()+7);
-
-if((c.estado || "activo")==="archivado")
-return "&#10060; Cerrado";
-
-if(ahora>cierre)
-return "&#9940; Inactivo";
-
-return "&#9989; Activo";
+    return "&#9989; Activo";
 
 }
 
@@ -1938,92 +1878,64 @@ return "&#9989; Activo";
 
 async function limpiarCursoVencido(id,c){
 
-if(!c.fechaCierre)
-return;
+    if(!c.fechaCierre)
+    return;
 
-// ===============================
-// ARCHIVAR AUTOMÁTICAMENTE
-// 7 días después del cierre
-// ===============================
+    const cierre =
+    new Date(c.fechaCierre+"T23:59:59");
 
-const archivado =
-new Date(
-c.fechaCierre+"T23:59:59"
-);
+    // Pasar automáticamente a INACTIVO
+    if(
+        new Date()>=cierre &&
+        c.estado!=="inactivo"
+    ){
 
-archivado.setDate(
-archivado.getDate()+7
-);
+        const fechaInactivo =
+        new Date().toISOString();
 
-if(
-new Date()>=archivado &&
-c.estado!=="archivado"
-){
+        await updateDoc(
+            doc(db,"cursos",id),
+            {
+                estado:"inactivo",
+                fechaInactivo
+            }
+        );
 
-await updateDoc(
-doc(db,"cursos",id),
-{
-estado:"archivado",
-fechaArchivado:new Date().toISOString()
-}
-);
+        c.estado="inactivo";
+        c.fechaInactivo=fechaInactivo;
+    }
 
-return;
+    // Eliminar luego de 2 años
+    if(
+        c.estado!=="inactivo" ||
+        !c.fechaInactivo
+    )
+    return;
 
-}
+    const eliminar =
+    new Date(c.fechaInactivo);
 
-// ===============================
-// ELIMINAR DEFINITIVAMENTE
-// 2 años después del archivado
-// ===============================
+    eliminar.setFullYear(
+        eliminar.getFullYear()+2
+    );
 
-if(
-c.estado!=="archivado" ||
-!c.fechaArchivado
-)
-return;
+    if(new Date()<eliminar)
+    return;
 
-const eliminar =
-new Date(
-c.fechaArchivado
-);
+    const ins =
+    await getDocs(
+        collection(db,"cursos",id,"inscripciones")
+    );
 
-eliminar.setFullYear(
-eliminar.getFullYear()+2
-);
+    for(const d of ins.docs){
+        await deleteDoc(d.ref);
+    }
 
-if(
-new Date()<eliminar
-)
-return;
-
-const ins =
-await getDocs(
-collection(
-db,
-"cursos",
-id,
-"inscripciones"
-)
-);
-
-for(const d of ins.docs){
-
-await deleteDoc(d.ref);
+    await deleteDoc(
+        doc(db,"cursos",id)
+    );
 
 }
-
-await deleteDoc(
-doc(db,"cursos",id)
-);
-
-}
-
-
-
-
-
-
 
 
 // ===============================
@@ -2896,17 +2808,8 @@ function iniciarContadorTiempo(curso){
 const el =
 document.getElementById("contadorTiempo");
 
-if(!el || !curso.fechaCreacion || !curso.fechaCierre)
+if(!el || !curso.fechaCierre)
 return;
-
-
-function bloquearUI(){
-
-document.querySelectorAll("#listaInscripcionesCurso button")
-.forEach(b=>b.disabled = true);
-
-}
-
 
 function actualizar(){
 
@@ -2916,52 +2819,26 @@ new Date();
 const cierre =
 new Date(curso.fechaCierre+"T23:59:59");
 
-const archivado =
-new Date(cierre);
-
-archivado.setDate(
-archivado.getDate()+7
-);
-
 if(ahora<=cierre){
 
-const diff=cierre-ahora;
+const diff =
+cierre-ahora;
 
-const dias=
+const dias =
 Math.floor(diff/86400000);
 
-const horas=
+const horas =
 Math.floor((diff%86400000)/3600000);
 
-el.textContent=
-`🟢 Abierto (${dias}d ${horas}h)`;
+el.textContent =
+`&#9989; Activo (${dias}d ${horas}h restantes)`;
 
 return;
 
 }
 
-if(ahora<archivado){
-
-const diff=archivado-ahora;
-
-const dias=
-Math.floor(diff/86400000);
-
-const horas=
-Math.floor((diff%86400000)/3600000);
-
-el.textContent=
-`🟡 Gracia (${dias}d ${horas}h)`;
-
-return;
-
-}
-
-el.textContent=
-"⚫ Archivado";
-
-if(ACDP.rol!=="ADMINISTRADOR")
-bloquearUI();
+el.textContent =
+"&#10060; Inactivo";
 
 }
 
