@@ -2432,8 +2432,10 @@ window.ACDP?.usuario ||
 
 try {
 
-    const respuesta =
-    await fetch("/api/notif", {
+const respuesta =
+await fetch(
+"https://gremioacdp.vercel.app/api/notif",
+{
 
         method: "POST",
 
