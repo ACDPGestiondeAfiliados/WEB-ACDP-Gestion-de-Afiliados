@@ -28,6 +28,8 @@ let PAGE_SIZE = 20;
 
 let PAGINA_ACTUAL = 0;
 
+let FILTRO_DUPLICADOS = null;
+
 // ===============================
 // FORMATO DE LETRAS APELLIDO Y NOMBRE
 // ===============================
@@ -403,20 +405,14 @@ document
 function bindAfiliadosUI(){
 
 
-
 const btnNuevo =
 document.getElementById(
 "btnNuevoAfiliado"
 );
 
-
-
 if(btnNuevo)
-
 btnNuevo.onclick =
 abrirCrearAfiliado;
-
-
 
 
 
@@ -429,100 +425,169 @@ document.getElementById(
 
 if(filtro){
 
-
 filtro.oninput=()=>{
 
+// Al escribir manualmente,
+// se cancela el filtro de duplicados
+FILTRO_DUPLICADOS = null;
 
 const v =
 filtro.value.trim();
 
-
-
 if(
 v.length===8 ||
 v.length===0
-)
+){
+
+PAGINA_ACTUAL=0;
 
 renderAfiliados();
 
-
+}
 
 };
-
 
 }
 
 
 
+// ===============================
+// DUPLICADOS DNI
+// ===============================
 
+const btnDni =
+document.getElementById(
+"contadorDniRepetidos"
+);
+
+if(btnDni){
+
+btnDni.onclick=()=>{
+
+FILTRO_DUPLICADOS =
+FILTRO_DUPLICADOS==="dni"
+? null
+: "dni";
+
+PAGINA_ACTUAL=0;
+
+renderAfiliados();
+
+};
+
+}
+
+
+
+// ===============================
+// DUPLICADOS CORREO
+// ===============================
+
+const btnCorreo =
+document.getElementById(
+"contadorCorreosRepetidos"
+);
+
+if(btnCorreo){
+
+btnCorreo.onclick=()=>{
+
+FILTRO_DUPLICADOS =
+FILTRO_DUPLICADOS==="correo"
+? null
+: "correo";
+
+PAGINA_ACTUAL=0;
+
+renderAfiliados();
+
+};
+
+}
+
+
+
+// ===============================
+// DUPLICADOS CELULAR
+// ===============================
+
+const btnCelular =
+document.getElementById(
+"contadorCelularesRepetidos"
+);
+
+if(btnCelular){
+
+btnCelular.onclick=()=>{
+
+FILTRO_DUPLICADOS =
+FILTRO_DUPLICADOS==="celular"
+? null
+: "celular";
+
+PAGINA_ACTUAL=0;
+
+renderAfiliados();
+
+};
+
+}
+
+
+
+// ===============================
+// PAGINACION
+// ===============================
 
 const anterior =
 document.getElementById(
 "afiliadosAnterior"
 );
 
-
-
 const siguiente =
 document.getElementById(
 "afiliadosSiguiente"
 );
 
-
-
-
 if(anterior)
-
 anterior.onclick =
 ()=>cambiarPagina(-1);
 
-
-
-
 if(siguiente)
-
 siguiente.onclick =
 ()=>cambiarPagina(1);
 
 
 
-
+// ===============================
+// COLUMNAS
+// ===============================
 
 const columnas =
 document.getElementById(
 "configColumnasAfiliados"
 );
 
-
-
 if(columnas)
-
 columnas.onclick =
 abrirSelectorColumnas;
 
 
 
-
-
+// ===============================
+// EXPORTAR
+// ===============================
 
 const exportar =
 document.getElementById(
 "exportarAfiliados"
 );
 
-
-
 if(exportar)
-
 exportar.onclick =
 abrirExportarAfiliados;
 
-
-
 }
-
-
-
 
 
 
@@ -1523,9 +1588,8 @@ document.querySelector(
 "#tablaAfiliados tbody"
 );
 
-
-
-if(!tbody)return;
+if(!tbody)
+return;
 
 
 
@@ -1545,23 +1609,97 @@ let data =
 
 
 
+// ===============================
+// FILTRO POR DUPLICADOS
+// ===============================
 
+if(FILTRO_DUPLICADOS){
+
+const mapa={};
+
+
+
+data.forEach(a=>{
+
+const valor =
+String(
+a[FILTRO_DUPLICADOS] || ""
+)
+.trim()
+.toLowerCase();
+
+
+if(!valor)
+return;
+
+
+mapa[valor] =
+(mapa[valor] || 0) + 1;
+
+});
+
+
+
+data =
+data.filter(a=>{
+
+const valor =
+String(
+a[FILTRO_DUPLICADOS] || ""
+)
+.trim()
+.toLowerCase();
+
+
+return (
+valor &&
+mapa[valor]>1
+);
+
+});
+
+}
+
+
+
+// ===============================
+// FILTRO DNI MANUAL
+// ===============================
 
 if(
 filtro.length===8 &&
 validarNumero(filtro)
 ){
 
-
 data =
-data = data.filter(a=>
+data.filter(a=>
 a.dni===filtro
 );
-
 
 }
 
 
+
+// ===============================
+// PAGINACION
+// ===============================
+
+const maxPagina =
+
+Math.max(
+
+0,
+
+Math.ceil(
+data.length / PAGE_SIZE
+)-1
+
+);
+
+
+
+if(PAGINA_ACTUAL > maxPagina)
+PAGINA_ACTUAL = maxPagina;
 
 
 
@@ -1579,8 +1717,9 @@ inicio+PAGE_SIZE
 
 
 
-
-
+// ===============================
+// COLUMNAS
+// ===============================
 
 let columnas = "";
 
@@ -1589,7 +1728,6 @@ let columnas = "";
 Object.keys(COLUMNAS)
 .forEach(c=>{
 
-
 if(
 COLUMNAS[c].mostrar
 )
@@ -1597,9 +1735,7 @@ COLUMNAS[c].mostrar
 columnas+=`
 
 <th>
-
 ${COLUMNAS[c].titulo}
-
 </th>
 
 `;
@@ -1608,10 +1744,7 @@ ${COLUMNAS[c].titulo}
 
 
 
-
 columnas += "<th>Acciones</th>";
-
-
 
 
 
@@ -1624,10 +1757,11 @@ columnas;
 
 
 
-
+// ===============================
+// FILAS
+// ===============================
 
 lista.forEach(a=>{
-
 
 
 let fila="";
@@ -1638,12 +1772,10 @@ Object.keys(COLUMNAS)
 .forEach(c=>{
 
 
-
 if(
 !COLUMNAS[c].mostrar
 )
 return;
-
 
 
 
@@ -1653,7 +1785,6 @@ a[c] || "";
 
 
 if(c==="fechaNacimiento")
-
 valor =
 a.fechaNacimiento||"";
 
@@ -1662,85 +1793,84 @@ a.fechaNacimiento||"";
 fila+=`
 
 <td>
-
 ${valor}
-
 </td>
 
 `;
-
-
 
 });
 
 
 
-
-
-
-
 fila+=`
-
 
 <td>
 
-
 <button onclick="AFILIADOS.editarAfiliado('${a.id}')">
 
-
 <img
-
 src="./iconos/edit.png"
-
-
 >
 
-
 </button>
-
 
 
 
 <button onclick="AFILIADOS.imprimir('${a.id}')">
-<img src="./iconos/credencial.png">
+
+<img
+src="./iconos/credencial.png"
+>
+
 </button>
 
+
+
 <button onclick="AFILIADOS.imprimirFicha('${a.id}')">
-<img src="./iconos/print.png">
+
+<img
+src="./iconos/print.png"
+>
+
 </button>
 
 
 
 <button onclick="AFILIADOS.eliminarAfiliado('${a.id}')">
 
-
-<img src="./iconos/delete.png">
-
+<img
+src="./iconos/delete.png"
+>
 
 </button>
 
-
 </td>
-
 
 `;
 
 
 
-
-
 tbody.innerHTML +=
-
 `<tr>${fila}</tr>`;
-
-
 
 });
 
 
 
-}
+// ===============================
+// NUMERO DE PAGINA
+// ===============================
 
+const pagina =
+document.getElementById(
+"paginaAfiliados"
+);
+
+if(pagina)
+pagina.textContent =
+PAGINA_ACTUAL + 1;
+
+}
 
 
 
