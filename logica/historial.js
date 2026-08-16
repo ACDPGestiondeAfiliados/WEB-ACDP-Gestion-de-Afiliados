@@ -215,14 +215,19 @@ fechaActual.toLocaleDateString();
 
 historialVista =
 
-CACHE_HISTORIAL.filter(h=>{
+CACHE_HISTORIAL
+.filter(h=>{
 
-
-return h.fecha===fecha;
-
+    return h.fecha===fecha;
 
 })
-.reverse();
+.sort((a,b)=>
+
+    fechaHoraHistorial(b)
+    -
+    fechaHoraHistorial(a)
+
+);
 
 
 
@@ -261,20 +266,24 @@ return;
 
 historialVista =
 
-CACHE_HISTORIAL.filter(h=>{
+CACHE_HISTORIAL
+.filter(h=>{
 
+    return (
 
-return (
+        String(h.dni)
+        .includes(valor)
 
-String(h.dni)
-.includes(valor)
-
-);
-
-
+    );
 
 })
-.reverse();
+.sort((a,b)=>
+
+    fechaHoraHistorial(b)
+    -
+    fechaHoraHistorial(a)
+
+);
 
 
 
@@ -567,8 +576,7 @@ ahora.toLocaleDateString(),
 
 
 hora:
-ahora.toLocaleTimeString()
-.slice(0,5),
+`${String(ahora.getHours()).padStart(2,"0")}:${String(ahora.getMinutes()).padStart(2,"0")}`,
 
 
 detalleHistorial:
@@ -773,7 +781,35 @@ return `${anio}-${mes}-${dia}`;
 }
 
 
+// ===============================
+// ORDEN CRONOLÓGICO HISTORIAL
+// Más recientes primero
+// ===============================
 
+function fechaHoraHistorial(h){
+
+    if(!h.fecha)
+        return 0;
+
+    const partes =
+        h.fecha.split("/");
+
+    if(partes.length !== 3)
+        return 0;
+
+    const hora =
+        String(h.hora || "00:00")
+        .split(":");
+
+    return new Date(
+        Number(partes[2]),
+        Number(partes[1]) - 1,
+        Number(partes[0]),
+        Number(hora[0] || 0),
+        Number(hora[1] || 0)
+    ).getTime();
+
+}
 
 // ===============================
 // IMPRIMIR TABLA ACTUAL
